@@ -1,10 +1,10 @@
-djangomonitcollector
+django-monit-collector
 ==============================
 
 A short description of the project.
 
 
-LICENSE: BSD
+LICENSE: Commercial
 
 Settings
 ------------
