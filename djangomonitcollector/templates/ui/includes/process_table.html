@@ -1,0 +1,26 @@
+{% load monitcollector_tags %}
+<div id="process_table" class="table-responsive">
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>name</th>
+          <th>status</th>
+          <th>uptime</th>
+          <th>children</th>
+          <th>CPU total</th>
+          <th>memory total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ process.name }}</td>
+          <td class="{{ process.status|status_class:process.monitor }}">{{ process.status|status_str:process.monitor }}</td>
+          <td>{{ process.uptime|time_str }}</td>
+          <td>{% if process.children %}{{ process.children }}{% endif %}</td>
+          <td>{{ process.cpu_percenttotal_last|percent }}</td>
+          <td>{{ process.memory_percenttotal_last|percent }} {% if process.memory_kilobytetotal %}[{{ process.memory_kilobytetotal_last|in_MB}}] {% endif %}</td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+
