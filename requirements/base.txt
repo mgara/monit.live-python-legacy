@@ -40,8 +40,8 @@ redis>=2.10.0
 
 celery==3.1.19
 
-django-mongodb-engine
-# Your custom requirements go here
 
+# Your custom requirements go here
+django-mongodb-engine
 
 
