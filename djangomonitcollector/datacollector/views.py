@@ -1,12 +1,7 @@
 from django.http import HttpResponse, HttpResponseNotAllowed
-from django.shortcuts import render, redirect
-from django.template.loader import render_to_string
-from django.core.urlresolvers import reverse
-from django.contrib.admin.views.decorators import staff_member_required
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
 from django.conf import settings
-import requests
+from django.http import JsonResponse
 
 # import the logging library
 import logging
@@ -14,7 +9,8 @@ import logging
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-from models import collect_data, Server, Process, System
+
+from models.server import collect_data
 
 monit_update_period = getattr(settings, 'MONIT_UPDATE_PERIOD', 60)
 enable_buttons = getattr(settings, 'ENABLE_BUTTONS', False)
@@ -29,8 +25,11 @@ def collector(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
     data = request.body
-
-    collected = collect_data(data)
+    f = open('workfile.xml', 'w')
+    f.write(data)
+    collected,status = collect_data(data)
     if not collected:
-        return HttpResponse('wrong data format')
-    return HttpResponse('ok')
+        response = JsonResponse({'error': status, 'status': '500'}, status = 500)
+        return response
+    return  JsonResponse({'message': '200 OK'})
+
