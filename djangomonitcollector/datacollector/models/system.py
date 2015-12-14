@@ -1,7 +1,10 @@
-from django.db import models
 import time
+
+from django.db import models
+
 from service import Service
 from utils import decode_status, get_value, json_list_append
+
 
 
 # Service type=5

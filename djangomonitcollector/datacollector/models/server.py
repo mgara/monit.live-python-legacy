@@ -1,3 +1,5 @@
+from xml.dom import minidom
+
 from django.db import models
 
 from process import Process
@@ -8,7 +10,6 @@ from platform import Platform
 from file import File
 from program import Program
 from utils import remove_old_services, get_value
-from xml.dom import minidom
 
 
 class Server(models.Model):
@@ -48,6 +49,7 @@ class Server(models.Model):
             else:
                 Process.update(xmldoc, server, service)
         remove_old_services(server, reporting_services)
+
 
 def collect_data(xml_str):
     # only ready data if it has a monit id

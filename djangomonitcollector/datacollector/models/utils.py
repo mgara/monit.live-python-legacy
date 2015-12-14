@@ -8,12 +8,8 @@ import logging
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-
 monit_update_period = getattr(settings, 'MONIT_UPDATE_PERIOD', 60)
 maximum_store_days = getattr(settings, 'MAXIMUM_STORE_DAYS', 7)
-
-
-
 
 
 def get_string(xmldoc, element, default=None):
