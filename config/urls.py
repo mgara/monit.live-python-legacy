@@ -20,7 +20,7 @@ urlpatterns = [
     url(r'^accounts/', include('allauth.urls')),
 
     # Your stuff: custom urls includes go here
-    url(r'^datacollector/', include("djangomonitcollector.datacollector.urls", namespace="datacollector")),
+    url(r'^dc/', include("djangomonitcollector.datacollector.urls", namespace="datacollector")),
     url(r'^ui/', include("djangomonitcollector.ui.urls", namespace="ui")),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -7,7 +7,9 @@ from django.http import JsonResponse
 from django.conf import settings
 import requests
 from djangomonitcollector.datacollector.models import  Server
+from django.contrib.auth.decorators import user_passes_test
 
+from djangomonitcollector.users.models import validate_user
 # import the logging library
 import logging
 
@@ -23,7 +25,7 @@ monit_port = str(getattr(settings, 'MONIT_PORT', 2812))
 
 
 
-@staff_member_required(login_url=users:login)
+@user_passes_test(validate_user, login_url='/accounts/login/')
 def dashboard(request):
     if Server.objects.all().count() > 0:
         servers = Server.objects.all().order_by('localhostname')
@@ -32,7 +34,7 @@ def dashboard(request):
         return render(request, 'ui/dashboard.html', {'server_found': False})
 
 
-@staff_member_required
+@user_passes_test(validate_user, login_url='/accounts/login/')
 def server(request, server_id):
     # time = datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
     # timedelta = (datetime.now()-load.date).total_seconds()*1000.
@@ -56,7 +58,7 @@ def server(request, server_id):
         return render(request, 'ui/dashboard.html', {'server_found': False, 'error': error_details})
 
 
-@staff_member_required
+@user_passes_test(validate_user, login_url='/accounts/login/')
 def process(request, server_id, process_name):
     try:
         server = Server.objects.get(id=server_id)
@@ -68,7 +70,7 @@ def process(request, server_id, process_name):
         return render(request, 'process.html', {'process_found': False})
 
 
-@staff_member_required
+@user_passes_test(validate_user, login_url='/accounts/login/')
 def process_action(request, server_id):
     if not request.POST:
         return HttpResponseNotAllowed(['POST'])
@@ -101,13 +103,13 @@ def process_action(request, server_id):
                        'monit_port': monit_port, 'process_name': process_name})
 
 
-@staff_member_required
+@user_passes_test(validate_user, login_url='/accounts/login/')
 def confirm_delete(request, server_id):
     server = Server.objects.get(id=server_id)
     return render(request, "monitcollector/confirm_delete.html", {"server": server})
 
 
-@staff_member_required
+@user_passes_test(validate_user, login_url='/accounts/login/')
 def delete_server(request, server_id):
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
@@ -116,7 +118,7 @@ def delete_server(request, server_id):
     return redirect(reverse('monitcollector.views.dashboard'))
 
 
-### ajax loading views ###
+# Ajax Views
 def load_dashboard_table(request):
     servers = Server.objects.all().order_by('localhostname')
     table_html = render_to_string('monitcollector/includes/dashboard_table.html', {'servers': servers})
