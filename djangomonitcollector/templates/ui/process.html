@@ -1,20 +1,15 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% load monitcollector_tags %}
+{% load extra_tags %}
 
 
 {% block additinal_nav %}
 <li><a href="{% url 'monitcollector.views.server' server.id %}"> Server </a></li>
 {% endblock %}
 
-{% block jumbotron %}
-<h1 style="font-size:50px;">
-	Process 
-</h1>
-<h3>
+<div class="alert alert-info">
 	Process {{ process.name }} has status {{ process.status }} with uptime {{ process.uptime|time_str }}
-</h3>
-{% endblock %}
+</div>
 
 {% block content %}
 {% if process_found %}
@@ -31,12 +26,12 @@
 </div>
 <div class="row clearfix marginTop">  
   <div class="col-md-12 column">
-     {% include "monitcollector/includes/process_table.html" %}
+     {% include "ui/includes/process_table.html" %}
   </div>
 </div>
 <div class="row clearfix">
 {% if enable_buttons %}
-        {% include "monitcollector/includes/process_buttons.html" %}
+        {% include "ui/includes/process_buttons.html" %}
 {% else %}
   <div class="col-md-12 column marginTop" style="text-align: center;">
     <h4> To enable start/stop buttons follow the instructions in the README file. </h4>
@@ -58,104 +53,107 @@
 <script src="{% static 'js/csrf.js'%}"></script>
 {% if process.date %}
 <script>
- $(document).ready(function () {
-      var update_period = 1000*{{monit_update_period}};
-      var data_cpu = [];
-      var dates = {{process.date}};
-      var y1 = {{process.cpu_percenttotal}};
-      for (i = 0; i < dates.length; i++)
-        data_cpu.push([new Date(dates[i]*1000.), y1[i]]);
-      var graph_cpu = new Dygraph(document.getElementById("graph_cpu"), data_cpu,
-                          {
-                              legend: 'always', // show always
-                              labelsDivWidth: '140', // default 250
-                              labelsSeparateLines: true,
-                              ylabel: 'CPU usage (in %)',
-                              xlabel: 'Time',
-                              drawPoints: true,
-                              showRangeSelector: true,
-                              //showRoller: true,  // to average over values (?)
-                              //valueRange: [0.0, 1.2],
-                              labels: ['Time', '{{process.name}} CPU usage'],
-                                                            axisLabelColor: '#CCC',
-                                                            axisLineColor: '#CCC',
-                                                            colors: ["#7FDD00"],
-                zoomCallback : function() { // (minDate, maxDate)
-                    set_linewidth(graph_cpu, data_cpu); 
-                },
-              });
-      set_linewidth(graph_cpu, data_cpu); 
-      var data_mem = [];
-      y1 = {{process.memory_percenttotal}};
-      var y2 = {{process.memory_kilobytetotal}};
-      for (i = 0; i < dates.length; i++)
-        data_mem.push([new Date(dates[i]*1000.), y1[i], y2[i]/1.e6]);
-      var graph_mem = new Dygraph(document.getElementById("graph_mem"), data_mem,
-                          {
-                              legend: 'always', // show always
-                              labelsDivWidth: '140', // default 250
-                              labelsSeparateLines: true,
-                              ylabel: 'Memonry usage (in % or GB)',
-							  xlabel: 'Time',
-                              drawPoints: true,
-                              showRangeSelector: true,
-                            //showRoller: true,  // to average over values (?)
-                            //valueRange: [0.0, 1.2],
-                            labels: ['Time', 'memory in %', 'memory in GB'],
-														axisLabelColor: '#CCC',
-														axisLineColor: '#CCC',
-														colors: ["#DAA520", "#00FFFF", "#7FDD00", "#EE5500"],
-                zoomCallback : function() { // (minDate, maxDate)
-                    set_linewidth(graph_mem, data_mem); 
-                },
-              });
-      set_linewidth(graph_mem, data_mem);
+    $(document).ready(function () {
+        var point_size = 1;
+        var stroke_width = 2;
+        var draw_point = false
+        var graph_colors = ["#173e43", "#b56969", "#22264b", "#3fb0ac"]
 
-      // It sucks that these things aren't objects, and we need to store state in window.
-      window.intervalId = setInterval(function() {
-            $.post("{% url 'monitcollector.views.load_process_data' server.id process.name %}", function(data) {
-                var date = new Date(JSON.parse(data.date)*1000.);
-                if (date>data_cpu[data_cpu.length-1][0]) {
+        var update_period = 1000 *{{monit_update_period}};
+        var data_cpu = [];
+        var dates = {{process.date}};
+        var y1 = {{process.cpu_percenttotal}};
+        for (i = 0; i < dates.length; i++)
+            data_cpu.push([new Date(dates[i] * 1000.), y1[i]]);
+        var graph_cpu = new Dygraph(document.getElementById("graph_cpu"), data_cpu,
+                {
+                    legend: 'always', // show always
+                    labelsDivWidth: '140', // default 250
+                    labelsSeparateLines: true,
+                    ylabel: 'CPU usage (in %)',
+                    xlabel: 'Time',
+                    drawPoints: draw_point,
+                    pointSize: point_size,
+                    strokeWidth: stroke_width,
+                    labels: ['Time', '{{process.name}} CPU usage'],
+                    axisLabelColor: '#CCC',
+                    axisLineColor: '#CCC',
+                    colors: graph_colors,
+                    zoomCallback: function () { // (minDate, maxDate)
+                        set_linewidth(graph_cpu, data_cpu);
+                    },
+                });
+        set_linewidth(graph_cpu, data_cpu);
+        var data_mem = [];
+        y1 = {{process.memory_percenttotal}};
+        var y2 = {{process.memory_kilobytetotal}};
+        for (i = 0; i < dates.length; i++)
+            data_mem.push([new Date(dates[i] * 1000.), y1[i], y2[i] / 1.e6]);
+        var graph_mem = new Dygraph(document.getElementById("graph_mem"), data_mem,
+                {
+                    legend: 'always', // show always
+                    labelsDivWidth: '140', // default 250
+                    labelsSeparateLines: true,
+                    ylabel: 'Memonry usage (in % or GB)',
+                    xlabel: 'Time',
+                    drawPoints: draw_point,
+                    pointSize: point_size,
+                    strokeWidth: stroke_width,
+                    labels: ['Time', 'memory in %', 'memory in GB'],
+                    axisLabelColor: '#CCC',
+                    axisLineColor: '#CCC',
+                    colors: graph_colors,
+                    zoomCallback: function () { // (minDate, maxDate)
+                        set_linewidth(graph_mem, data_mem);
+                    },
+                });
+        set_linewidth(graph_mem, data_mem);
+
+        // It sucks that these things aren't objects, and we need to store state in window.
+        window.intervalId = setInterval(function () {
+            $.post("{% url 'ui:load_process_data' server.id process.name %}", function (data) {
+                var date = new Date(JSON.parse(data.date) * 1000.);
+                if (date > data_cpu[data_cpu.length - 1][0]) {
                     data_cpu.push([date, JSON.parse(data.cpu_percenttotal)]);
-                    graph_cpu.updateOptions( { 'file': data_cpu } );
+                    graph_cpu.updateOptions({'file': data_cpu});
 
-                    data_mem.push([date, JSON.parse(data.memory_percenttotal), JSON.parse(data.memory_kilobytetotal)/1.e6]);
-                    graph_mem.updateOptions( { 'file': data_mem } );
+                    data_mem.push([date, JSON.parse(data.memory_percenttotal), JSON.parse(data.memory_kilobytetotal) / 1.e6]);
+                    graph_mem.updateOptions({'file': data_mem});
                 }
             });
-            
-      }, update_period);
-      window.intervalId = setInterval(function() {
-        $.post("{% url 'monitcollector.views.load_process_table' server.id process.name %}", function(data) {
-            $( "#process_table" ).replaceWith( data.table_html );
-        });
-      }, 2000);
-      
-    // smaller points if the data array is too big
-    function set_linewidth(graph ,data) {
-        var range = graph.xAxisRange();
-        var data_points = 0
-        for (var i = 0; i < data.length; i++) {
-          var x = data[i][0];
-          //if (x > minDate && x < maxDate)
-          if (x > range[0] && x < range[1])
-            data_points++;
+
+        }, update_period);
+        window.intervalId = setInterval(function () {
+            $.post("{% url 'ui:load_process_table' server.id process.name %}", function (data) {
+                $("#process_table").replaceWith(data.table_html);
+            });
+        }, 2000);
+
+        // smaller points if the data array is too big
+        function set_linewidth(graph, data) {
+            var range = graph.xAxisRange();
+            var data_points = 0
+            for (var i = 0; i < data.length; i++) {
+                var x = data[i][0];
+                //if (x > minDate && x < maxDate)
+                if (x > range[0] && x < range[1])
+                    data_points++;
+            }
+            var new_opts = {};
+            if (data_points > 2000) {
+                new_opts.pointSize = 0.5;
+                new_opts.strokeWidth = 0.33;
+            }
+            else if (data_points > 900) {
+                new_opts.pointSize = 1;
+                new_opts.strokeWidth = 0.5;
+            } else {
+                new_opts.pointSize = 1.5;
+                new_opts.strokeWidth = 1.;
+            }
+            graph.updateOptions(new_opts);
         }
-        var new_opts = {};
-        if (data_points > 2000) {
-            new_opts.pointSize = 0.5;
-            new_opts.strokeWidth = 0.33;
-        }
-        else if (data_points > 900) {
-            new_opts.pointSize = 1;
-            new_opts.strokeWidth = 0.5;
-        } else {
-            new_opts.pointSize = 1.5;
-            new_opts.strokeWidth = 1.;
-        }
-        graph.updateOptions(new_opts);
-    }
-});
+    });
 </script>
 {% csrf_token %}
 {% endif %}

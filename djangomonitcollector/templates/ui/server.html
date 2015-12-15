@@ -61,7 +61,7 @@
 	    data_load.push([new Date(dates[i]*1000.), y1[i], y2[i], y3[i]]);
       var graph_load = new Dygraph(document.getElementById("graph_load"), data_load,
                           {
-                            rollPeriod: 14,
+                                rollPeriod: 14,
                   			    legend: 'always', // show always
                   			    labelsDivWidth: '140', // default 250
                   			    labelsSeparateLines: true,
@@ -161,7 +161,7 @@
         $.post("{% url 'ui:load_system_table' server.id %}", function(data) {
             $( "#server_table" ).replaceWith( data.table_html );
         });
-      }, 2000);
+      }, 30000);
       
     // smaller points if the data array is too big
     function set_linewidth(graph ,data) {
