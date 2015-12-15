@@ -43,11 +43,11 @@ THIRD_PARTY_APPS = (
 
 # Apps specific for this project go here.
 LOCAL_APPS = (
-    'djangomonitcollector.users',  # custom users app
+    'djangomonitcollector.users',  # custom users ap
+    # Your stuff: custom apps go here
     'djangomonitcollector.eventshandler',
     'djangomonitcollector.datacollector',
     'djangomonitcollector.ui',
-    # Your stuff: custom apps go here
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -85,7 +85,9 @@ FIXTURE_DIRS = (
 
 # EMAIL CONFIGURATION
 # ------------------------------------------------------------------------------
-EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+#EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 # MANAGER CONFIGURATION
 # ------------------------------------------------------------------------------
