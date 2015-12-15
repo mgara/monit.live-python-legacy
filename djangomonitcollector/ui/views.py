@@ -44,7 +44,7 @@ def server(request, server_id):
         processes = server.process_set.all().order_by('name')
         nets = server.net_set.all().order_by('name')
 
-        return render(request, 'server.html', {
+        return render(request, 'ui/server.html', {
             'server_found': True,
             'server': server,
             'system': system,
@@ -96,9 +96,9 @@ def process_action(request, server_id):
                 process.monitor = 2
             process.save()
         return redirect(
-            reverse('monitcollector.views.process', kwargs={'server_id': server.id, 'process_name': process_name}))
+            reverse('ui.views.process', kwargs={'server_id': server.id, 'process_name': process_name}))
     except:
-        return render(request, 'monitcollector/error.html',
+        return render(request, 'ui/error.html',
                       {'time_out': time_out, 'monit_user': monit_user, 'ip_address': ip_address,
                        'monit_port': monit_port, 'process_name': process_name})
 
@@ -106,7 +106,7 @@ def process_action(request, server_id):
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def confirm_delete(request, server_id):
     server = Server.objects.get(id=server_id)
-    return render(request, "monitcollector/confirm_delete.html", {"server": server})
+    return render(request, "ui/confirm_delete.html", {"server": server})
 
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
@@ -115,20 +115,20 @@ def delete_server(request, server_id):
         return HttpResponseNotAllowed(['POST'])
     server = Server.objects.get(id=server_id)
     server.delete()
-    return redirect(reverse('monitcollector.views.dashboard'))
+    return redirect(reverse('ui.views.dashboard'))
 
 
 # Ajax Views
 def load_dashboard_table(request):
     servers = Server.objects.all().order_by('localhostname')
-    table_html = render_to_string('monitcollector/includes/dashboard_table.html', {'servers': servers})
+    table_html = render_to_string('ui/includes/dashboard_table.html', {'servers': servers})
     return JsonResponse({'table_html': table_html})
 
 
 def load_system_table(request, server_id):
     server = Server.objects.get(id=server_id)
     processes = server.process_set.all().order_by('name')
-    table_html = render_to_string('monitcollector/includes/server_table.html',
+    table_html = render_to_string('ui/includes/server_table.html',
                                   {'server': server, 'processes': processes})
     return JsonResponse({'table_html': table_html})
 
@@ -136,7 +136,7 @@ def load_system_table(request, server_id):
 def load_process_table(request, server_id, process_name):
     server = Server.objects.get(id=server_id)
     process = server.process_set.get(name=process_name)
-    table_html = render_to_string('monitcollector/includes/process_table.html', {'process': process})
+    table_html = render_to_string('ui/includes/process_table.html', {'process': process})
     return JsonResponse({'table_html': table_html})
 
 
@@ -144,7 +144,7 @@ def load_system_data(request, server_id):
     server = Server.objects.get(id=server_id)
     system = server.system
     processes = server.process_set.all().order_by('name')
-    table_html = render_to_string('monitcollector/includes/server_table.html',
+    table_html = render_to_string('ui/includes/server_table.html',
                                   {'server': server, 'processes': processes})
     data = {'table_html': table_html,
             'date': system.date_last,
@@ -164,7 +164,7 @@ def load_system_data(request, server_id):
 def load_process_data(request, server_id, process_name):
     server = Server.objects.get(id=server_id)
     process = server.process_set.get(name=process_name)
-    table_html = render_to_string('monitcollector/includes/process_table.html', {'process': process})
+    table_html = render_to_string('ui/includes/process_table.html', {'process': process})
     data = {'date': process.date_last, 'cpu_percenttotal': process.cpu_percenttotal_last,
             'memory_percenttotal': process.memory_percenttotal_last,
             'memory_kilobytetotal': process.memory_kilobytetotal_last}
