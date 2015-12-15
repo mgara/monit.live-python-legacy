@@ -60,6 +60,16 @@ def status_class(status, monitor):
     return 'red'
 
 @register.filter
+def status_tr_class(status, monitor):
+    if monitor == 0 and status not in ['starting...', 'stopping...', 'restarting...', 'disable monitoring...', 'enable monitoring...']:
+        return 'info'
+    if status == 'running':
+        return 'success'
+    if status in ['starting...', 'stopping...', 'restarting...']:
+        return 'warning'
+    return 'danger'
+
+@register.filter
 def in_MB(value):
     if not isinstance(value, (int, basestring)):
         return ""
