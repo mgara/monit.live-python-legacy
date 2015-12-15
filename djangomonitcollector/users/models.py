@@ -24,6 +24,8 @@ class User(AbstractUser):
         return reverse('users:detail', kwargs={'username': self.username})
 
 def validate_user(user):
+    if not user.id:
+        return False
     if user.is_customer and user.is_active:
         return True
     return False

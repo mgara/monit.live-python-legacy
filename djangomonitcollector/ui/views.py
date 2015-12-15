@@ -1,8 +1,7 @@
-from django.http import HttpResponse, HttpResponseNotAllowed
+from django.http import HttpResponseNotAllowed
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.core.urlresolvers import reverse
-from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from django.conf import settings
 import requests
@@ -63,11 +62,11 @@ def process(request, server_id, process_name):
     try:
         server = Server.objects.get(id=server_id)
         process = server.process_set.get(name=process_name)
-        return render(request, 'process.html',
-                      {'enable_buttons': enable_buttons, 'process_found': True, 'server': server, 'process': process,
+        return render(request, 'ui/process.html',
+                      {'enable_buttons': False, 'process_found': True, 'server': server, 'process': process,
                        'monit_update_period': monit_update_period})
-    except ObjectDoesNotExist:
-        return render(request, 'process.html', {'process_found': False})
+    except:
+        return render(request, 'ui/process.html', {'process_found': False})
 
 
 @user_passes_test(validate_user, login_url='/accounts/login/')

@@ -2,7 +2,7 @@
 
 {# table-striped table-condensed table-hover class="success" class="warning" class="danger"#}
 <div id="server_table" class="table-responsive">
-  <table class="table table-hover table table-striped table-bordered ">
+  <table class="table table-hover table-bordered ">
     <thead>
       <tr>
 	<th>name</th>
@@ -15,9 +15,9 @@
     </thead>
     <tbody>
       {% for process in processes %}
-	<tr class="link" onclick="document.location = '{% url 'ui:process' server.id process.name %}';">
+	<tr class="{{ process.status|status_tr_class:process.monitor }}" onclick="document.location = '{% url 'ui:process' server.id process.name %}';">
 	  <td>{{ process.name }}</td>
-	  <td class="{{ process.status|status_class:process.monitor }}">{{ process.status|status_str:process.monitor }}</td> 
+	  <td>{{ process.status|status_str:process.monitor }}</td>
 	  <td>{{ process.uptime|time_str }}</td>
 	  <td>{% if process.children %}{{ process.children }}{% endif %}</td>
 	  <td>{{ process.cpu_percenttotal_last|percent }}</td>

@@ -12,9 +12,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
+        <tr class="{{ process.status|status_tr_class:process.monitor }}">
           <td>{{ process.name }}</td>
-          <td class="{{ process.status|status_class:process.monitor }}">{{ process.status|status_str:process.monitor }}</td>
+          <td >{{ process.status|status_str:process.monitor }}</td>
           <td>{{ process.uptime|time_str }}</td>
           <td>{% if process.children %}{{ process.children }}{% endif %}</td>
           <td>{{ process.cpu_percenttotal_last|percent }}</td>
