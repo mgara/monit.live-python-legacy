@@ -1,24 +1,13 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
-{% block jumbotron %}
-<h1 style="font-size:60px;">
-	Dashboard
-</h1>
-<h3>
-	Monit Collector
-</h3>
-<p style="font-size:18px;">
-	Easy system montitoring
-</p>
-{% endblock %}
 
 {% block content %}
 <div class="row clearfix">
-	<div class="col-md-12 column">
+	<div class="column">
 	{% if server_found %}
-		<div class="col-md-12 column marginTop">
-			{% include 'monitcollector/includes/dashboard_table.html' %}
+		<div class="column marginTop">
+			{% include 'ui/includes/dashboard_table.html' %}
 		</div>
 	{% else %}
 	  <p>No servers were found in the database.</p>
@@ -33,7 +22,7 @@
 <script>
 $(document).ready(function () {
 	window.intervalId = setInterval(function() {
-	$.post("{% url 'monitcollector.views.load_dashboard_table' %}", function(data) {
+	$.post("{% url 'ui:load_dashboard_table' %}", function(data) {
 	    $( "#dashboard_table" ).replaceWith( data.table_html );
 	});
 	}, 2000);
