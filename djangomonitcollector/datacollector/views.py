@@ -30,7 +30,7 @@ def collector(request):
     if not collected:
         f = open('workfile_{0}.xml'.format(time.time()), 'w')
         f.write(data)
-
+        print status
         response = JsonResponse({'error': status, 'status': '500'}, status=500)
         return response
     return JsonResponse({'message': '200 OK'})

@@ -9,10 +9,13 @@ from django.conf import settings
 import requests
 from django.contrib.auth.decorators import user_passes_test
 
+from pytz import timezone
+import datetime
+
 from djangomonitcollector.datacollector.models import  Server
 from djangomonitcollector.datacollector.models import MemoryCPUSystemStats
 from djangomonitcollector.users.models import validate_user
-
+import pytz
 # import the logging library
 import logging
 
@@ -38,12 +41,12 @@ def dashboard(request):
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def server(request, server_id):
-    # time = datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
-    # timedelta = (datetime.now()-load.date).total_seconds()*1000.
-  #  try:
-        now = datetime.datetime.now()
+        page_header = "test"
+        tz = timezone('US/Eastern')
+        now = datetime.datetime.now().replace(tzinfo=tz)
         display_time = datetime.timedelta(hours=default_display_period)
         min_display = now - display_time
+        min_display = min_display.replace(tzinfo=tz)
 
         server = Server.objects.get(id=server_id)
         system = server.system
@@ -101,7 +104,8 @@ def server(request, server_id):
             'swap_kilobyte': swap_kilobyte,
             'processes': processes,
             'nets': nets,
-            'monit_update_period': monit_update_period
+            'monit_update_period': monit_update_period,
+            'pageheader' : page_header,
         })
 
    # except Exception  as e:
@@ -198,7 +202,7 @@ def load_system_data(request, server_id):
     table_html = render_to_string('ui/includes/server_table.html',
                                   {'server': server, 'processes': processes})
     data = {'table_html': table_html,
-            'date': system.date_last,
+            'date': datetime.datetime.fromtimestamp(system.date_last).replace(tzinfo=pytz.timezone("US/Eastern")),
             'load_avg01': system.load_avg01_last,
             'load_avg05': system.load_avg05_last,
             'load_avg15': system.load_avg15_last,

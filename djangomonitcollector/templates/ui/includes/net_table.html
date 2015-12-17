@@ -15,7 +15,7 @@
         {% for net in nets %}
             <tr>
                 <td>{{ net.name }}</td>
-                <td><span class="label label-{{ net.status|status_tr_class:net.monitor }}">{{ net.status|status_to_string:net.service_type }}</span></td>
+                <td><span class="label label-{{ net.status|status_tr_class:net.monitor }}">{{ net.status|status_to_string:net }}</span></td>
                 <td>{{ net.upload_packet_sum|format_number }} / {{ net.upload_bytes_sum|human_readable_size }}
                     / {{ upload_errors_sum|format_number }}</td>
                 <td>{{ net.download_packet_sum|format_number }} / {{ net.download_bytes_sum|human_readable_size }}

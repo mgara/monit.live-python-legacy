@@ -31,7 +31,7 @@
 
   <body>
 
-  <nav class="navbar navbar-default">
+  <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container">
           <!-- Brand and toggle get grouped for better mobile display -->
           <div class="navbar-header">
@@ -75,9 +75,17 @@
           </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
   </nav>
-
+<div class="container">
+  <div class="row">
+    <div class="filler"></div>
+  </div>
+</div>
     <div class="container">
-
+     <p class="divide-text">
+            {% block page_header %}
+            {% endblock page_header %}
+        </p>
+    
       {% if messages %}
           {% for message in messages %}
               <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
@@ -89,6 +97,11 @@
       {% endblock content %}
 
     </div> <!-- /container -->
+  <footer class="footer">
+        <div class="container">
+          <p class="text-muted">Place sticky footer content here.</p>
+        </div>
+      </footer>
 
     {% block modal %}{% endblock modal %}
 

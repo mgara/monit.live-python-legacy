@@ -2,13 +2,14 @@
 {% load staticfiles %}
 {% load extra_tags %}
 
-
-{% block content %}
-
-  <div class="alert alert-success">
+{% block page_header %}
+    <div>
   <p><p> Monit <b>{{ server.monit_version }}</b> is running on server <b>{{ server.localhostname }}</b> (IP: <b>{{ server.address }}</b>) with uptime <b>{{ server.uptime|time_str }}</b></p>
   <small><cite><p>Platform: {{ server.platform.name }}, release: {{ server.platform.release }}, version: {{ server.platform.version }}, machine: {{ server.platform.machine }}, CPU: {{ server.platform.cpu }}, {{server.platform.memory|kb_formatting }} memory, {{ server.platform.swap|kb_formatting }} swap</p></cite></small>
 </div>
+{% endblock %}
+
+{% block content %}
 
 
 <div class="row clearfix">
@@ -49,9 +50,12 @@
  $(document).ready(function () {
       var point_size = 1;
       var stroke_width = 2;
+      var rollperiod=25;
       var draw_point = false;
+      var isStacked= false;
+      var errorbars=false;
       var graph_colors = ["#173e43", "#b56969", "#22264b", "#3fb0ac"];
-      var update_period = 1000*{{monit_update_period}};
+      var update_period = 100*{{monit_update_period}};
       var data_load = [];
       var dates = {{date_last}};
       var y1 = {{load_avg01}};
@@ -61,15 +65,18 @@
 	    data_load.push([new Date(dates[i]*1000.), y1[i], y2[i], y3[i]]);
       var graph_load = new Dygraph(document.getElementById("graph_load"), data_load,
                           {
-                                rollPeriod: 14,
+
+                            rollPeriod: rollperiod,
                   			    legend: 'always', // show always
                   			    labelsDivWidth: '140', // default 250
                   			    labelsSeparateLines: true,
                   			    ylabel: 'Load average',
                   			    xlabel: 'Time',
                   			    drawPoints: draw_point,
+                            errorBars : errorbars,
                   			    pointSize: point_size,
                   			    strokeWidth: stroke_width,
+                            stackedGraph: isStacked,
                   			    //showRoller: true,  // for a rolling average over values
                   			    labels: ['Time', 'load 1 min', 'load 5 min', 'load 15 min'],
                   			    axisLabelColor: '#BBB',
@@ -90,15 +97,17 @@
         data_cpu.push([new Date(dates[i]*1000.), y1[i], y2[i], y3[i]]);
       var graph_cpu = new Dygraph(document.getElementById("graph_cpu"), data_cpu,
               {
-                  rollPeriod: 5,
+                  rollPeriod: rollperiod,
                   legend: 'always', // show always
                   labelsDivWidth: '140', // default 250
                   labelsSeparateLines: true,
                   ylabel: 'CPU usage (in %)',
                   xlabel: 'Time',
                   drawPoints: draw_point,
+                  errorBars : errorbars,
                   pointSize: point_size,
                   strokeWidth: stroke_width,
+                  stackedGraph: isStacked,
                   labels: ['Time', 'user', 'system', 'wait'],
                   axisLabelColor: '#CCC',
                   axisLineColor: '#CCC',
@@ -118,15 +127,17 @@
         data_mem.push([new Date(dates[i]*1000.), y1[i], y2[i]/1.e6, y3[i], y4[i]/1.e6]);
       var graph_mem = new Dygraph(document.getElementById("graph_mem"), data_mem,
               {
-                  rollPeriod: 5,
+                  rollPeriod:rollperiod,
                   legend: 'always', // show always
                   labelsDivWidth: '140', // default 250
                   labelsSeparateLines: true,
                   ylabel: 'Memonry usage (in % or GB)',
                   xlabel: 'Time',
+                  errorBars : errorbars,
                   drawPoints: draw_point,
                   pointSize: point_size,
                   strokeWidth: stroke_width,
+                  stackedGraph: isStacked,
                   //showRoller: true,  // to average over values (?)
                   //valueRange: [0.0, ymax],
                   labels: ['Time', 'memory in %', 'memory in GB', 'swap in %', 'swap in GB'],
@@ -140,8 +151,16 @@
       set_linewidth(graph_mem, data_mem); 
       window.intervalId = setInterval(function() {
 			$.post("{% url 'ui:load_system_data' server.id %}", function(data) {
-                var date = new Date(JSON.parse(data.date)*1000.);
-                if (date>data_cpu[data_cpu.length-1][0]) {
+                
+
+                var date_of_last_data_received = (data_cpu[data_cpu.length-1][0]).toISOString()
+                console.log(date_of_last_data_received)
+                console.log(data.date)
+                var date_of_just_received_data = new Date(JSON.parse(data.date)*1000.).toISOString();
+   
+                console.log(date_of_just_received_data)
+                if (date_of_just_received_data>date_of_last_data_received) {
+                  console.log("updating")
                     data_load.push([date, JSON.parse(data.load_avg01), JSON.parse(data.load_avg05), JSON.parse(data.load_avg15)]);
                     graph_load.updateOptions( { 'file': data_load } );
 
@@ -159,7 +178,7 @@
         $.post("{% url 'ui:load_system_table' server.id %}", function(data) {
             $( "#server_table" ).replaceWith( data.table_html );
         });
-      }, 30000);
+      }, update_period);
       
     // smaller points if the data array is too big
     function set_linewidth(graph ,data) {
