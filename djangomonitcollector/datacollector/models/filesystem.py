@@ -2,7 +2,8 @@ from django.db import models
 import time
 from service import Service
 from utils import get_value, get_float
-
+from pytz import timezone
+import datetime
 
 class FileSystem(Service):
     server = models.ForeignKey('Server')
@@ -29,7 +30,6 @@ class FileSystem(Service):
         filesystem.monitor = get_value(service, "monitor", "")
         filesystem.monitormode = get_value(service, "monitormode", "")
         filesystem.pendingaction = get_value(service, "pendingaction", "")
-
         percent_last = get_float(service, "block.percent")
         if percent_last:
             filesystem.blocks_percent_last = percent_last
@@ -38,8 +38,11 @@ class FileSystem(Service):
         filesystem.save()
 
         if percent_last :
+            colect_timestamp = int(get_value(service, "collected_sec", ""))
             FsAndDiskUsageStats.create(
                 filesystem,
+                'US/Eastern',
+                colect_timestamp,
                 filesystem.blocks_percent_last,
                 filesystem.blocks_usage_last,
                 filesystem.inode_percent_last,
@@ -48,15 +51,18 @@ class FileSystem(Service):
 
 class FsAndDiskUsageStats(models.Model):
     fs_id = models.ForeignKey('FileSystem')
-    date_last = models.DateTimeField(auto_now=True)
+    date_last = models.DateTimeField(null=False)
     blocks_percent = models.FloatField(null=True)
     blocks_usage = models.IntegerField(null=True)
     inode_percent = models.FloatField(null=True)
     inode_usage = models.IntegerField(null=True)
 
+    #'US/Eastern'
     @classmethod
-    def create(cls,fs, blocks_percent, blocks_usage, inode_percent, inode_usage):
+    def create(cls,fs,tz_str,unixtimestamp, blocks_percent, blocks_usage, inode_percent, inode_usage):
         entry = cls(fs_id=fs)
+        tz = timezone(tz_str)
+        entry.date_last= datetime.datetime.fromtimestamp(unixtimestamp).replace(tzinfo=tz)
         entry.blocks_percent = blocks_percent
         entry.blocks_usage = blocks_usage
         entry.inode_percent  = inode_percent

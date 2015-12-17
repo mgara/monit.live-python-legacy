@@ -4,7 +4,8 @@ from django.db import models
 
 from utils import get_value
 from service import Service
-
+from pytz import timezone
+import datetime
 
 class Process(Service):
     server = models.ForeignKey('Server')
@@ -36,8 +37,11 @@ class Process(Service):
             process.memory_kilobyte_last = int(get_value(service, "memory", "kilobyte"))
         process.save()
         if get_value(service, "cpu", "percent") != "none":
+            colect_timestamp = int(get_value(service, "collected_sec", ""))
             MemoryCPUProcessStats.create(
                 process,
+                'US/Eastern',
+                colect_timestamp,
                 process.cpu_percent_last,
                 process.memory_percent_last,
                 process.memory_kilobyte_last
@@ -46,14 +50,24 @@ class Process(Service):
 
 class MemoryCPUProcessStats(models.Model):
     process_id = models.ForeignKey('Process')
-    date_last = models.DateTimeField(auto_now=True)
+    date_last = models.DateTimeField()
     cpu_percent = models.FloatField(null=True)
     memory_percent = models.FloatField(null=True)
     memory_kilobyte = models.PositiveIntegerField(null=True)
 
     @classmethod
-    def create(cls, process, cpu_percent, memory_percent, memory_kilobyte):
+    def create(
+        cls, 
+        process,
+        tz_str,
+        unixtimestamp, 
+        cpu_percent, 
+        memory_percent,
+        memory_kilobyte
+        ):
         entry = cls()
+        tz = timezone(tz_str)
+        entry.date_last= datetime.datetime.fromtimestamp(unixtimestamp).replace(tzinfo=tz)
         entry.process_id = process
         entry.cpu_percent = cpu_percent
         entry.memory_kilobyte = memory_kilobyte

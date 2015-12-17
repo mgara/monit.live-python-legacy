@@ -25,7 +25,8 @@ class Server(models.Model):
     def update(cls, xmldoc, monit_id):
         reporting_services = []
         server, created = cls.objects.get_or_create(monit_id=monit_id)
-        server.monit_version = xmldoc.getElementsByTagName('monit')[0].attributes["version"].value
+        server.monit_version = xmldoc.getElementsByTagName(
+            'monit')[0].attributes["version"].value
         server.localhostname = get_value(xmldoc, "localhostname", "")
         server.uptime = get_value(xmldoc, "server", "uptime")
         server.address = get_value(xmldoc, "server", "address")
@@ -35,21 +36,21 @@ class Server(models.Model):
             service_type = get_value(service, "type", "")
             service_name = get_value(service, "", "", "name")
             reporting_services.append(service_name)
-            print "{0} {1}".format(service_name, service_type)
-            if service_type == '3':  # Process
-                Process.update(xmldoc, server, service)
-            elif service_type == '5':  # System Analysis
-                System.update(xmldoc, server, service)
-            elif service_type == '8':  # Network Card
-                Net.update(xmldoc, server, service)
-            elif service_type == '0':  # Filesystem
+
+            if service_type == '0':  # Filesystem
                 FileSystem.update(xmldoc, server, service)
-            elif service_type == '4':  # Filesystem
-                Host.update(xmldoc, server, service)
             elif service_type == '2':  # File
                 File.update(xmldoc, server, service)
+            elif service_type == '3':  # Process
+                Process.update(xmldoc, server, service)
+            elif service_type == '4':  # Host
+                Host.update(xmldoc, server, service)
+            elif service_type == '5':  # System Analysis
+                System.update(xmldoc, server, service)
             elif service_type == '7':  # Program
                 Program.update(xmldoc, server, service)
+            elif service_type == '8':  # Network Card
+                Net.update(xmldoc, server, service)
             else:
                 Process.update(xmldoc, server, service)
         remove_old_services(server, reporting_services)
@@ -59,12 +60,13 @@ def collect_data(xml_str):
     # only ready data if it has a monit id
     try:
         xmldoc = minidom.parseString(xml_str)
-        monit_id = xmldoc.getElementsByTagName('monit')[0].attributes["id"].value
+        monit_id = xmldoc.getElementsByTagName(
+            'monit')[0].attributes["id"].value
     except:
         return False, "Problem parsing the xml document"
     try:
         Server.update(xmldoc, monit_id)
     except:
         e = sys.exc_info()[0]
-        return False, "Error While updatingh the server instance: {0}".format(e)
+        return False, "Error While updating the server instance: {0}".format(e)
     return True, "Server instance Updated"

@@ -4,6 +4,8 @@ from django.db import models
 
 from service import Service
 from utils import get_value, json_list_append
+from pytz import timezone
+import datetime
 
 
 class System(Service):
@@ -46,8 +48,11 @@ class System(Service):
             system.swap_kilobyte_last = int(get_value(service, "swap", "kilobyte"))
         system.save()
         if get_value(service, "load", "avg01") != "none":
+            colect_timestamp = int(get_value(service, "collected_sec", ""))
             MemoryCPUSystemStats.create(
                 system,
+                'US/Eastern',
+                colect_timestamp,
                 system.load_avg01_last,
                 system.load_avg05_last,
                 system.load_avg15_last,
@@ -62,7 +67,7 @@ class System(Service):
 
 class MemoryCPUSystemStats(models.Model):
     system_id = models.ForeignKey('System')
-    date_last = models.DateTimeField(auto_now=True)
+    date_last = models.DateTimeField()
     load_avg01 = models.FloatField(null=True)
     load_avg05 = models.FloatField(null=True)
     load_avg15 = models.FloatField(null=True)
@@ -77,6 +82,8 @@ class MemoryCPUSystemStats(models.Model):
     @classmethod
     def create(cls,
                system,
+               tz_str,
+               unixtimestamp,
                load_avg01,
                load_avg05,
                load_avg15,
@@ -89,6 +96,8 @@ class MemoryCPUSystemStats(models.Model):
                swap_kilobyte
                ):
         entry = cls(system_id=system)
+        tz = timezone(tz_str)
+        entry.date_last= datetime.datetime.fromtimestamp(unixtimestamp).replace(tzinfo=tz)
         entry.load_avg01 = load_avg01
         entry.load_avg05 = load_avg05
         entry.load_avg15 = load_avg15
