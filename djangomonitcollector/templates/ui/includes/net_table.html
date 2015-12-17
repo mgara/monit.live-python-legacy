@@ -2,25 +2,27 @@
 
 {# table-striped table-condensed table-hover class="success" class="warning" class="danger"#}
 <div id="server_table" class="table-responsive">
-  <table class="table table-hover table-striped table-bordered">
-    <thead>
-    <tr>
-        <th>name</th>
-        <th>status</th>
-        <th>upload</th>
-        <th>download</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for net in nets %}
-	<tr >
-	  <td>{{ net.name }}</td>
-	  <td class="{{ net.status|status_class:net.monitor }}">{{ net.status|status_str:net.monitor }}</td>
-        <td></td>
-        <td></td>
-	</tr>
-      
-      {% endfor%}
-    </tbody>
-  </table>
+    <table class="table table-hover table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>name</th>
+            <th>status</th>
+            <th>upload(Packets/Bytes/Errors)</th>
+            <th>download(Packets/Bytes/Errors)</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for net in nets %}
+            <tr>
+                <td>{{ net.name }}</td>
+                <td><span class="label label-{{ net.status|status_tr_class:net.monitor }}">{{ net.status|status_to_string:net.service_type }}</span></td>
+                <td>{{ net.upload_packet_sum|format_number }} / {{ net.upload_bytes_sum|human_readable_size }}
+                    / {{ upload_errors_sum|format_number }}</td>
+                <td>{{ net.download_packet_sum|format_number }} / {{ net.download_bytes_sum|human_readable_size }}
+                    / {{ download_errors_sum|format_number }}</td>
+            </tr>
+
+        {% endfor %}
+        </tbody>
+    </table>
 </div>

@@ -56,8 +56,8 @@
     $(document).ready(function () {
         var point_size = 1;
         var stroke_width = 2;
-        var draw_point = false
-        var graph_colors = ["#173e43", "#b56969", "#22264b", "#3fb0ac"]
+        var draw_point = false;
+        var graph_colors = ["#173e43", "#b56969", "#22264b", "#3fb0ac"];
 
         var update_period = 1000 *{{monit_update_period}};
         var data_cpu = [];
@@ -132,7 +132,7 @@
         // smaller points if the data array is too big
         function set_linewidth(graph, data) {
             var range = graph.xAxisRange();
-            var data_points = 0
+            var data_points = 0;
             for (var i = 0; i < data.length; i++) {
                 var x = data[i][0];
                 //if (x > minDate && x < maxDate)

@@ -2,7 +2,7 @@
 
 {# table-striped table-condensed table-hover class="success" class="warning" class="danger"#}
 <div id="server_table" class="table-responsive">
-  <table class="table table-hover table-bordered ">
+  <table class="table table-hover table-striped table-bordered ">
     <thead>
       <tr>
 	<th>name</th>
@@ -15,15 +15,14 @@
     </thead>
     <tbody>
       {% for process in processes %}
-	<tr class="{{ process.status|status_tr_class:process.monitor }}" onclick="document.location = '{% url 'ui:process' server.id process.name %}';">
-	  <td>{{ process.name }}</td>
-	  <td>{{ process.status|status_str:process.monitor }}</td>
-	  <td>{{ process.uptime|time_str }}</td>
-	  <td>{% if process.children %}{{ process.children }}{% endif %}</td>
-	  <td>{{ process.cpu_percenttotal_last|percent }}</td>
-	  <td>{{ process.memory_percenttotal_last|percent }} {% if process.memory_kilobytetotal %}[{{ process.memory_kilobytetotal_last|in_MB}}] {% endif %}</td>
-	</tr>
-      
+          <tr onclick="document.location = '{% url 'ui:process' server.id process.name %}';">
+              <td>{{ process.name }}</td>
+              <td ><span class="label label-{{ process.status|status_tr_class:process.monitor }}">{{ process.status|status_to_string:process.service_type }}</span></td>
+              <td>{{ process.uptime|time_str }}</td>
+              <td>{% if process.children %}{{ process.children|format_number }}{% endif %}</td>
+              <td>{{ process.cpu_percent_last|percent }}</td>
+              <td>{{ process.memory_percent_last|percent }} {% if process.memory_kilobyte_last %}[{{ process.memory_kilobyte_last|human_readable_size}}] {% endif %}</td>
+          </tr>
       {% endfor%}
     </tbody>
   </table>
