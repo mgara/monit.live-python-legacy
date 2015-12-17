@@ -8,8 +8,10 @@ from net import Net
 from filesystem import FileSystem
 from platform import Platform
 from file import File
+from url import Host
 from program import Program
 from utils import remove_old_services, get_value
+import sys
 
 
 class Server(models.Model):
@@ -42,9 +44,11 @@ class Server(models.Model):
                 Net.update(xmldoc, server, service)
             elif service_type == '0':  # Filesystem
                 FileSystem.update(xmldoc, server, service)
+            elif service_type == '4':  # Filesystem
+                Host.update(xmldoc, server, service)
             elif service_type == '2':  # File
                 File.update(xmldoc, server, service)
-            elif service_type == '7':  # Url
+            elif service_type == '7':  # Program
                 Program.update(xmldoc, server, service)
             else:
                 Process.update(xmldoc, server, service)
@@ -61,5 +65,6 @@ def collect_data(xml_str):
     try:
         Server.update(xmldoc, monit_id)
     except:
-        return False, "Error While updatingh the server instance"
+        e = sys.exc_info()[0]
+        return False, "Error While updatingh the server instance: {0}".format(e)
     return True, "Server instance Updated"

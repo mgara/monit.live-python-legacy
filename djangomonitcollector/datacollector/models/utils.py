@@ -30,6 +30,13 @@ def get_int(xmldoc, element, default=None):
     return ret
 
 
+def get_float(xmldoc, element, default=None):
+    ret = get_string(xmldoc, element, default)
+    if ret:
+        return float(ret)
+    return ret
+
+
 def get_value(xmldoc, parent_element="", child_element="", attribute=""):
     try:
         if parent_element == "" and attribute == "":
@@ -72,48 +79,3 @@ def remove_old_services(server, service_list):
     for process in processes:
         if process.name not in service_list:
             process.delete()
-
-
-"""
-from the monit source code (monit/contrib/wap.php):
-//For conversion of status codes to text
-$event[0] = 'OK';
-$event[1] = 'Checksum failed';
-$event[2] = 'Resource limit matched';
-$event[4] = 'Timeout';
-$event[8] = 'Timestamp failed';
-$event[16] = 'Size failed';
-$event[32] = 'Connection failed';
-$event[64] = 'Permission failed';
-$event[128] = 'UID failed';
-$event[256] = 'GID failed';
-$event[512] = 'Does not exist';
-$event[1024] = 'Invalid type';
-$event[2048] = 'Data access error';
-$event[4096] = 'Execution failed';
-$event[8192] = 'Changed';
-$event[16384] = 'ICMP failed';
-$monitored[0] = 'No';
-$monitored[1] = 'Yes';
-$monitored[2] = 'Init';
-"""
-
-
-def decode_status(status, type=0):
-    errors_messages = ['Ok', 'Checksum failed', 'Resource limit matched', 'Timeout', 'Timestamp failed', 'Size failed',
-                       'Connection failed', 'Permission failed', 'UID failed', 'GID failed', 'Does not exist',
-                       'Invalid type', 'Data access error', 'Execution failed', 'Changed', 'ICMP failed']
-    # choice_monitor = ['No', 'Yes', 'Init']
-    # format to a bitarray
-    bits = '{0:015b}'.format(status)
-    out_str = ''
-    ok = True
-    for i in range(len(bits)):
-        if bits[i] == "1":
-            if not ok:
-                out_str += ", "
-            out_str += errors_messages[-i - 1]
-            ok = False
-    if ok:
-        return "running"
-    return out_str

@@ -3,8 +3,8 @@ from django.db import models
 
 # Service
 class Service(models.Model):
-    # not unique since there could be multiple server with service 'nginx', etc.
     name = models.TextField()
+    service_type = models.PositiveIntegerField(null=True)
     status = models.TextField(null=True)
     status_hint = models.IntegerField(null=True)
     monitor = models.IntegerField(null=True)

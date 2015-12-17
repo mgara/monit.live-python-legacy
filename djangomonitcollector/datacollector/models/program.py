@@ -1,6 +1,6 @@
 from django.db import models
 
-from utils import decode_status, get_value, get_int, get_string
+from utils import get_value, get_int, get_string
 from service import Service
 
 
@@ -15,7 +15,8 @@ class Program(Service):
     def update(cls, xmldoc, server, service):
         service_name = get_value(service, "", "", "name")
         program, created = cls.objects.get_or_create(server=server, name=service_name)
-        program.status = decode_status(int(get_value(service, "status", "")))
+        program.status = get_value(service, "status", "")
+        program.service_type = get_value(service, "type", "")
         program.status_hint = get_value(service, "status_hint", "")
         program.monitor = get_value(service, "monitor", "")
         program.monitormode = get_value(service, "monitormode", "")

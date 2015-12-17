@@ -1,12 +1,25 @@
 from file import File
-from filesystem import FileSystem
-from net import Net
+from filesystem import FileSystem, FsAndDiskUsageStats
+from net import Net,NetStats
 from platform import Platform
-from process import Process
+from process import Process, MemoryCPUProcessStats
 from program import Program
 from server import Server
 from service import Service
-from system import System
-from url import URL
+from system import System, MemoryCPUSystemStats
+from url import Host
 
-__all__ = ['File', 'FileSystem', 'Net', 'Platform', 'Process', 'Program', 'Server', 'Service', 'System', 'URL']
+__all__ = ['File',
+           'FileSystem',
+           'Net',
+           'Platform',
+           'Process',
+           'Program',
+           'Server',
+           'Service',
+           'System',
+           'Host',
+           'FsAndDiskUsageStats',
+           'MemoryCPUProcessStats',
+           'MemoryCPUSystemStats'
+           ]
