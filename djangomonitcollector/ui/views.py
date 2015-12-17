@@ -1,3 +1,5 @@
+import datetime
+import time
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
@@ -5,23 +7,24 @@ from django.core.urlresolvers import reverse
 from django.http import JsonResponse
 from django.conf import settings
 import requests
-from djangomonitcollector.datacollector.models import  Server
 from django.contrib.auth.decorators import user_passes_test
 
+from djangomonitcollector.datacollector.models import  Server
+from djangomonitcollector.datacollector.models import MemoryCPUSystemStats
 from djangomonitcollector.users.models import validate_user
+
 # import the logging library
 import logging
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-
 monit_update_period = getattr(settings, 'MONIT_UPDATE_PERIOD', 60)
 enable_buttons = getattr(settings, 'ENABLE_BUTTONS', False)
 monit_user = getattr(settings, 'MONIT_USER', "")
 monit_password = getattr(settings, 'MONIT_PASSWORD', "")
 monit_port = str(getattr(settings, 'MONIT_PORT', 2812))
-
+default_display_period = int(getattr(settings, 'DISPLAY_PERIOD', 4))  # four_hours
 
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
@@ -37,9 +40,47 @@ def dashboard(request):
 def server(request, server_id):
     # time = datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
     # timedelta = (datetime.now()-load.date).total_seconds()*1000.
-    try:
+  #  try:
+        now = datetime.datetime.now()
+        display_time = datetime.timedelta(hours=default_display_period)
+        min_display = now - display_time
+
         server = Server.objects.get(id=server_id)
         system = server.system
+        system_resources = MemoryCPUSystemStats.objects.filter(
+            date_last__gt=min_display,
+            date_last__lt=now,
+            system_id=system
+        )
+        system_resources_list = list(system_resources)
+
+        date_last = []
+        load_avg01 = []
+        load_avg05 = []
+        load_avg15 = []
+        cpu_user = []
+        cpu_system = []
+        cpu_wait = []
+        memory_percent = []
+        memory_kilobyte = []
+        swap_percent = []
+        swap_kilobyte = []
+
+        for resources_at_some_time in system_resources_list:
+            date_last.append(str(time.mktime(resources_at_some_time.date_last.replace(tzinfo=None).timetuple())))
+            load_avg01.append(resources_at_some_time.load_avg01)
+            load_avg05.append(resources_at_some_time.load_avg05)
+            load_avg15.append(resources_at_some_time.load_avg15)
+            cpu_user.append(resources_at_some_time.cpu_user)
+            cpu_system.append(resources_at_some_time.cpu_system)
+            cpu_wait.append(resources_at_some_time.cpu_wait)
+            memory_percent.append(resources_at_some_time.memory_percent)
+            memory_kilobyte.append(resources_at_some_time.memory_kilobyte)
+            swap_percent.append(resources_at_some_time.swap_percent)
+            swap_kilobyte.append(resources_at_some_time.swap_kilobyte)
+
+        date_last="[{0}]".format(",".join(date_last))
+
         processes = server.process_set.all().order_by('name')
         nets = server.net_set.all().order_by('name')
 
@@ -47,14 +88,25 @@ def server(request, server_id):
             'server_found': True,
             'server': server,
             'system': system,
+            'date_last': date_last,
+            'load_avg01': load_avg01,
+            'load_avg05': load_avg05,
+            'load_avg15': load_avg15,
+            'cpu_user': cpu_user,
+            'cpu_system': cpu_system,
+            'cpu_wait': cpu_wait,
+            'memory_percent': memory_percent,
+            'memory_kilobyte': memory_kilobyte,
+            'swap_percent': swap_percent,
+            'swap_kilobyte': swap_kilobyte,
             'processes': processes,
             'nets': nets,
             'monit_update_period': monit_update_period
         })
 
-    except Exception  as e:
-        error_details = e.message
-        return render(request, 'ui/dashboard.html', {'server_found': False, 'error': error_details})
+   # except Exception  as e:
+   #     error_details = e.message
+   #     return render(request, 'ui/dashboard.html', {'server_found': False, 'error': error_details})
 
 
 @user_passes_test(validate_user, login_url='/accounts/login/')

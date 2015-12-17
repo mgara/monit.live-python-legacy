@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseNotAllowed
+from django.http import HttpResponseNotAllowed
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.http import JsonResponse
@@ -8,7 +8,7 @@ import logging
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
-
+import time
 
 from models.server import collect_data
 
@@ -25,11 +25,12 @@ def collector(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
     data = request.body
-    f = open('workfile.xml', 'w')
-    f.write(data)
-    collected,status = collect_data(data)
-    if not collected:
-        response = JsonResponse({'error': status, 'status': '500'}, status = 500)
-        return response
-    return  JsonResponse({'message': '200 OK'})
 
+    collected, status = collect_data(data)
+    if not collected:
+        f = open('workfile_{0}.xml'.format(time.time()), 'w')
+        f.write(data)
+
+        response = JsonResponse({'error': status, 'status': '500'}, status=500)
+        return response
+    return JsonResponse({'message': '200 OK'})
