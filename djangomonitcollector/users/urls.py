@@ -6,6 +6,13 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
+
+    url(
+        regex=r'newck/$',
+        view = views.new_collector_key,
+        name='new_collector_key'
+    ),
+
     # URL pattern for the UserListView
     url(
         regex=r'^$',
@@ -33,4 +40,6 @@ urlpatterns = [
         view=views.UserUpdateView.as_view(),
         name='update'
     ),
+
+
 ]

@@ -3,10 +3,10 @@ from __future__ import absolute_import, unicode_literals
 
 from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
-
 from braces.views import LoginRequiredMixin
-
-from .models import User
+from django.http import JsonResponse
+import uuid
+from .models import User,CollectorKey
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
@@ -25,8 +25,7 @@ class UserRedirectView(LoginRequiredMixin, RedirectView):
 
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
-
-    fields = ['name', ]
+    fields = ['name', 'bootstrap_theme', 'dygraph_color_palette']
 
     # we already imported User in the view code above, remember?
     model = User
@@ -46,3 +45,37 @@ class UserListView(LoginRequiredMixin, ListView):
     # These next two lines tell the view to index lookups by username
     slug_field = "username"
     slug_url_kwarg = "username"
+
+
+def new_collector_key(request):
+    user_id = request.user.id
+    create = request.POST['create']
+    if create in  ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']:
+        create = True
+    try:
+        user = User.objects.get(pk=user_id)
+
+        if create==True:
+            user.collectorkey_set.all().delete()
+            CollectorKey.create(uuid.uuid4(),user)
+        html = ""
+        user_keys = user.collectorkey_set.all()
+        for ck in list(user_keys):
+            html +=build_collector_key_view(ck)
+
+        res = {
+            'data': html,
+        }
+
+    except StandardError as e:
+        res = {
+            'error': e.message,
+            'error_id': 1
+        }
+    return JsonResponse(res)
+
+def build_collector_key_view(ck):
+    res = ' <li class="list-group-item">\
+    {0}</li>'.format(ck.collector_key)
+    return res
+

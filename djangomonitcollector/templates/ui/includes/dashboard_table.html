@@ -12,6 +12,9 @@
 				<th>CPU (user)</th>
 				<th>Memory</th>
 				<th>Last data received</th>
+                <th>Alerts</th>
+                <th>Processes</th>
+                <th>Settings</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -25,6 +28,9 @@
 					<td>{{ server.system.cpu_user_last }}%</td>
 					<td>{{ server.system.memory_percent_last }}% [{{ server.system.memory_kilobyte_last|kb_formatting }}]</td>
 					<td ><span class="label label-{{ server.system.date_last|time_class }}">{{ server.system.date_last|timestamp_to_date }}</span></td>
+                    <td></td>
+                    <td></td>
+                    <td><a class="btn btn-xs btn-primary" href="{% url 'ui:server_show' server.id %}">View</a></td>
 				</tr>
 			
 			{% endfor%}
