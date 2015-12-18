@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ object.localhostname }}{% endblock %}
+
+{% block content %}
+    <h1>{{ object.localhostname }}</h1>
+    <form class="form-horizontal" method="post" action="{% url 'ui:server_update' object.id %}">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn">Update</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}

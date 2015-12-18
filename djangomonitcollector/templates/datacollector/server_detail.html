@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+{% load extra_tags %}
+
+{% block title %}Server: {{ object.localhostname }}{% endblock %}
+
+{% block content %}
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-12">
+
+                <h2>{{ object.localhostname }}</h2>
+                {% if object.address %}
+                    <p><span class="text-uppercase"> IP Address :  </span> <span
+                            class="lead">{{ object.address }}</span></p>
+                {% endif %}
+                {% if object.monit_id %}
+                    <p><span class="text-uppercase"> Monit ID : </span> <span class="lead"> {{ object.monit_id }}</span>
+                    </p>
+                {% endif %}
+                {% if object.address %}
+                    <p><span class="text-uppercase"> UP Time :  </span> <span
+                            class="lead">{{ object.uptime|time_str }}</span></p>
+                {% endif %}
+                {% if object.http_address %}
+                    <p><span class="text-uppercase"> HTTP Address : </span> <span
+                            class="lead"> {{ object.http_address }}</span></p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <h3>Monit Parameters</h3>
+                {% if object.http_username %}
+                    <p><span class="text-uppercase"> Monit Username : </span> <span
+                            class="lead"> {{ object.http_username }}</span></p>
+                {% endif %}
+                {% if object.http_password %}
+                    <p><span class="text-uppercase"> Monit Password : </span> <span
+                            class="lead">{{ object.http_password }}</span></p>
+                {% endif %}
+                {% if object.monit_update_period %}
+                    <p><span class="text-uppercase"> Monit Update Period : </span> <span
+                            class="lead"> {{ object.monit_update_period }}</span></p>
+                {% endif %}
+                {% if object.data_timezone %}
+                    <p><span class="text-uppercase"> TimeZone : </span> <span
+                            class="lead"> {{ object.data_timezone }}</span></p>
+                {% endif %}
+
+                    <p><span class="text-uppercase"> New Server :  </span> <span class="lead">{{ object.is_new }}</span>
+                    </p>
+
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-sm-12 ">
+                <a class="btn btn-primary" href="{% url 'ui:server_update' object.id %}">Update</a>
+            </div>
+        </div>
+
+    </div>
+{% endblock content %}
+
+
+
