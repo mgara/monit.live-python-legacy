@@ -15,6 +15,16 @@ urlpatterns = [
         name='dashboard'
     ),
     url(
+        regex=r'^server/update/(?P<pk>\d+)/$',
+        view=views.ServerUpdateView.as_view(),
+        name='server_update'
+    ),
+    url(
+        regex=r'^server/show/(?P<pk>\d+)/$',
+        view=views.ServerShowView.as_view(),
+        name='server_show'
+    ),
+    url(
         regex=r'^server/(?P<server_id>\d+)/$',
         view=views.server,
         name='server'    

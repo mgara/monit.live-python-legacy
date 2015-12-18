@@ -1,5 +1,6 @@
-import datetime
 import time
+import datetime
+
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
@@ -8,14 +9,17 @@ from django.http import JsonResponse
 from django.conf import settings
 import requests
 from django.contrib.auth.decorators import user_passes_test
+from django.views.generic import DetailView, ListView, RedirectView, UpdateView
+from braces.views import LoginRequiredMixin
 
 from pytz import timezone
-import datetime
+import pytz
 
 from djangomonitcollector.datacollector.models import  Server
 from djangomonitcollector.datacollector.models import MemoryCPUSystemStats
 from djangomonitcollector.users.models import validate_user
-import pytz
+
+
 # import the logging library
 import logging
 
@@ -41,76 +45,76 @@ def dashboard(request):
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def server(request, server_id):
-        page_header = "test"
-        tz = timezone('US/Eastern')
-        now = datetime.datetime.now().replace(tzinfo=tz)
-        display_time = datetime.timedelta(hours=default_display_period)
-        min_display = now - display_time
-        min_display = min_display.replace(tzinfo=tz)
+    page_header = "test"
+    tz = timezone('US/Eastern')
+    now = datetime.datetime.now().replace(tzinfo=tz)
+    display_time = datetime.timedelta(hours=default_display_period)
+    min_display = now - display_time
+    min_display = min_display.replace(tzinfo=tz)
 
-        server = Server.objects.get(id=server_id)
-        system = server.system
-        system_resources = MemoryCPUSystemStats.objects.filter(
-            date_last__gt=min_display,
-            date_last__lt=now,
-            system_id=system
-        )
-        system_resources_list = list(system_resources)
+    server = Server.objects.get(id=server_id)
+    system = server.system
+    system_resources = MemoryCPUSystemStats.objects.filter(
+        date_last__gt=min_display,
+        date_last__lt=now,
+        system_id=system
+    )
+    system_resources_list = list(system_resources)
 
-        date_last = []
-        load_avg01 = []
-        load_avg05 = []
-        load_avg15 = []
-        cpu_user = []
-        cpu_system = []
-        cpu_wait = []
-        memory_percent = []
-        memory_kilobyte = []
-        swap_percent = []
-        swap_kilobyte = []
+    date_last = []
+    load_avg01 = []
+    load_avg05 = []
+    load_avg15 = []
+    cpu_user = []
+    cpu_system = []
+    cpu_wait = []
+    memory_percent = []
+    memory_kilobyte = []
+    swap_percent = []
+    swap_kilobyte = []
 
-        for resources_at_some_time in system_resources_list:
-            date_last.append(str(time.mktime(resources_at_some_time.date_last.replace(tzinfo=None).timetuple())))
-            load_avg01.append(resources_at_some_time.load_avg01)
-            load_avg05.append(resources_at_some_time.load_avg05)
-            load_avg15.append(resources_at_some_time.load_avg15)
-            cpu_user.append(resources_at_some_time.cpu_user)
-            cpu_system.append(resources_at_some_time.cpu_system)
-            cpu_wait.append(resources_at_some_time.cpu_wait)
-            memory_percent.append(resources_at_some_time.memory_percent)
-            memory_kilobyte.append(resources_at_some_time.memory_kilobyte)
-            swap_percent.append(resources_at_some_time.swap_percent)
-            swap_kilobyte.append(resources_at_some_time.swap_kilobyte)
+    for resources_at_some_time in system_resources_list:
+        date_last.append(str(time.mktime(resources_at_some_time.date_last.replace(tzinfo=None).timetuple())))
+        load_avg01.append(resources_at_some_time.load_avg01)
+        load_avg05.append(resources_at_some_time.load_avg05)
+        load_avg15.append(resources_at_some_time.load_avg15)
+        cpu_user.append(resources_at_some_time.cpu_user)
+        cpu_system.append(resources_at_some_time.cpu_system)
+        cpu_wait.append(resources_at_some_time.cpu_wait)
+        memory_percent.append(resources_at_some_time.memory_percent)
+        memory_kilobyte.append(resources_at_some_time.memory_kilobyte)
+        swap_percent.append(resources_at_some_time.swap_percent)
+        swap_kilobyte.append(resources_at_some_time.swap_kilobyte)
 
-        date_last="[{0}]".format(",".join(date_last))
+    date_last = "[{0}]".format(",".join(date_last))
 
-        processes = server.process_set.all().order_by('name')
-        nets = server.net_set.all().order_by('name')
+    processes = server.process_set.all().order_by('name')
+    nets = server.net_set.all().order_by('name')
 
-        return render(request, 'ui/server.html', {
-            'server_found': True,
-            'server': server,
-            'system': system,
-            'date_last': date_last,
-            'load_avg01': load_avg01,
-            'load_avg05': load_avg05,
-            'load_avg15': load_avg15,
-            'cpu_user': cpu_user,
-            'cpu_system': cpu_system,
-            'cpu_wait': cpu_wait,
-            'memory_percent': memory_percent,
-            'memory_kilobyte': memory_kilobyte,
-            'swap_percent': swap_percent,
-            'swap_kilobyte': swap_kilobyte,
-            'processes': processes,
-            'nets': nets,
-            'monit_update_period': monit_update_period,
-            'pageheader' : page_header,
-        })
+    return render(request, 'ui/server.html', {
+        'server_found': True,
+        'server': server,
+        'system': system,
+        'date_last': date_last,
+        'load_avg01': load_avg01,
+        'load_avg05': load_avg05,
+        'load_avg15': load_avg15,
+        'cpu_user': cpu_user,
+        'cpu_system': cpu_system,
+        'cpu_wait': cpu_wait,
+        'memory_percent': memory_percent,
+        'memory_kilobyte': memory_kilobyte,
+        'swap_percent': swap_percent,
+        'swap_kilobyte': swap_kilobyte,
+        'processes': processes,
+        'nets': nets,
+        'monit_update_period': monit_update_period,
+        'pageheader': page_header,
+    })
 
-   # except Exception  as e:
-   #     error_details = e.message
-   #     return render(request, 'ui/dashboard.html', {'server_found': False, 'error': error_details})
+    # except Exception  as e:
+    #     error_details = e.message
+    #     return render(request, 'ui/dashboard.html', {'server_found': False, 'error': error_details})
 
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
@@ -224,3 +228,18 @@ def load_process_data(request, server_id, process_name):
             'memory_percenttotal': process.memory_percenttotal_last,
             'memory_kilobytetotal': process.memory_kilobytetotal_last}
     return JsonResponse(data)
+
+
+class ServerShowView(LoginRequiredMixin, DetailView):
+    model = Server
+
+
+class ServerUpdateView(LoginRequiredMixin, UpdateView):
+    fields = ['http_address', 'http_username', 'http_password','monit_update_period','data_timezone','is_new']
+    model = Server
+
+    def get_success_url(self):
+        server_id = self.kwargs['pk']
+        return reverse("ui:server_show",
+                       kwargs={"pk": server_id})
+
