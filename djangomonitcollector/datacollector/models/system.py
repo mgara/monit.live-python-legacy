@@ -51,7 +51,7 @@ class System(Service):
             colect_timestamp = int(get_value(service, "collected_sec", ""))
             MemoryCPUSystemStats.create(
                 system,
-                'US/Eastern',
+                system.server.data_timezone,
                 colect_timestamp,
                 system.load_avg01_last,
                 system.load_avg05_last,
