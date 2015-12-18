@@ -41,6 +41,20 @@
             {% include "ui/includes/net_table.html" %}
         </div>
     </div>
+
+        <div class="col-md-12 column">
+        <h5>FileSystem</h5>
+        <div id="server_table" class="table-responsive">
+            {% include "ui/includes/filesystem_table.html" %}
+        </div>
+    </div>
+
+        <div class="col-md-12 column">
+        <h5>Hosts</h5>
+        <div id="server_table" class="table-responsive">
+            {% include "ui/includes/host_table.html" %}
+        </div>
+    </div>
 </div>
 
 <script src="{% static 'js/jquery-2.1.4.min.js'%}"></script>
@@ -55,7 +69,7 @@
       var isStacked= false;
       var errorbars=false;
       var graph_colors = ["#173e43", "#b56969", "#22264b", "#3fb0ac"];
-      var update_period = 100*{{monit_update_period}};
+      var update_period = 1000*{{monit_update_period}};
       var data_load = [];
       var dates = {{date_last}};
       var y1 = {{load_avg01}};
@@ -152,26 +166,25 @@
       window.intervalId = setInterval(function() {
 			$.post("{% url 'ui:load_system_data' server.id %}", function(data) {
                 
+                if(data_cpu.length > 0){
+                  var date_of_last_data_received = data_cpu[data_cpu.length-1][0]
+                  var date_of_just_received_data = new Date(JSON.parse(data.date)*1000);
+     
+                  if (date_of_just_received_data>date_of_last_data_received) {
+                 
+                      data_load.push([date_of_just_received_data, JSON.parse(data.load_avg01), JSON.parse(data.load_avg05), JSON.parse(data.load_avg15)]);
+                      graph_load.updateOptions( { 'file': data_load } );
 
-                var date_of_last_data_received = (data_cpu[data_cpu.length-1][0]).toISOString()
-                console.log(date_of_last_data_received)
-                console.log(data.date)
-                var date_of_just_received_data = new Date(JSON.parse(data.date)*1000.).toISOString();
-   
-                console.log(date_of_just_received_data)
-                if (date_of_just_received_data>date_of_last_data_received) {
-                  console.log("updating")
-                    data_load.push([date, JSON.parse(data.load_avg01), JSON.parse(data.load_avg05), JSON.parse(data.load_avg15)]);
-                    graph_load.updateOptions( { 'file': data_load } );
-
-                    data_cpu.push([date, JSON.parse(data.cpu_user), JSON.parse(data.cpu_system), JSON.parse(data.cpu_wait)]);
-                    graph_cpu.updateOptions( { 'file': data_cpu } );
-                
-                    data_mem.push([date, JSON.parse(data.memory_percent), JSON.parse(data.memory_kilobyte)/1.e6, JSON.parse(data.swap_percent), JSON.parse(data.swap_kilobyte)/1.e6]);
-                    graph_mem.updateOptions( { 'file': data_mem } );
-                    
-                    $( "#server_table" ).replaceWith( data.table_html );
+                      data_cpu.push([date_of_just_received_data, JSON.parse(data.cpu_user), JSON.parse(data.cpu_system), JSON.parse(data.cpu_wait)]);
+                      graph_cpu.updateOptions( { 'file': data_cpu } );
+                  
+                      data_mem.push([date_of_just_received_data, JSON.parse(data.memory_percent), JSON.parse(data.memory_kilobyte)/1.e6, JSON.parse(data.swap_percent), JSON.parse(data.swap_kilobyte)/1.e6]);
+                      graph_mem.updateOptions( { 'file': data_mem } );
+                      
+                      $( "#server_table" ).replaceWith( data.table_html );
+                  }  
                 }
+
 			});
       }, update_period);
       window.intervalId = setInterval(function() {

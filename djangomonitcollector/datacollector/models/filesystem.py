@@ -1,7 +1,7 @@
 from django.db import models
 import time
 from service import Service
-from utils import get_value, get_float
+from utils import get_value, get_float, get_int
 from pytz import timezone
 import datetime
 
@@ -11,12 +11,12 @@ class FileSystem(Service):
     file_system = models.TextField(null=True)
     mode = models.TextField(null=True)
     flags = models.IntegerField(null=True)
-    blocks_total = models.TextField(null=True)
-    inode_total = models.TextField(null=True)
+    blocks_total = models.FloatField(null=True)
+    inode_total = models.FloatField(null=True)
     blocks_percent_last = models.FloatField(null=True)
-    blocks_usage_last = models.IntegerField(null=True)
+    blocks_usage_last = models.FloatField(null=True)
     inode_percent_last = models.FloatField(null=True)
-    inode_usage_last = models.IntegerField(null=True)
+    inode_usage_last = models.FloatField(null=True)
 
     @classmethod
     def update(cls, xmldoc, server, service):
@@ -34,6 +34,10 @@ class FileSystem(Service):
         if percent_last:
             filesystem.blocks_percent_last = percent_last
             filesystem.inode_percent_last = get_float(service, "inode.percent")
+            filesystem.blocks_usage_last = get_float(service, "block.usage")
+            filesystem.inode_usage_last = get_float(service, "inode.usage")
+            filesystem.blocks_total = get_float(service, "block.total")
+            filesystem.inode_total = get_float(service, "inode.total")
 
         filesystem.save()
 
@@ -53,9 +57,9 @@ class FsAndDiskUsageStats(models.Model):
     fs_id = models.ForeignKey('FileSystem')
     date_last = models.DateTimeField(null=False)
     blocks_percent = models.FloatField(null=True)
-    blocks_usage = models.IntegerField(null=True)
+    blocks_usage = models.FloatField(null=True)
     inode_percent = models.FloatField(null=True)
-    inode_usage = models.IntegerField(null=True)
+    inode_usage = models.FloatField(null=True)
 
     #'US/Eastern'
     @classmethod

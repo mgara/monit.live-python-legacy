@@ -1,0 +1,25 @@
+{% load extra_tags %}
+
+<div id="server_table" class="table-responsive">
+    <table class="table table-hover table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>Host</th>
+            <th>status</th>
+            <th>Protocol(s)</th>
+           
+        </tr>
+        </thead>
+        <tbody>
+        {% for host in hosts %}
+            <tr>
+                <td>{{ host.name }}</td>
+                <td><span class="label label-{{ host.status|status_tr_class:host.monitor }}">{{ host.status|status_to_string:host }}</span></td>
+                <td</td>
+                <td></td>
+            </tr>
+
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,24 @@
+{% load extra_tags %}
+
+<div id="server_table" class="table-responsive">
+    <table class="table table-hover table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>name</th>
+            <th>status</th>
+            <th>Space Usage</th>
+            <th>Inodes Usage</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for fs in filesystems %}
+            <tr>
+                <td>{{ fs.name }}</td>
+                <td><span class="label label-{{ fs.status|status_tr_class:fs.monitor }}">{{ fs.status|status_to_string:fs }}</span></td>
+                <td>{{fs.blocks_percent_last|percent}} [{{fs.blocks_usage_last|kb_formatting}}]</td>
+                <td>{{fs.inode_percent_last|percent}} [{{fs.inode_usage_last|get_int}}]</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

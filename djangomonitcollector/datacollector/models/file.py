@@ -10,11 +10,11 @@ class File(Service):
     @classmethod
     def update(cls, xmldoc, server, service):
         filename = get_value(service, "", "", "name")
-        file, created = cls.objects.get_or_create(server=server, name=filename)
-        file.name = filename
-        file.status = get_value(service, "status", "")
-        file.status_hint = get_value(service, "status_hint", "")
-        file.monitor = get_value(service, "monitor", "")
-        file.monitormode = get_value(service, "monitormode", "")
-        file.pendingaction = get_value(service, "pendingaction", "")
-        file.save()
+        file_, created = cls.objects.get_or_create(server=server, name=filename)
+        file_.name = filename
+        file_.status = get_value(service, "status", "")
+        file_.status_hint = get_value(service, "status_hint", "")
+        file_.monitor = get_value(service, "monitor", "")
+        file_.monitormode = get_value(service, "monitormode", "")
+        file_.pendingaction = get_value(service, "pendingaction", "")
+        file_.save()

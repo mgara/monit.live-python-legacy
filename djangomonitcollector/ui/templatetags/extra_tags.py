@@ -58,13 +58,13 @@ def status_tr_class(status, monitor):
 def human_readable_size(value):
     if value:
         return sizeof_fmt(value)
-    return "N/A"
+    return "-"
 
 @register.filter
 def kb_formatting(value):
     if value:
         return sizeof_fmt(value * 1024.0)
-    return "N/A"
+    return "-"
 
 @register.filter
 def format_number(value):
@@ -73,6 +73,12 @@ def format_number(value):
 
     return "-"
 
+
+@register.filter
+def get_int(value):
+    if value:
+        return int(value)
+    return "-"
 
 def sizeof_fmt(num, suffix='B'):
     for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:

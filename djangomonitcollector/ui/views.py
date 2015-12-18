@@ -19,6 +19,7 @@ from djangomonitcollector.datacollector.models import  Server
 from djangomonitcollector.datacollector.models import MemoryCPUSystemStats
 from djangomonitcollector.users.models import validate_user
 
+from django.utils.timezone import LocalTimezone
 
 # import the logging library
 import logging
@@ -26,11 +27,6 @@ import logging
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-monit_update_period = getattr(settings, 'MONIT_UPDATE_PERIOD', 60)
-enable_buttons = getattr(settings, 'ENABLE_BUTTONS', False)
-monit_user = getattr(settings, 'MONIT_USER', "")
-monit_password = getattr(settings, 'MONIT_PASSWORD', "")
-monit_port = str(getattr(settings, 'MONIT_PORT', 2812))
 default_display_period = int(getattr(settings, 'DISPLAY_PERIOD', 4))  # four_hours
 
 
@@ -45,8 +41,8 @@ def dashboard(request):
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def server(request, server_id):
-    page_header = "test"
-    tz = timezone('US/Eastern')
+
+    tz = timezone('UTC')
     now = datetime.datetime.now().replace(tzinfo=tz)
     display_time = datetime.timedelta(hours=default_display_period)
     min_display = now - display_time
@@ -90,6 +86,8 @@ def server(request, server_id):
 
     processes = server.process_set.all().order_by('name')
     nets = server.net_set.all().order_by('name')
+    filesystems = server.filesystem_set.all().order_by('name')
+    hosts = server.host_set.all().order_by('name')
 
     return render(request, 'ui/server.html', {
         'server_found': True,
@@ -108,8 +106,9 @@ def server(request, server_id):
         'swap_kilobyte': swap_kilobyte,
         'processes': processes,
         'nets': nets,
-        'monit_update_period': monit_update_period,
-        'pageheader': page_header,
+        'filesystems':filesystems,
+        'hosts':hosts,
+        'monit_update_period': server.monit_update_period,
     })
 
     # except Exception  as e:
@@ -124,7 +123,7 @@ def process(request, server_id, process_name):
         process = server.process_set.get(name=process_name)
         return render(request, 'ui/process.html',
                       {'enable_buttons': False, 'process_found': True, 'server': server, 'process': process,
-                       'monit_update_period': monit_update_period})
+                       'monit_update_period': server.monit_update_period})
     except:
         return render(request, 'ui/process.html', {'process_found': False})
 
@@ -206,7 +205,7 @@ def load_system_data(request, server_id):
     table_html = render_to_string('ui/includes/server_table.html',
                                   {'server': server, 'processes': processes})
     data = {'table_html': table_html,
-            'date': datetime.datetime.fromtimestamp(system.date_last).replace(tzinfo=pytz.timezone("US/Eastern")),
+            'date': system.date_last,
             'load_avg01': system.load_avg01_last,
             'load_avg05': system.load_avg05_last,
             'load_avg15': system.load_avg15_last,
@@ -242,4 +241,3 @@ class ServerUpdateView(LoginRequiredMixin, UpdateView):
         server_id = self.kwargs['pk']
         return reverse("ui:server_show",
                        kwargs={"pk": server_id})
-
