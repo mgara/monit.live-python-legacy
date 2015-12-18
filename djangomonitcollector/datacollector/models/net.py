@@ -55,7 +55,7 @@ class Net(Service):
             try:
                 NetStats.create(
                     net,
-                    'US/Eastern',
+                    net.server.data_timezone,
                     colect_timestamp,
                     net.download_packet,
                     net.download_bytes,

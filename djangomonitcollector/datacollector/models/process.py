@@ -40,7 +40,7 @@ class Process(Service):
             colect_timestamp = int(get_value(service, "collected_sec", ""))
             MemoryCPUProcessStats.create(
                 process,
-                'US/Eastern',
+                process.server.data_timezone,
                 colect_timestamp,
                 process.cpu_percent_last,
                 process.memory_percent_last,

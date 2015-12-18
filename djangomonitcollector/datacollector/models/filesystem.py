@@ -41,7 +41,7 @@ class FileSystem(Service):
             colect_timestamp = int(get_value(service, "collected_sec", ""))
             FsAndDiskUsageStats.create(
                 filesystem,
-                'US/Eastern',
+                filesystem.server.data_timezone,
                 colect_timestamp,
                 filesystem.blocks_percent_last,
                 filesystem.blocks_usage_last,
