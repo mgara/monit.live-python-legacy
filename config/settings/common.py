@@ -45,7 +45,6 @@ THIRD_PARTY_APPS = (
 LOCAL_APPS = (
     'djangomonitcollector.users',  # custom users ap
     # Your stuff: custom apps go here
-    'djangomonitcollector.eventshandler',
     'djangomonitcollector.datacollector',
     'djangomonitcollector.ui',
 )
