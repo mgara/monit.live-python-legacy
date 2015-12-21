@@ -25,6 +25,11 @@ urlpatterns = [
         name='server_show'
     ),
     url(
+        regex=r'^server/((?P<pk>\d+))/alerts/list/$',
+        view=views.EventListView.as_view(),
+        name='server_alerts'
+    ),
+    url(
         regex=r'^server/(?P<server_id>\d+)/$',
         view=views.server,
         name='server'    

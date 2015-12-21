@@ -46,6 +46,14 @@ def time_str(uptime):
     return "%sy %sd %sh %sm" % (years, days, hours, mins)
 
 @register.filter
+def status_alert(alert_counts):
+    if not alert_counts :
+        return "success"
+    if int(alert_counts) == 0:
+        return "sucess"
+    return "danger"
+
+@register.filter
 def status_tr_class(status, monitor):
     if monitor == 0:
         return 'info'
@@ -64,6 +72,12 @@ def human_readable_size(value):
 def kb_formatting(value):
     if value:
         return sizeof_fmt(value * 1024.0)
+    return "-"
+
+@register.filter
+def disk_size_formatting(value):
+    if value:
+        return sizeof_fmt(value * 1024.0 * 1024.0)
     return "-"
 
 @register.filter
@@ -95,13 +109,41 @@ def percent(value):
             return ""
         return str(round(value, 1)) + "%"
     except:
-        return "NaN {0}".format(value)
+        return "Error formatting {0}".format(value)
 
+@register.filter
+def fs_percent_bar(fs):
+    value = fs.blocks_percent_last if fs.blocks_percent_last else 0.0
+    percent_value = round(value, 1)
+    progress_bar_txt=  "{0}% [{1}/{2}]".format(percent_value,disk_size_formatting(fs.blocks_usage_last),disk_size_formatting(fs.blocks_total))
+    return get_progress_bar_html(percent_value,progress_bar_txt)
+
+@register.filter
+def fs_percent_bar_inode(fs):
+    value = fs.inode_percent_last if fs.inode_percent_last else 0.0
+    percent_value = round(value, 1)
+    progress_bar_txt=  "{0}% [{1}/{2}]".format(percent_value,get_int(fs.inode_usage_last),get_int(fs.inode_total))
+    return get_progress_bar_html(percent_value,progress_bar_txt)
 
 @register.filter
 def status_to_string(status,p):
     type_of_service=p.service_type
     monitor_status=p.monitor
+    return status_to_string_(status,type_of_service,monitor_status)
+
+@register.filter
+def event_status_to_string(status):
+    return status_to_string_(status,1,1)
+
+@register.filter
+def event_state_to_string(state):
+    if int(state) ==0:
+        return "success"
+    if int(state) ==1:
+        return "danger"
+    return "warning"
+
+def status_to_string_(status,type_of_service,monitor_status):
     ok_status = ['Accessible', 'OK', 'File exists', 'Running', 'Online with all services', 'System OK', 'OK', 'Program Is Running', 'UP']
     errors_messages = ['Ok', 'Checksum failed', 'Resource limit matched', 'Timeout', 'Timestamp failed', 'Size failed',
                        'Connection failed', 'Permission failed', 'UID failed', 'GID failed', 'Does not exist',
@@ -125,3 +167,20 @@ def status_to_string(status,p):
         return ok_status[type_of_service]
 
     return out_str
+
+
+def get_progress_bar_html(value,display_txt):
+    style = get_style_from_value(value)
+    res = '<span class="label label-{0} small">{2}</span>'\
+          '<div class="progress">' \
+          '<div class="progress-bar progress-bar-{0}" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: {1}%">' \
+          '</div>' \
+          '</div>'.format(style,value,display_txt)
+    return res
+
+def get_style_from_value(value,thresh1=50,thresh2=85):
+    if value < thresh1:
+        return "success"
+    if value >=thresh1 and value < thresh2:
+        return "warning"
+    return "danger"

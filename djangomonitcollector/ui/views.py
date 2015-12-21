@@ -15,7 +15,7 @@ from braces.views import LoginRequiredMixin
 from pytz import timezone
 import pytz
 
-from djangomonitcollector.datacollector.models import  Server
+from djangomonitcollector.datacollector.models import  Server, MonitEvent
 from djangomonitcollector.datacollector.models import MemoryCPUSystemStats
 from djangomonitcollector.users.models import validate_user
 
@@ -33,7 +33,10 @@ default_display_period = int(getattr(settings, 'DISPLAY_PERIOD', 4))  # four_hou
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def dashboard(request):
     if Server.objects.all().count() > 0:
-        servers = Server.objects.all().order_by('localhostname')
+        servers = Server.objects.filter(user_id=request.user).order_by('localhostname')
+
+        for server in servers:
+            server.alerts = server.monitevent_set.filter(is_ack=False).count()
         return render(request, 'ui/dashboard.html', {'servers': servers, 'server_found': True})
     else:
         return render(request, 'ui/dashboard.html', {'server_found': False})
@@ -88,6 +91,7 @@ def server(request, server_id):
     nets = server.net_set.all().order_by('name')
     filesystems = server.filesystem_set.all().order_by('name')
     hosts = server.host_set.all().order_by('name')
+    alerts_count = server.monitevent_set.filter(is_ack=False).count()
 
     return render(request, 'ui/server.html', {
         'server_found': True,
@@ -108,6 +112,7 @@ def server(request, server_id):
         'nets': nets,
         'filesystems':filesystems,
         'hosts':hosts,
+        'alerts_count':alerts_count,
         'monit_update_period': server.monit_update_period,
     })
 
@@ -178,7 +183,9 @@ def delete_server(request, server_id):
 
 # Ajax Views
 def load_dashboard_table(request):
-    servers = Server.objects.all().order_by('localhostname')
+    servers = Server.objects.filter(user_id=request.user).order_by('localhostname')
+    for server in servers:
+        server.alerts = server.monitevent_set.filter(is_ack=False).count()
     table_html = render_to_string('ui/includes/dashboard_table.html', {'servers': servers})
     return JsonResponse({'table_html': table_html})
 
@@ -241,3 +248,17 @@ class ServerUpdateView(LoginRequiredMixin, UpdateView):
         server_id = self.kwargs['pk']
         return reverse("ui:server_show",
                        kwargs={"pk": server_id})
+
+class EventListView(LoginRequiredMixin, ListView):
+    model = MonitEvent
+
+    def get_queryset(self):
+        server_id = self.kwargs['pk']
+        return self.model.objects.filter(server=server_id).order_by('-event_time')
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(EventListView, self).get_context_data(**kwargs)
+        server_id = self.kwargs['pk']
+        context['server'] = Server.objects.get(id=int(server_id))
+        return context

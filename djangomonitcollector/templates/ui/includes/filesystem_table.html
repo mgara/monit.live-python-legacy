@@ -15,8 +15,8 @@
             <tr>
                 <td>{{ fs.name }}</td>
                 <td><span class="label label-{{ fs.status|status_tr_class:fs.monitor }}">{{ fs.status|status_to_string:fs }}</span></td>
-                <td>{{fs.blocks_percent_last|percent}} [{{fs.blocks_usage_last|kb_formatting}}]</td>
-                <td>{{fs.inode_percent_last|percent}} [{{fs.inode_usage_last|get_int}}]</td>
+                <td>{% autoescape off %}{{ fs|fs_percent_bar }}{% endautoescape %}</td>
+                <td>{% autoescape off %}{{ fs|fs_percent_bar_inode }}{% endautoescape %}</td>
             </tr>
         {% endfor %}
         </tbody>

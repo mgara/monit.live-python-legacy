@@ -9,6 +9,24 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+BOOTSTRAP_THEMES = (
+    ('cerulean', 'Cerulean'),
+    ('cosmo', 'Cosmo'),
+    ('cyborg', 'Cyborg'),
+    ('darkly', 'Darkly'),
+    ('flatly', 'Flatly'),
+    ('journal', 'Journal'),
+    ('lumen', 'Lumen'),
+    ('paper', 'Papers'),
+    ('readable', 'Readable'),
+    ('sandstone', 'Sandstone'),
+    ('simplex', 'Simplex'),
+    ('slate', 'Slate'),
+    ('spacelab', 'Spacelab'),
+    ('superhero', 'Superhero'),
+    ('united', 'United'),
+    ('yeti', 'Yeti'),
+)
 
 @python_2_unicode_compatible
 class User(AbstractUser):
@@ -16,7 +34,7 @@ class User(AbstractUser):
     # around the globe.
     name = models.CharField(_("Name of User"), blank=True, max_length=255)
     is_customer = models.BooleanField(blank=True, default=True)
-    bootstrap_theme = models.CharField(max_length=20,default="paper")
+    bootstrap_theme = models.CharField(max_length=20, choices=BOOTSTRAP_THEMES,default="paper")
     dygraph_color_palette = models.CharField(max_length=255,default='["#173e43", "#b56969", "#22264b", "#3fb0ac"]')
 
     def __str__(self):
@@ -46,3 +64,5 @@ class CollectorKey(models.Model):
         entity = cls(collector_key=uuid, user_id=user, is_enabled=True)
         entity.save()
         return entity
+
+
