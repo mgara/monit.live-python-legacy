@@ -24,3 +24,4 @@ class Platform(models.Model):
         platform.memory = get_value(xmldoc, "platform", "memory")
         platform.swap = get_value(xmldoc, "platform", "swap")
         platform.save()
+        return platform

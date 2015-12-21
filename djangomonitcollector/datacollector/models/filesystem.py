@@ -28,8 +28,8 @@ class FileSystem(Service):
         filesystem.status = get_value(service, "status", "")
         filesystem.status_hint = get_value(service, "status_hint", "")
         filesystem.monitor = get_value(service, "monitor", "")
-        filesystem.monitormode = get_value(service, "monitormode", "")
-        filesystem.pendingaction = get_value(service, "pendingaction", "")
+        filesystem.monitor_mode = get_value(service, "monitormode", "")
+        filesystem.pending_action = get_value(service, "pendingaction", "")
         percent_last = get_float(service, "block.percent")
         if percent_last:
             filesystem.blocks_percent_last = percent_last
@@ -52,6 +52,7 @@ class FileSystem(Service):
                 filesystem.inode_percent_last,
                 filesystem.inode_usage_last
             )
+        return filesystem
 
 class FsAndDiskUsageStats(models.Model):
     fs_id = models.ForeignKey('FileSystem')

@@ -19,8 +19,10 @@ class Program(Service):
         program.service_type = get_value(service, "type", "")
         program.status_hint = get_value(service, "status_hint", "")
         program.monitor = get_value(service, "monitor", "")
-        program.monitormode = get_value(service, "monitormode", "")
-        program.pendingaction = get_value(service, "pendingaction", "")
+        program.monitor_mode = get_value(service, "monitormode", "")
+        program.pending_action = get_value(service, "pendingaction", "")
         program.started = get_int(service, "program.started", -1)
         program.output = get_string(service, "program.output", "")
         program.save()
+        return program
+

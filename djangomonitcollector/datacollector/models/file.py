@@ -17,4 +17,6 @@ class File(Service):
         file_.monitor = get_value(service, "monitor", "")
         file_.monitormode = get_value(service, "monitormode", "")
         file_.pendingaction = get_value(service, "pendingaction", "")
+        file_.s_id = file_.server.id
         file_.save()
+        return file

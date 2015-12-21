@@ -16,6 +16,7 @@ class Host(Service):
         host.status = get_value(service, "status", "")
         host.status_hint = get_value(service, "status_hint", "")
         host.monitor = get_value(service, "monitor", "")
-        host.monitormode = get_value(service, "monitormode", "")
-        host.pendingaction = get_value(service, "pendingaction", "")
+        host.monitor_mode = get_value(service, "monitormode", "")
+        host.pending_action = get_value(service, "pendingaction", "")
         host.save()
+        return host

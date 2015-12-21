@@ -68,6 +68,7 @@ class Net(Service):
                 print "{0}:{1}".format(e.args,e.message)
             except NameError as e:
                 print "{0}:{1}".format(e.args,e.message)
+        return net
 
 class NetStats(models.Model):
     net_id = models.ForeignKey('Net')

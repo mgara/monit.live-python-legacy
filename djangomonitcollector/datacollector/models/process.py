@@ -1,4 +1,4 @@
-import time
+
 
 from django.db import models
 
@@ -25,8 +25,8 @@ class Process(Service):
         process.status = get_value(service, "status", "")
         process.status_hint = get_value(service, "status_hint", "")
         process.monitor = get_value(service, "monitor", "")
-        process.monitormode = get_value(service, "monitormode", "")
-        process.pendingaction = get_value(service, "pendingaction", "")
+        process.monitor_mode = get_value(service, "monitormode", "")
+        process.pending_action = get_value(service, "pendingaction", "")
         if get_value(service, "cpu", "percent") != "none":
             process.pid = get_value(service, "pid")
             process.ppid = get_value(service, "ppid")
@@ -46,6 +46,7 @@ class Process(Service):
                 process.memory_percent_last,
                 process.memory_kilobyte_last
             )
+        return process
 
 
 class MemoryCPUProcessStats(models.Model):

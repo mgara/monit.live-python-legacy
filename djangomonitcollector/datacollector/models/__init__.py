@@ -4,7 +4,7 @@ from net import Net,NetStats
 from platform import Platform
 from process import Process, MemoryCPUProcessStats
 from program import Program
-from server import Server
+from server import Server,MonitEvent
 from service import Service
 from system import System, MemoryCPUSystemStats
 from url import Host
@@ -21,5 +21,6 @@ __all__ = ['File',
            'Host',
            'FsAndDiskUsageStats',
            'MemoryCPUProcessStats',
-           'MemoryCPUSystemStats'
+           'MemoryCPUSystemStats',
+           'MonitEvent'
            ]

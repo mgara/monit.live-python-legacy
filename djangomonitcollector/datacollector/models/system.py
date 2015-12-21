@@ -31,8 +31,8 @@ class System(Service):
         system.status = get_value(service, "status", "")
         system.status_hint = get_value(service, "status_hint", "")
         system.monitor = get_value(service, "monitor", "")
-        system.monitormode = get_value(service, "monitormode", "")
-        system.pendingaction = get_value(service, "pendingaction", "")
+        system.monitor_mode = get_value(service, "monitormode", "")
+        system.pending_action = get_value(service, "pendingaction", "")
         if get_value(service, "load", "avg01") != "none":
             system.date_last = int(time.time())
             system.date = json_list_append(system.date, system.date_last)
@@ -64,6 +64,7 @@ class System(Service):
                 system.swap_percent_last,
                 system.swap_kilobyte_last
             )
+        return system
 
 class MemoryCPUSystemStats(models.Model):
     system_id = models.ForeignKey('System')
