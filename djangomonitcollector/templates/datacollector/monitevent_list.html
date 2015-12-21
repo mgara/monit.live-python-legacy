@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+{% load extra_tags %}
+
+{% block title %}Server {{ server.localhostname }} {% endblock %}
+{% block content %}
+<div class="container">
+
+    <div class="row">
+
+        <div class="list-group">
+            {% for monit_event in object_list %}
+            <a href="#" class="list-group-item list-group-item-{{ monit_event.event_state|event_state_to_string }}">
+                <h4 class="list-group-item-heading">{{ monit_event.event_time|date:"r e" }}</h4>
+                <span class="label label-warning">Type : {{ monit_event.event_type }}</span>
+                <span class="label label-success">Id : {{ monit_event.event_id|event_status_to_string }}</span>
+                <span class="label label-danger">State : {{ monit_event.event_state }}</span>
+                <span class="label label-info">Action : {{ monit_event.event_action }}</span>
+                <p class="list-group-item-text">{{ monit_event.event_message }} </p>
+            </a>
+            {% empty %}
+                <a href="#" class="list-group-item">
+                <span>No Events yet. :) </span>
+                </a>
+            {% endfor %}
+        </div>
+
+
+    </div>
+</div>
+{% endblock %}
