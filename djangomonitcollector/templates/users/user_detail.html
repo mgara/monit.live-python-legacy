@@ -9,10 +9,20 @@
         <div class="row">
             <div class="col-sm-12">
 
-                <h2>{{ object.username }}</h2>
+                <h3>Profile : {{ object.username }}</h3>
+                <h4>Name : </h4>
                 {% if object.name %}
                     <p>{{ object.name }}</p>
                 {% endif %}
+                <h4>Bootstrap Theme : </h4>
+                {% if object.bootstrap_theme %}
+                    <p>{{ object.bootstrap_theme }}</p>
+                {% endif %}
+                <h4>Dygraph color palette : </h4>
+                {% if object.dygraph_color_palette %}
+                    <p>{{ object.dygraph_color_palette }}</p>
+                {% endif %}
+
             </div>
         </div>
 

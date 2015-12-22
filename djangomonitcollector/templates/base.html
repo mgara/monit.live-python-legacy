@@ -15,7 +15,7 @@
 
     {% block css %}
     <!-- Latest compiled and minified CSS -->
-        {%  if request.user.bootstrap_theme %}
+        {%  if request.user.bootstrap_theme  and request.user.bootstrap_theme != "default" %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/{{ request.user.bootstrap_theme }}/bootstrap.min.css">
         {% else %}
             <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">

@@ -27,7 +27,7 @@ import logging
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-default_display_period = int(getattr(settings, 'DISPLAY_PERIOD', 4))  # four_hours
+default_display_period = int(getattr(settings, 'DISPLAY_PERIOD', 24))  # four_hours
 
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
@@ -260,5 +260,7 @@ class EventListView(LoginRequiredMixin, ListView):
         # Call the base implementation first to get a context
         context = super(EventListView, self).get_context_data(**kwargs)
         server_id = self.kwargs['pk']
-        context['server'] = Server.objects.get(id=int(server_id))
+        server = Server.objects.get(id=int(server_id))
+        context['server'] = server
+        context['alerts_count'] = server.monitevent_set.filter(is_ack=False).count()
         return context

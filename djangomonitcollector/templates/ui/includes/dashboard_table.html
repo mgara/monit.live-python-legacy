@@ -22,33 +22,35 @@
         <tbody>
 
         {% for server in servers %}
-
-            <tr {% if not server.is_new %}
-                onclick="document.location = '{% url 'ui:server' server.id %}';" {% endif %} >
+            {% if not server.is_new %}
+            <tr  onclick="document.location = '{% url 'ui:server' server.id %}';"  >
                 <td>{{ server.localhostname }}</td>
                 <td>{{ server.address }}</td>
                 <td>{{ server.monit_version }}</td>
                 <td>{{ server.uptime|time_str }}</td>
-                {% if not server.is_new %}
-                    <td>{{ server.system.load_avg01_last }}, {{ server.system.load_avg05_last }}, {{ server.system.load_avg15_last }}</td>
-                    <td>{{ server.system.cpu_user_last }}%</td>
-                    <td>{{ server.system.memory_percent_last }}% [{{ server.system.memory_kilobyte_last|kb_formatting }}]</td>
-                    <td><span
-                            class="label label-{{ server.system.date_last|time_class }}">{{ server.system.date_last|timestamp_to_date }} </span>
-                    <td><span class="label label-{{ server.alerts|status_alert }}">{{server.alerts }}</span></td>
-                    <td></td>
-                {% else %}
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td><span class="label label-danger">Server Not activated</span></td>
-                    <td>-</td>
-                {% endif %}>
-                <td><a class="btn btn-xs btn-primary" href="{% url 'ui:server_show' server.id %}"><span
-                        class="glyphicon glyphicon-cog" aria-hidden="true"></span></a></td>
+                <td>{{ server.system.load_avg01_last }}, {{ server.system.load_avg05_last }}, {{ server.system.load_avg15_last }}</td>
+                <td>{{ server.system.cpu_user_last }}%</td>
+                <td>{{ server.system.memory_percent_last }}% [{{ server.system.memory_kilobyte_last|kb_formatting }}]</td>
+                <td><span class="label label-{{ server.system.date_last|time_class }}">{{ server.system.date_last|timestamp_to_date }} </span>
+                <td><a href="{% url 'ui:server_alerts' server.id %}" ><span class="label label-{{ server.alerts|status_alert }}">{{server.alerts }}</span></a></td>
+                <td>-</td>
+                <td><a class="btn btn-xs btn-primary" href="{% url 'ui:server_show' server.id %}"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a></td>
             </tr>
-
+            {% else %}
+            <tr  onclick="document.location = '{% url 'ui:server' server.id %}';"  >
+                <td>{{ server.localhostname }}</td>
+                <td>{{ server.address }}</td>
+                <td>{{ server.monit_version }}</td>
+                <td>{{ server.uptime|time_str }}</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td><span class="label label-{{ server.system.date_last|time_class }}">{{ server.system.date_last|timestamp_to_date }} </span>
+                <td><span class="label label-danger"> New Server Detected</span></a></td>
+                <td>-</td>
+                <td><a class="btn btn-xs btn-primary" href="{% url 'ui:server_show' server.id %}"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a></td>
+            </tr>
+            {% endif %}
         {% endfor %}
         </tbody>
     </table>

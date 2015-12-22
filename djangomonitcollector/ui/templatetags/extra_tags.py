@@ -109,7 +109,7 @@ def percent(value):
             return ""
         return str(round(value, 1)) + "%"
     except:
-        return "Error formatting {0}".format(value)
+        return "Error parsing {0}".format(value)
 
 @register.filter
 def fs_percent_bar(fs):
@@ -125,6 +125,14 @@ def fs_percent_bar_inode(fs):
     progress_bar_txt=  "{0}% [{1}/{2}]".format(percent_value,get_int(fs.inode_usage_last),get_int(fs.inode_total))
     return get_progress_bar_html(percent_value,progress_bar_txt)
 
+
+@register.filter
+def type_to_string(type):
+
+    array_type =["FileSystem","Directory","File","Process","Remote Host","System","Fifo","Program","Network"]
+    return array_type[int(type)]
+
+
 @register.filter
 def status_to_string(status,p):
     type_of_service=p.service_type
@@ -133,15 +141,51 @@ def status_to_string(status,p):
 
 @register.filter
 def event_status_to_string(status):
-    return status_to_string_(status,1,1)
+    status_int = int(status)
+    state_dic = {
+    1:'checksum',
+    2:'resource',
+    4:'timeout',
+    8:'timestamp',
+    16:'size',
+    32:'connection',
+    64:'permission',
+    128:'UID',
+    256:'GID',
+    512:'nonexist',
+    1024:'invalid',
+    2048:'data',
+    4096:'exec',
+    8192:'fsflags',
+    16384:'icmp',
+    32768:'content',
+    65536:'instance',
+    131072:'action',
+    262144:'PID',
+    524288:'PPID',
+    1048576:'heartbeat',
+    2097152:'status',
+    4194304:'uptime'
+    }
+    return state_dic[status_int]
 
 @register.filter
 def event_state_to_string(state):
+    state_int = int(state)
+    state_dic = {
+        0:'Success', 
+        1:'Error',
+        2:'Change'
+    }
+    return state_dic[state_int]
+
+@register.filter
+def event_state_to_style(state):
     if int(state) ==0:
         return "success"
     if int(state) ==1:
         return "danger"
-    return "warning"
+    return "info"
 
 def status_to_string_(status,type_of_service,monitor_status):
     ok_status = ['Accessible', 'OK', 'File exists', 'Running', 'Online with all services', 'System OK', 'OK', 'Program Is Running', 'UP']

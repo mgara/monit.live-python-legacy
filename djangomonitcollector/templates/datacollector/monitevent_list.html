@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "ui/server.html" %}
 {% load static %}
 {% load extra_tags %}
 
@@ -10,13 +10,18 @@
 
         <div class="list-group">
             {% for monit_event in object_list %}
-            <a href="#" class="list-group-item list-group-item-{{ monit_event.event_state|event_state_to_string }}">
-                <h4 class="list-group-item-heading">{{ monit_event.event_time|date:"r e" }}</h4>
-                <span class="label label-warning">Type : {{ monit_event.event_type }}</span>
-                <span class="label label-success">Id : {{ monit_event.event_id|event_status_to_string }}</span>
-                <span class="label label-danger">State : {{ monit_event.event_state }}</span>
-                <span class="label label-info">Action : {{ monit_event.event_action }}</span>
-                <p class="list-group-item-text">{{ monit_event.event_message }} </p>
+            <a href="#" class="list-group-item list-group-item-{{ monit_event.event_state|event_state_to_style }}">
+                <h4 class="list-group-item-heading">{{ monit_event.event_message }}<span class="pull-right"><small>{{ monit_event.event_time|date:"r e" }}</small></span></h4>
+
+                <p class="list-group-item-text">
+                <h5 ><b>{{ monit_event.event_type|type_to_string }}</b> Event <b>{{ monit_event.event_id|event_status_to_string }}</b> : <b>{{ monit_event.event_state|event_state_to_string }}</b></h5>
+                <span >Action : {{ monit_event.event_action }}</span>
+                </p>
+                <div class="btn-group" role="group" aria-label="...">
+                  <button type="button" class="btn btn-xs btn-default btn-{{ monit_event.event_state|event_state_to_style }}">Mute Events Like This</button>
+                  <button type="button" class="btn btn-xs btn-default btn-{{ monit_event.event_state|event_state_to_style }}">Send Notification for Events Like This</button>
+                  <button type="button" class="btn btn-xs btn-default btn-{{ monit_event.event_state|event_state_to_style }}">ACK</button>
+                </div>
             </a>
             {% empty %}
                 <a href="#" class="list-group-item">
