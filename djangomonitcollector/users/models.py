@@ -10,6 +10,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 BOOTSTRAP_THEMES = (
+
     ('default','default'),
     ('cerulean', 'Cerulean'),
     ('cosmo', 'Cosmo'),
@@ -27,7 +28,6 @@ BOOTSTRAP_THEMES = (
     ('superhero', 'Superhero'),
     ('united', 'United'),
     ('yeti', 'Yeti'),
-
 )
 
 @python_2_unicode_compatible
