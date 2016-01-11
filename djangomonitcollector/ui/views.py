@@ -230,9 +230,12 @@ def load_process_data(request, server_id, process_name):
     server = Server.objects.get(id=server_id)
     process = server.process_set.get(name=process_name)
     table_html = render_to_string('ui/includes/process_table.html', {'process': process})
-    data = {'date': process.date_last, 'cpu_percenttotal': process.cpu_percenttotal_last,
+    data = {'date': process.date_last,
+            'cpu_percenttotal': process.cpu_percenttotal_last,
             'memory_percenttotal': process.memory_percenttotal_last,
-            'memory_kilobytetotal': process.memory_kilobytetotal_last}
+            'memory_kilobytetotal': process.memory_kilobytetotal_last,
+            'table_html' : table_html
+            }
     return JsonResponse(data)
 
 
@@ -254,7 +257,7 @@ class EventListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         server_id = self.kwargs['pk']
-        return self.model.objects.filter(server=server_id).order_by('-event_time')
+        return self.model.objects.filter(server=server_id, is_ack=False).order_by('-event_time')
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
@@ -264,3 +267,21 @@ class EventListView(LoginRequiredMixin, ListView):
         context['server'] = server
         context['alerts_count'] = server.monitevent_set.filter(is_ack=False).count()
         return context
+
+def ack_event(request):
+    event_id = request.POST['event_id']
+    try:
+        event = MonitEvent.objects.get(id=event_id)
+        event.is_ack = True
+        event.save()
+        res = {
+            'error_id' : 0,
+            'event_id' : event_id
+        }
+
+    except StandardError as e:
+        res = {
+            'error': e.message,
+            'error_id': 1
+        }
+    return JsonResponse(res)

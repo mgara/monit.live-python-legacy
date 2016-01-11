@@ -82,4 +82,9 @@ urlpatterns = [
         view=views.load_process_table,
         name='load_process_table'    
     ),
+    url(
+        regex=r'ackevent/$',
+        view = views.ack_event,
+        name='ack_event'
+    ),
 ]
