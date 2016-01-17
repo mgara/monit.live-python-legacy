@@ -164,10 +164,16 @@ def event_status_to_string(status):
     262144:'PID',
     524288:'PPID',
     1048576:'heartbeat',
+    16777216:'link mode/speed',
     2097152:'status',
     4194304:'uptime'
     }
-    return state_dic[status_int]
+
+
+    try:
+        return state_dic[status_int]
+    except: 
+        return status_int
 
 @register.filter
 def event_state_to_string(state):
@@ -175,7 +181,8 @@ def event_state_to_string(state):
     state_dic = {
         0:'Success', 
         1:'Error',
-        2:'Change'
+        2:'Change',
+        3:'Link mode not changed'
     }
     return state_dic[state_int]
 

@@ -102,6 +102,8 @@ class Server(models.Model):
         else:
             raise StandardError("New Server, you must configure it in your server settings")
 
+        if event_service == None:
+            event_service = System.get_system_service(server)
         if event_doc:
             MonitEvent.create(
                 event_xml,

@@ -285,3 +285,7 @@ def ack_event(request):
             'error_id': 1
         }
     return JsonResponse(res)
+
+
+def notifications(request):
+    return "HELLo"

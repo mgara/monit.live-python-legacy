@@ -11,7 +11,7 @@
         <div class="list-group">
             {% for monit_event in object_list %}
             <a href="#" id="event-element-{{ monit_event.id }}" class="list-group-item list-group-item-{{ monit_event.event_state|event_state_to_style }}">
-                <h4 class="list-group-item-heading">[{{ monit_event.id }}]{{ monit_event.event_message }}<span class="pull-right"><small>{{ monit_event.event_time|date:"r e" }}</small></span></h4>
+                <h4 class="list-group-item-heading">[{{ monit_event.id }}] {{ monit_event.event_message }}<span class="pull-right"><small><span style="color:black;font-family:Monospace">{{ monit_event.event_time|date:"r e" }}</span></small></span></h4>
 
                 <p class="list-group-item-text">
                 <h5 ><b>{{ monit_event.event_type|type_to_string }}</b> Event <b>{{ monit_event.event_id|event_status_to_string }}</b> : <b>{{ monit_event.event_state|event_state_to_string }}</b></h5>

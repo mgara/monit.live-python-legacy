@@ -66,6 +66,11 @@ class System(Service):
             )
         return system
 
+    @classmethod
+    def get_system_service(cls,server):
+        system, created = cls.objects.get_or_create(server=server)
+        return system
+
 class MemoryCPUSystemStats(models.Model):
     system_id = models.ForeignKey('System')
     date_last = models.DateTimeField()

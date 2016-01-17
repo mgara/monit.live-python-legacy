@@ -8,6 +8,12 @@ urlpatterns = [
         view=views.dashboard,
         name='dashboard'
     ),
+    
+    url(
+        regex=r'^notifications/$',
+        view =views.notifications,
+        name='notifications'
+    ),
 
     url(
         regex=r'^dashboard/$',
