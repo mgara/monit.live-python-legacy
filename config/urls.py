@@ -22,6 +22,7 @@ urlpatterns = [
     # Your stuff: custom urls includes go here
     url(r'^dc/', include("djangomonitcollector.datacollector.urls", namespace="datacollector")),
     url(r'^ui/', include("djangomonitcollector.ui.urls", namespace="ui")),
+    url(r'^notification/', include("djangomonitcollector.notificationsystem.urls", namespace="n")),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

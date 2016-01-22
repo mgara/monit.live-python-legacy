@@ -7,8 +7,7 @@ urlpatterns = [
         regex=r'^$',
         view=views.dashboard,
         name='dashboard'
-    ),
-    
+    ), 
     url(
         regex=r'^notifications/$',
         view =views.notifications,
