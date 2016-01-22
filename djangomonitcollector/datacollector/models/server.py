@@ -149,7 +149,7 @@ class MonitEvent(models.Model):
         event_obj = cls(
             server=server,
             service=service
-        );
+        )
 
         tz = timezone(server.data_timezone)
         unix_timestamp = "{0}.{1}".format(get_value(xml_doc, "collected_sec", ""),
@@ -162,3 +162,13 @@ class MonitEvent(models.Model):
         event_obj.event_time = datetime.datetime.fromtimestamp(float(unix_timestamp)).replace(tzinfo=tz)
         event_obj.save()
         return event_obj
+
+    @classmethod
+    def mute(cls):
+        pass
+
+    @classmethod
+    def notify(cls):
+        pass
+
+

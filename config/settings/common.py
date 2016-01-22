@@ -47,6 +47,7 @@ LOCAL_APPS = (
     # Your stuff: custom apps go here
     'djangomonitcollector.datacollector',
     'djangomonitcollector.ui',
+    'djangomonitcollector.notificationsystem'
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
