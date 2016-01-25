@@ -17,17 +17,17 @@
 {% block content %}
 
 
-
+        
     <h1>Create New notification</h1>
-
+    <div class="col-md-6" >
     <form class="form-horizontal" method="post" action="">
         {% csrf_token %}
         {{ form|crispy }}
         <div class="control-group">
-            <div class="controls">
-                <button type="submit" class="btn">Update</button>
+            <div class="form-controls">
+                <button type="submit" class="btn">Create</button>
             </div>
         </div>
     </form>
-
+</div>
 {% endblock content %}
