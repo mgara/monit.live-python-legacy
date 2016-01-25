@@ -19,8 +19,23 @@ urlpatterns = [
         name='notificationtype_update'
     ),
     url(
-        regex=r'^notificationtype/((?P<pk>\d+))/alerts/list/$',
+        regex=r'^notificationtype/list/$',
         view=views.NotificationTypeListView.as_view(),
         name='notificationtype_list'
+    ),
+    url(
+        regex=r'^notification/show/(?P<pk>\d+)/$',
+        view=views.NotificationView.as_view(),
+        name='notification_view'
+    ),
+    url(
+        regex=r'^notification/delete/(?P<pk>\d+)/$',
+        view=views.NotificationDelete.as_view(),
+        name='notification_delete'
+    ),
+    url(
+        regex=r'^notification/list/$',
+        view=views.NotificationListView.as_view(),
+        name='notification_list'
     )
 ]
