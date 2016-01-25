@@ -1,8 +1,11 @@
 from braces.views import LoginRequiredMixin
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic import DetailView, ListView, RedirectView
+from django.views.generic import DetailView, ListView
+
 from models import NotificationType
+from models import Notification
+from forms import NotificationTypeForm
 
 
 
@@ -25,21 +28,15 @@ class NotificationTypeView(LoginRequiredMixin, DetailView):
 
 
 class NotificationTypeCreate(LoginRequiredMixin, CreateView):
+    form_class = NotificationTypeForm
     model = NotificationType
-    fields = [
-        'notification_server',
-        'notification_service',
-        'notification_type',
-        'notification_state',
-        'notification_action',
-        'notification_message'
-    ]
+    def get_context_data(**kwargs):
+        print self.request
 
 
 class NotificationTypeUpdate(LoginRequiredMixin, UpdateView):
     model = NotificationType
     fields = [
-        'notification_server',
         'notification_service',
         'notification_type',
         'notification_state',
@@ -49,7 +46,7 @@ class NotificationTypeUpdate(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         notification_type_id = self.kwargs['pk']
-        return reverse("notifications:notificationtype_show",
+        return reverse_lazy("n:notificationtype_show",
                        kwargs={"pk": notification_type_id})
 
 
@@ -61,14 +58,31 @@ class NotificationTypeListView(LoginRequiredMixin, ListView):
     model = NotificationType
 
     def get_queryset(self):
-        server_id = self.kwargs['pk']
-        return self.model.objects.filter(server=server_id, is_ack=False).order_by('-event_time')
+        user = self.request.user
+        return self.model.objects.filter(notification_user=user)
 
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(EventListView, self).get_context_data(**kwargs)
-        server_id = self.kwargs['pk']
-        server = Server.objects.get(id=int(server_id))
-        context['server'] = server
-        context['alerts_count'] = server.monitevent_set.filter(is_ack=False).count()
-        return context
+
+
+class NotificationView(LoginRequiredMixin, DetailView):
+    model = Notification
+
+    fields = [
+        'notification_type',
+        'notification_event',
+    ]
+
+    def get_object(self):
+        notification_type_id = self.kwargs['pk']
+        # Only get the User record for the user making the request
+        return Notification.objects.get(id=notification_type_id)
+
+class NotificationDelete(DeleteView):
+    model = NotificationType
+    success_url = reverse_lazy('notification_list')
+
+class NotificationListView(LoginRequiredMixin, ListView):
+    model = Notification
+
+    def get_queryset(self):
+        user = self.request.user
+        return self.model.objects.filter(notification_user=user)

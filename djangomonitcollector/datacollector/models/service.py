@@ -11,4 +11,8 @@ class Service(models.Model):
     monitor_mode = models.IntegerField(null=True)
     pending_action = models.IntegerField(null=True)
 
+    def __str__(self):
+        return self.name
 
+    def __unicode__(self):
+        return self.name

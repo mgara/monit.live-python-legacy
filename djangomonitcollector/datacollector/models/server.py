@@ -29,8 +29,8 @@ class Server(models.Model):
 
     monit_version = models.TextField(null=True)
     localhostname = models.TextField(null=True)
-    uptime = models.IntegerField(null=True)
-    address = models.TextField(null=True)
+    uptime        = models.IntegerField(null=True)
+    address       = models.TextField(null=True)
 
     http_address = models.CharField(max_length=200, null=True)
     http_username = models.CharField(max_length=45, default="monit")

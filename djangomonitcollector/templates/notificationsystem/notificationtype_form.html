@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}{% load i18n %}
+{% block title %}Members{% endblock %}
+
+{% load staticfiles %}
+{% load extra_tags %}
+{% load crispy_forms_tags %}
+
+{% block submenu %}
+
+{% endblock %}
+
+{% block page_header %}
+
+{% endblock %}
+
+{% block content %}
+
+
+
+    <h1>Create New notification</h1>
+
+    <form class="form-horizontal" method="post" action="">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn">Update</button>
+            </div>
+        </div>
+    </form>
+
+{% endblock content %}

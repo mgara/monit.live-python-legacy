@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}{% load i18n %}
+{% block title %}Members{% endblock %}
+
+{% load staticfiles %}
+{% load extra_tags %}
+
+{% block submenu %}
+
+{% endblock %}
+
+{% block page_header %}
+
+{% endblock %}
+
+{% block content %}
+
+
+
+    <div class="container">
+
+    <h2>Notifications</h2>
+
+    <div class="list-group">
+        {%  if notification_list %}
+        {% for notification in notification_list %}
+            <a href="{% url 'n:notification_detail' notification.id %}" class="list-group-item">
+                <h4 class="list-group-item-heading">{{ notification.notification_type_id }}</h4>
+            </a>
+        {% endfor %}
+        {% else %}
+            <div class="alert alert-success">
+            <h4>No notifications sent.</h4>
+            </div>
+        {% endif %}
+
+    </div>
+
+{% endblock content %}
