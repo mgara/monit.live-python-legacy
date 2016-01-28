@@ -13,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 EVENT_STATUS_CHOICES = (
-    (0,'-'),
+    (-1,'------'),
     (1,'checksum'),
     (2,'resource'),
     (4,'timeout'),
@@ -41,20 +41,30 @@ EVENT_STATUS_CHOICES = (
 )
 
 EVENT_STATE_CHOICES = (
-    (9,'-'),
+    (-1,'------'),
     (0,'Success'),
     (1,'Error'),
     (2,'Change'),
     (3,'Link mode not changed')
 )
+EVENT_ACTION_CHOICES = (
+    (-1,'------'),
+    (0,'0'),
+    (1,'1'),
+    (2,'2'),
+    (3,'3'),
+    (4,'4'),
+    (5,'5'),
+    (6,'6'),
+)
 
 class NotificationType(models.Model):
     notification_user = models.ForeignKey(User)
-    notification_service = models.ManyToManyField(Service)
-    notification_type = models.PositiveIntegerField(null=True,choices=EVENT_STATUS_CHOICES, default=0)
-    notification_state = models.PositiveIntegerField(null=True,choices=EVENT_STATE_CHOICES, default=0)
-    notification_action = models.PositiveIntegerField(null=True)
-    notification_message = models.TextField(null=True, max_length=255)
+    notification_service = models.CharField(null=True, max_length=255)
+    notification_type = models.CharField(null=True, max_length=255)
+    notification_state = models.CharField(null=True, max_length=255)
+    notification_action = models.CharField(null=True, max_length=255)
+    notification_message = models.CharField(null=True, max_length=255)
     notification_class = models.CharField(max_length=32)
 
 

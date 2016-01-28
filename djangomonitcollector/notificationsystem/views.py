@@ -2,11 +2,13 @@ from braces.views import LoginRequiredMixin
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import DetailView, ListView
-from django.db.models import Count
 from models import NotificationType
-from models import Notification
+from models import Notification, EVENT_STATUS_CHOICES,EVENT_STATE_CHOICES ,EVENT_ACTION_CHOICES
 from djangomonitcollector.datacollector.models.service import Service
 from forms import NotificationTypeForm
+from django import forms
+
+
 
 
 class NotificationTypeView(LoginRequiredMixin, DetailView):
@@ -35,8 +37,9 @@ class NotificationTypeCreate(LoginRequiredMixin, CreateView):
         for service in  Service.objects.all():
         	if service.service_type==8:
         		print service.net.server
-        	print "{0}--->                  {1}".format(service.name,service.service_type)
-        context['form'].fields['notification_service'].queryset = Service.objects.order_by('service_type').annotate(Count('name'))
+        context['form'].fields['notification_type'] = forms.MultipleChoiceField(choices=EVENT_STATUS_CHOICES)
+        context['form'].fields['notification_state'] = forms.MultipleChoiceField(choices=EVENT_STATE_CHOICES)
+        context['form'].fields['notification_action'] = forms.MultipleChoiceField(choices=EVENT_ACTION_CHOICES)
         return context
 
 
