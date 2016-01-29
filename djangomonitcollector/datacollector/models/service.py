@@ -1,6 +1,5 @@
 from django.db import models
 
-# Service
 class Service(models.Model):
 
     name = models.TextField()

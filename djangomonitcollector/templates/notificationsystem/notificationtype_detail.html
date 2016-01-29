@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}{% load i18n %}
+{% block title %}Members{% endblock %}
+
+{% load staticfiles %}
+{% load extra_tags %}
+{% load notification_extra_tags %}
+
+{% block submenu %}
+
+{% endblock %}
+
+{% block page_header %}
+
+{% endblock %}
+
+{% block content %}
+    <h1>Notification:</h1>
+
+    <div class="col-md-6" >
+        {% if object.notification_service %}
+            <p><span class="text-uppercase"> Services :  </span> <span
+                    class="lead">{{ object.notification_service|from_array_to_ul }}</span></p>
+        {% endif %}
+        {% if object.notification_type %}
+            <p><span class="text-uppercase"> Type :  </span> <span
+                    class="lead">{{ object.notification_type }}</span></p>
+        {% endif %}
+        {% if object.notification_state %}
+            <p><span class="text-uppercase"> State :  </span> <span
+                    class="lead">{{ object.notification_state }}</span></p>
+        {% endif %}
+        {% if object.notification_action %}
+            <p><span class="text-uppercase"> Action :  </span> <span
+                    class="lead">{{ object.notification_action }}</span></p>
+        {% endif %}
+        {% if object.notification_action %}
+            <p><span class="text-uppercase"> Action :  </span> <span
+                    class="lead">{{ object.notification_action }}</span></p>
+        {% endif %}
+
+        {% if object.notification_message %}
+            <p><span class="text-uppercase"> Regex :  </span> <span
+                    class="lead">{{ object.notification_message }}</span></p>
+        {% endif %}
+        {% if object.notification_class %}
+            <p><span class="text-uppercase"> Class :  </span> <span
+                    class="lead">{{ object.notification_class }}</span></p>
+        {% endif %}
+
+
+    </div>
+{% endblock content %}
+{% block customjs %}
+
+{% endblock customjs %}

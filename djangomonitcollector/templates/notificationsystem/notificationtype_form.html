@@ -29,3 +29,12 @@
     </form>
 </div>
 {% endblock content %}
+{% block customjs %}
+    <script>
+    $('#id_notification_service').multiSelect({});
+    $('#id_notification_type').multiSelect({});
+    $('#id_notification_action').multiSelect({});
+    $('#id_notification_state').multiSelect({});
+    $('#id_notification_class').multiSelect({});
+    </script>
+{% endblock customjs %}

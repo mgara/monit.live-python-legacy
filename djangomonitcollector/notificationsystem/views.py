@@ -2,14 +2,10 @@ from braces.views import LoginRequiredMixin
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import DetailView, ListView
-from models import NotificationType
-from models import Notification, EVENT_STATUS_CHOICES,EVENT_STATE_CHOICES ,EVENT_ACTION_CHOICES
-from djangomonitcollector.datacollector.models.service import Service
+from models import NotificationType, Notification
 from forms import NotificationTypeForm
 from django import forms
-
-
-
+from djangomonitcollector.users.models import User
 
 class NotificationTypeView(LoginRequiredMixin, DetailView):
 
@@ -25,21 +21,18 @@ class NotificationTypeView(LoginRequiredMixin, DetailView):
 
     def get_object(self):
         notification_type_id = self.kwargs['pk']
-        # Only get the User record for the user making the request
-        return User.objects.get(id=notification_type_id)
+        return NotificationType.objects.get(id=notification_type_id)
 
 
 class NotificationTypeCreate(LoginRequiredMixin, CreateView):
     form_class = NotificationTypeForm
     model = NotificationType
+
     def get_context_data(self, **kwargs):
         context = super(NotificationTypeCreate, self).get_context_data(**kwargs)
-        for service in  Service.objects.all():
-        	if service.service_type==8:
-        		print service.net.server
-        context['form'].fields['notification_type'] = forms.MultipleChoiceField(choices=EVENT_STATUS_CHOICES)
-        context['form'].fields['notification_state'] = forms.MultipleChoiceField(choices=EVENT_STATE_CHOICES)
-        context['form'].fields['notification_action'] = forms.MultipleChoiceField(choices=EVENT_ACTION_CHOICES)
+        context['form'].fields['notification_user'] = forms.CharField(widget=forms.HiddenInput(),
+                                                                      initial=self.request.user.id
+                                                                      )
         return context
 
 

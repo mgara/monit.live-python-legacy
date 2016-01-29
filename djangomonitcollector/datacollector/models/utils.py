@@ -85,7 +85,6 @@ def remove_old_services(server, service_list):
         if net.name not in service_list:
             net.delete()
     for fs in filesystems:
-        print fs
         if fs.name not in service_list:
             fs.delete()
     server.save()
