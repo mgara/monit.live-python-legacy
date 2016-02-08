@@ -1,21 +1,18 @@
 __author__ = 'mehergara'
-
 from ieventnotification import IEventSettingsInterface
 from parameter import Parameter
 
 
-class SnmpEventNotification(IEventSettingsInterface):
+class RabbitMQEventNotification(IEventSettingsInterface):
 
     extra_params = {
-        'snmp_managers': Parameter('snmp_managers','SNMP Managers List (comma seperated) '),
+        'rabbitmq_server': Parameter('rabbitmq_server','Rabbit MQ Server'),
+        'rabbitmq_routing_key': Parameter('rabbitmq_routing_key','Rabbit MQ Raouting Key'),
     }
 
-    def __init__(self):
-            pass
 
     def process(self):
-        print self.event
-        print self.extra_params
+        pass
 
     def finalize(self, event_object):
         # put whatever you want to be done after the process command
