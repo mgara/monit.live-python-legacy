@@ -19,6 +19,14 @@ class NotificationType(models.Model):
     notification_message = models.CharField(null=True, max_length=255)
     notification_class = models.CharField(max_length=32)
 
+    notification_label = models.CharField(max_length=100)
+    notification_enabled = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    notification_plugin_extra_params = models.TextField(null=True)
+
     def get_absolute_url(self):
         return reverse('n:notificationtype_view', kwargs={'pk': self.pk})
 

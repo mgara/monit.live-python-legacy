@@ -3,9 +3,12 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import DetailView, ListView
 from models import NotificationType, Notification
-from forms import NotificationTypeForm
+from forms import NotificationTypeForm, get_class_name_and_extra_params
 from django import forms
-from djangomonitcollector.users.models import User
+from django.http import JsonResponse
+
+def notificationtypeactivation(request):
+    pass
 
 class NotificationTypeView(LoginRequiredMixin, DetailView):
 
@@ -51,10 +54,9 @@ class NotificationTypeUpdate(LoginRequiredMixin, UpdateView):
         return reverse_lazy("n:notificationtype_show",
                             kwargs={"pk": notification_type_id})
 
-
 class NotificationTypeDelete(DeleteView):
     model = NotificationType
-    success_url = reverse_lazy('notificationtype_list')
+    success_url = reverse_lazy('n:notificationtype_list')
 
 
 class NotificationTypeListView(LoginRequiredMixin, ListView):
@@ -79,9 +81,9 @@ class NotificationView(LoginRequiredMixin, DetailView):
         return Notification.objects.get(id=notification_type_id)
 
 
-class NotificationDelete(DeleteView):
+class NotificationDelete(LoginRequiredMixin, DeleteView):
     model = NotificationType
-    success_url = reverse_lazy('notification_list')
+    success_url = reverse_lazy('n:notification_list')
 
 
 class NotificationListView(LoginRequiredMixin, ListView):
@@ -90,3 +92,32 @@ class NotificationListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         user = self.request.user
         return self.model.objects.filter(notification_user=user)
+
+
+def get_notification_plugin_form(request):
+    try:
+        plugin_name = request.GET['plugin_name']
+        k,extra_params = get_class_name_and_extra_params(plugin_name.lower())
+        output = ""
+        for field in extra_params.keys():
+            output+=get_component(extra_params[field].id,extra_params[field].label)
+
+        res = {
+            'error_id' : 0,
+            'html_form' : output
+        }
+
+    except StandardError as e:
+        res = {
+            'error': e.message,
+            'html_form': "Error"
+        }
+
+    return JsonResponse(res)
+
+def get_component(_id,_label):
+    return '<div id="div_id_{0}" class="form-group has-warning">' \
+           '<label for="id_{0}" class="control-label  requiredField">{1}</label>' \
+           '<div class="controls ">' \
+           '<input class="textinput textInput form-control" id="id_{0}" maxlength="100" name="{0}" type="text"> </div>' \
+           '</div> '.format(_id,_label)

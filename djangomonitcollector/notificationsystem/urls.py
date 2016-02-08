@@ -4,6 +4,11 @@ from . import views
 
 urlpatterns = [
     url(
+        regex=r'^notificationtype/get_plugin_form/$',
+        view=views.get_notification_plugin_form,
+        name='get_plugin_form'
+    ),
+    url(
         regex=r'^notificationtype/create/$',
         view=views.NotificationTypeCreate.as_view(),
         name='notificationtype_create'
@@ -18,6 +23,17 @@ urlpatterns = [
         view=views.NotificationTypeUpdate.as_view(),
         name='notificationtype_update'
     ),
+    url(
+        regex=r'^notificationtype/toggle/(?P<pk>\d+)/$',
+        view=views.notificationtypeactivation,
+        name='notificationtype_activation'
+    ),
+    url(
+        regex=r'^notificationtype/delete/(?P<pk>\d+)/$',
+        view=views.NotificationTypeDelete.as_view(),
+        name='notificationtype_delete'
+    ),
+
     url(
         regex=r'^notificationtype/list/$',
         view=views.NotificationTypeListView.as_view(),
