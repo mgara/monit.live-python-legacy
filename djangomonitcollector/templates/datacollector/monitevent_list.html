@@ -5,7 +5,13 @@
 {% block title %}Server {{ server.localhostname }} {% endblock %}
 {% block content %}
 <div class="container">
+    <div class="page-header">
+        <h1>Last Events for <small>{{ server.localhostname }}</small>
+        </h1>
+    </div>
+    <div class="row">
 
+    </div>
     <div class="row">
 
         <div class="list-group">
@@ -15,7 +21,7 @@
 
                 <p class="list-group-item-text">
                 <h5 ><b>{{ monit_event.event_type|type_to_string }}</b> Event <b>{{ monit_event.event_id|event_status_to_string }}</b> : <b>{{ monit_event.event_state|event_state_to_string }}</b></h5>
-                <span >Action : {{ monit_event.event_action }}</span>
+                <span >Action : {{ monit_event.event_action|action_to_string }}</span>
                 </p>
                 <div class="btn-group" role="group" aria-label="...">
                     <button type="button" id="mute_events"
@@ -29,11 +35,12 @@
                     <button type="button" id="ack-{{ monit_event.id }}" data-id="{{ monit_event.id }}"
                             class="btn btn-xs btn-default btn-{{ monit_event.event_state|event_state_to_style }}">ACK
                     </button>
-                    <script>
+                    <script language="javascript">
                         // Submit post on submit
                         $('#ack-{{ monit_event.id }}').on("click", function (event) {
                             event_id = $(this).data("id");
-                            ack(event_id)
+                            ack(event_id);
+                            return false
                         });
                     </script>
                 </div>
@@ -49,36 +56,8 @@
     </div>
 </div>
 {% endblock %}
-{% block ajaxcalls %}
-    <script>
-
-        $(function () {
-
-        });
-
-        // AJAX for posting
-        function ack(event_id) {
-            console.log("create post is working!") // sanity check
-            $.ajax({
-                url: "{% url 'ui:ack_event' %}", // the endpoint
-                type: "POST", // http method
-                data: {"event_id": event_id},
-                // handle a successful response
-                success: function (json) {
-                    event_id = json.event_id
-                    element_selector = "#event-element-"+event_id
-                    $(element_selector).fadeOut()
-                },
-
-                // handle a non-successful response
-                error: function (xhr, errmsg, err) {
-                    $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
-                            " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-                    console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-                }
-            });
-        }
-        ;
+{% block customjs %}
+    <script language="JavaScript">
 
         function getCookie(name) {
             var cookieValue = null;
@@ -95,12 +74,13 @@
             }
             return cookieValue;
         }
-        var csrftoken = getCookie('csrftoken');
+            var csrftoken = getCookie('csrftoken');
 
         function csrfSafeMethod(method) {
             // these HTTP methods do not require CSRF protection
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
         }
+
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
@@ -109,5 +89,27 @@
             }
         });
 
+        // AJAX for posting
+        var ack = function(event_id) {
+            $.ajax({
+                url: "{% url 'ui:ack_event' %}", // the endpoint
+                type: "POST", // http method
+                data: {"event_id": event_id},
+                // handle a successful response
+                success: function (json) {
+                    event_id = json.event_id
+                    element_selector = "#event-element-"+event_id
+                    $(element_selector).fadeOut(150)
+                },
+
+                // handle a non-successful response
+                error: function (xhr, errmsg, err) {
+                    $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                            " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                    console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                }
+            });
+        };
+        console.log("Loaded")
     </script>
-{% endblock ajaxcalls %}
+{% endblock customjs %}

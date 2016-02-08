@@ -9,17 +9,16 @@ from django.http import JsonResponse
 from django.conf import settings
 import requests
 from django.contrib.auth.decorators import user_passes_test
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView
+from django.views.generic import DetailView, ListView, RedirectView, UpdateView, DeleteView
 from braces.views import LoginRequiredMixin
 
 from pytz import timezone
-import pytz
 
 from djangomonitcollector.datacollector.models import  Server, MonitEvent
 from djangomonitcollector.datacollector.models import MemoryCPUSystemStats
 from djangomonitcollector.users.models import validate_user
+from django.core.urlresolvers import reverse_lazy
 
-from django.utils.timezone import LocalTimezone
 
 # import the logging library
 import logging
@@ -32,9 +31,8 @@ default_display_period = int(getattr(settings, 'DISPLAY_PERIOD', 24))  # four_ho
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def dashboard(request):
-    if Server.objects.all().count() > 0:
-        servers = Server.objects.filter(user_id=request.user).order_by('localhostname')
-
+    servers = Server.objects.filter(user_id=request.user).order_by('localhostname')
+    if request.user.server_set.all().count() > 0:
         for server in servers:
             server.alerts = server.monitevent_set.filter(is_ack=False).count()
         return render(request, 'ui/dashboard.html', {'servers': servers, 'server_found': True})
@@ -242,6 +240,9 @@ def load_process_data(request, server_id, process_name):
 class ServerShowView(LoginRequiredMixin, DetailView):
     model = Server
 
+class ServerDeleteView(LoginRequiredMixin, DeleteView):
+    model = Server
+    success_url = reverse_lazy('ui:dashboard')
 
 class ServerUpdateView(LoginRequiredMixin, UpdateView):
     fields = ['http_address', 'http_username', 'http_password','monit_update_period','data_timezone','is_new']

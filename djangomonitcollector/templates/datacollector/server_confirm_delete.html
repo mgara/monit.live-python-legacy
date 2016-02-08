@@ -1,0 +1,33 @@
+
+
+
+{% extends "base.html" %}
+{% load static %}
+{% load extra_tags %}
+
+{% block title %}Server: {{ object.localhostname }}{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="page-header">
+            <h1>Delete
+                <small>{{ object.localhostname }}</small>
+            </h1>
+        </div>
+        <form action="" method="post">{% csrf_token %}
+
+            <div class="row">
+                <p>Are you sure you want to delete "{{ object.localhostname }}"?</p>
+            </div>
+            <hr class="divider"/>
+            <div class="row">
+                <div class="control-group">
+                    <div class="form-controls">
+                        <input type="submit" value="Confirm" class="btn btn-danger"/>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock content %}
+

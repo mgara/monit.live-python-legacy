@@ -9,6 +9,11 @@
 
 
 {% block content %}
+    <div class="page-header">
+        <h1>Delete Server <small>{{ server.localhostname }}</small>
+        </h1>
+    </div>
+
   <form method="POST" action="{% url 'monitcollector.views.delete_server' server.id%}" style="text-align: center;">
       {% csrf_token %}
       <h3>Do you really want to remove the server {{ server.localhostname }}? It will be added again if it continues sending data. </h3>

@@ -1,10 +1,14 @@
 from xml.dom import minidom
 import datetime
+import ast
+import re
+import importlib
 
 from django.db import models
 from pytz import timezone
 
 from service import Service
+from threading import Thread
 
 from process import Process
 from system import System
@@ -14,9 +18,16 @@ from platform import Platform
 from file import File
 from url import Host
 from program import Program
-from utils import remove_old_services, get_value,get_string,TIMEZONES_CHOICES
-from djangomonitcollector.users.models import CollectorKey, User
 
+
+from utils import \
+    remove_old_services, \
+    get_value,get_string,\
+    TIMEZONES_CHOICES
+
+from djangomonitcollector.users.models import \
+    CollectorKey, \
+    User
 
 class CollectorKeyError(Exception):
     def __init__(self, message):
@@ -161,14 +172,58 @@ class MonitEvent(models.Model):
         event_obj.event_message = get_value(xml_doc, "message", "")
         event_obj.event_time = datetime.datetime.fromtimestamp(float(unix_timestamp)).replace(tzinfo=tz)
         event_obj.save()
+        thread = Thread(target=process_event, args =(event_obj,))
+        thread.start()
         return event_obj
 
     @classmethod
-    def mute(cls):
-        pass
+    def mute(cls,event_object):
+        event_object.is_ack = True
+        event_object.save()
 
-    @classmethod
-    def notify(cls):
-        pass
+    def __str__(self):
+        return "Monit Event For {0}".format(self.service)
+
+def process_event(event_object):
+    user = event_object.server.user_id
+    for nt in user.notificationtype_set.all():
+        if nt.notification_enabled :
+            name_matches =  check_item(event_object.service.name,nt.notification_service)
+            state_matches = check_item(event_object.event_state,nt.notification_state)
+            action_matches =  check_item(event_object.event_action,nt.notification_action)
+            type_matches =  check_item(event_object.event_type,nt.notification_type)
+            messages_matches = True if re.search(nt.notification_message, event_object.event_message) else False
+
+            if name_matches and state_matches and action_matches and type_matches and messages_matches:
+                notification_handler_module = importlib.import_module("djangomonitcollector.notificationsystem.lib.{0}".format(nt.notification_class.lower()))
+                class_ =  getattr(notification_handler_module, nt.notification_class)
+                notification_class_instance = class_()
+                notification_class_instance.set_event(event_object)
+                notification_class_instance.set_extra_params(nt.notification_plugin_extra_params)
+                notification_class_instance.process()
+            else:
+                print "no event matches"
+                print name_matches
+                print state_matches
+                print action_matches
+                print type_matches
+                print messages_matches
+                print event_object
+                print "---------------------"
 
 
+def check_item(item,string_list_of_items):
+    if string_list_of_items is None:
+        return True
+    try:
+        list_of_items = ast.literal_eval(string_list_of_items)
+    except:
+        print "exception while parsing {}".format(string_list_of_items)
+        return "Error"
+    if len(list_of_items) == 0:
+        return True
+    if list_of_items is not None:
+        if str(item) in list_of_items:
+            return True
+        return False
+    return True

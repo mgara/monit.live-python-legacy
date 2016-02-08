@@ -2,17 +2,10 @@
 {% load staticfiles %}
 {% load extra_tags %}
 
-{% block page_header %}
-    <div>
-  <p><p> Monit <b>{{ server.monit_version }}</b> is running on server <b>{{ server.localhostname }}</b> (IP: <b>{{ server.address }}</b>) with uptime <b>{{ server.uptime|time_str }}</b></p>
-  <small><cite><p>Platform: {{ server.platform.name }}, release: {{ server.platform.release }}, version: {{ server.platform.version }}, machine: {{ server.platform.machine }}, CPU: {{ server.platform.cpu }}, {{server.platform.memory|kb_formatting }} memory, {{ server.platform.swap|kb_formatting }} swap</p></cite></small>
-</div>
-{% endblock %}
-
-
 {% block submenu %}
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'ui:server_alerts' server.id %}">Alerts <span class="label label-{{ alerts_count|status_alert }}">{{alerts_count }}</span></a>
+        <a class="nav-link" href="{% url 'ui:server_alerts' server.id %}">Alerts <span
+                class="label label-{{ alerts_count|status_alert }}">{{ alerts_count }}</span></a>
     </li>
     <li class="nav-item">
         <a class="nav-link" href="{% url 'ui:server_show' server.id %}">Server Settings</a>
@@ -22,55 +15,76 @@
 {% block content %}
 
 
-<div class="row clearfix">
-  <div class="col-md-12 column">
-    
-    <div class="col-lg-4 col-md-6 column">
-      <div id="graph_load" class="graph" style="width:100%;"></div>
-    </div>
-    <div class="col-lg-4 col-md-6 column">  
-      <div id="graph_cpu" class="graph" style="width:100%;"></div>
-    </div>
-    <div class="col-lg-4 col-md-6 column">  
-      <div id="graph_mem" class="graph" style="width:100%;"></div>
-    </div>
-    <small>Zoom: click-drag --- Pan: shift-click-drag --- Restore zoom level: double-click</small>
-  </div>
-</div> 
+    <div class="row clearfix">
 
-<div class="row clearfix marginTop">
-  <div class="col-md-12 column">
-      <h5>Processes</h5>
-    <div id="server_table" class="table-responsive">
-        {% include "ui/includes/server_table.html" %}
-    </div>
-  </div>
-    <div class="col-md-12 column">
-        <h5>Network</h5>
-        <div id="server_table" class="table-responsive">
-            {% include "ui/includes/net_table.html" %}
+        <div class="page-header">
+            <h1>Server <small>{{ server.localhostname }}</small>
+            </h1>
         </div>
-    </div>
+        <div class="row">
+            <p> Monit <b>{{ server.monit_version }}</b> is running on server <b>{{ server.localhostname }}</b> (IP:
+                <b>{{ server.address }}</b>) with uptime <b>{{ server.uptime|time_str }}</b></p>
+            <small><cite><p>Platform: {{ server.platform.name }}, release: {{ server.platform.release }},
+                version: {{ server.platform.version }}, machine: {{ server.platform.machine }},
+                CPU: {{ server.platform.cpu }}, {{ server.platform.memory|kb_formatting }}
+                memory, {{ server.platform.swap|kb_formatting }} swap</p></cite></small>
+
+        </div>
+
+        <hr class="divider">
 
         <div class="col-md-12 column">
-        <h5>FileSystem</h5>
-        <div id="server_table" class="table-responsive">
-            {% include "ui/includes/filesystem_table.html" %}
+
+            <div class="col-lg-4 col-md-6 column">
+                <div id="graph_load" class="graph" style="width:100%;"></div>
+            </div>
+            <div class="col-lg-4 col-md-6 column">
+                <div id="graph_cpu" class="graph" style="width:100%;"></div>
+            </div>
+            <div class="col-lg-4 col-md-6 column">
+                <div id="graph_mem" class="graph" style="width:100%;"></div>
+            </div>
+            <small>Zoom: click-drag --- Pan: shift-click-drag --- Restore zoom level: double-click</small>
         </div>
     </div>
+
+    <div class="row clearfix marginTop">
+        <div class="col-md-12 column">
+            <h5>Processes</h5>
+
+            <div id="server_table" class="table-responsive">
+                {% include "ui/includes/server_table.html" %}
+            </div>
+        </div>
+        <div class="col-md-12 column">
+            <h5>Network</h5>
+
+            <div id="server_table" class="table-responsive">
+                {% include "ui/includes/net_table.html" %}
+            </div>
+        </div>
 
         <div class="col-md-12 column">
-        <h5>Hosts</h5>
-        <div id="server_table" class="table-responsive">
-            {% include "ui/includes/host_table.html" %}
+            <h5>FileSystem</h5>
+
+            <div id="server_table" class="table-responsive">
+                {% include "ui/includes/filesystem_table.html" %}
+            </div>
+        </div>
+
+        <div class="col-md-12 column">
+            <h5>Hosts</h5>
+
+            <div id="server_table" class="table-responsive">
+                {% include "ui/includes/host_table.html" %}
+            </div>
         </div>
     </div>
-</div>
 
-<script src="{% static 'js/jquery-2.1.4.min.js'%}"></script>
-<script src="{% static 'js/dygraph-combined.js'%}"></script>
-<script src="{% static 'js/csrf.js'%}"></script>
-<script>
+    <script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
+    <script src="{% static 'js/dygraph-combined.js' %}"></script>
+    <script src="{% static 'js/csrf.js' %}"></script>
+    <script>
  $(document).ready(function () {
       var point_size = 1;
       var stroke_width = 2;

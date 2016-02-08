@@ -23,7 +23,7 @@
 
         {% for server in servers %}
             {% if not server.is_new %}
-            <tr  onclick="document.location = '{% url 'ui:server' server.id %}';"  >
+            <tr class="link" onclick="document.location = '{% url 'ui:server' server.id %}';"  >
                 <td>{{ server.localhostname }}</td>
                 <td>{{ server.address }}</td>
                 <td>{{ server.monit_version }}</td>

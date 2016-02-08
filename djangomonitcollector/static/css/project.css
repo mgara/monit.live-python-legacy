@@ -81,3 +81,8 @@ body > .container {
 code {
   font-size: 80%;
 }
+
+
+tr.link {
+    cursor: pointer; cursor: hand;
+}

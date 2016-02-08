@@ -6,11 +6,13 @@
 
 {% block content %}
     <div class="container">
-
+        <div class="page-header">
+            <h1>Server <small>{{ object.localhostname }}</small>
+            </h1>
+        </div>
         <div class="row">
             <div class="col-sm-12">
 
-                <h2>{{ object.localhostname }}</h2>
                 {% if object.address %}
                     <p><span class="text-uppercase"> IP Address :  </span> <span
                             class="lead">{{ object.address }}</span></p>
@@ -54,11 +56,13 @@
 
             </div>
         </div>
-
+        <hr class="divider"></hr>
         <div class="row">
-
-            <div class="col-sm-12 ">
-                <a class="btn btn-primary" href="{% url 'ui:server_update' object.id %}">Update</a>
+            <div class="control-group">
+                <div class="form-controls">
+                    <a class="btn btn-primary" href="{% url 'ui:server_update' object.id %}">Update</a>
+                    <a class="btn btn-danger pull-right" href="{% url 'ui:server_delete' object.id %}">Delete</a>
+                </div>
             </div>
         </div>
 

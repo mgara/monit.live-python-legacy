@@ -179,12 +179,29 @@ def event_status_to_string(status):
 def event_state_to_string(state):
     state_int = int(state)
     state_dic = {
-        0:'Success', 
+        0:'Success',
         1:'Error',
         2:'Change',
         3:'Link mode not changed'
     }
     return state_dic[state_int]
+
+
+@register.filter
+def action_to_string(action):
+    action_int = int(action)
+    action_dict = {
+        0:'0',
+        1:'1',
+        2:'2',
+        3:'3',
+        4:'4',
+        5:'Unmonitor',
+        6:'Reload',
+        7:'7',
+    }
+    return action_dict[action_int]
+
 
 @register.filter
 def event_state_to_style(state):

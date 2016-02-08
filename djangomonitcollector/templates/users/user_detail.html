@@ -5,11 +5,12 @@
 
 {% block content %}
     <div class="container">
-
+        <div class="page-header">
+            <h1>User <small>{{ object.username }}</small>
+            </h1>
+        </div>
         <div class="row">
             <div class="col-sm-12">
-
-                <h3>Profile : {{ object.username }}</h3>
                 <h4>Name : </h4>
                 {% if object.name %}
                     <p>{{ object.name }}</p>

@@ -25,6 +25,11 @@ urlpatterns = [
         name='server_update'
     ),
     url(
+        regex=r'^server/delete/(?P<pk>\d+)/$',
+        view=views.ServerDeleteView.as_view(),
+        name='server_delete'
+    ),
+    url(
         regex=r'^server/show/(?P<pk>\d+)/$',
         view=views.ServerShowView.as_view(),
         name='server_show'
