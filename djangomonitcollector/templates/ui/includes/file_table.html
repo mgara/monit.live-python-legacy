@@ -1,0 +1,30 @@
+{% load extra_tags %}
+<div id="file_table" class="table-responsive">
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>name</th>
+          <th>status</th>
+          <th>Status Hint</th>
+            <th>Size</th>
+            <th>Permission</th>
+            <th>UID</th>
+            <th>GID</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for file in files %}
+        <tr  class="link">
+            <td>{{ file.name }}</td>
+            <td ><span class="label label-{{ file.status|status_tr_class:file.monitor }}">{{ file.status|status_to_string:file}}</span></td>
+            <td>{{ file.status_hint }}</td>
+            <td>{{ file.size|human_readable_size }}</td>
+            <td>{{ file.permission }}</td>
+            <td>{{ file.uid }}</td>
+            <td>{{ file.gid }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+</div>
+
