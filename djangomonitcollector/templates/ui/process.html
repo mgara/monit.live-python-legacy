@@ -15,29 +15,19 @@
 {% if process_found %}
 <div class="row clearfix">
   <div class="col-md-12 column">
-    <p class="helper">Zoom: click-drag --- Pan: shift-click-drag --- Restore zoom level: double-click</p>
-    <div class="col-lg-6 col-md-6 column">  
+    <div class="col-lg-6 col-md-6 column">
       <div id="graph_cpu" class="graph" style="width:100%;"></div>
     </div>
     <div class="col-lg-6 col-md-6 column">  
       <div id="graph_mem" class="graph" style="width:100%;"></div>
     </div>
+      <p class="helper">Zoom: click-drag --- Pan: shift-click-drag --- Restore zoom level: double-click</p>
   </div>
 </div>
 <div class="row clearfix marginTop">  
   <div class="col-md-12 column">
      {% include "ui/includes/process_table.html" %}
   </div>
-</div>
-<div class="row clearfix">
-{% if enable_buttons %}
-        {% include "ui/includes/process_buttons.html" %}
-{% else %}
-  <div class="col-md-12 column marginTop" style="text-align: center;">
-    <h4> To enable start/stop buttons follow the instructions in the README file. </h4>
-  </div>
-{% endif %}
-    
 </div>
 {% else %}
 <div class="row clearfix">
