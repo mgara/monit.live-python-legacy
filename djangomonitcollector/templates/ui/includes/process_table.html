@@ -13,12 +13,12 @@
       </thead>
       <tbody>
         <tr class="{{ process.status|status_tr_class:process.monitor }}">
-          <td>{{ process.name }}</td>
-          <td >{{ process.status|status_str:process.monitor }}</td>
-          <td>{{ process.uptime|time_str }}</td>
-          <td>{% if process.children %}{{ process.children|format_number }}{% endif %}</td>
-          <td>{{ process.cpu_percent_last|percent }}</td>
-          <td>{{ process.memory_percent_last|percent }} {% if process.memory_kilobyte_last %}[{{ process.memory_kilobyte_last*1024.0|human_readable_size}}] {% endif %}</td>
+            <td>{{ process.name }}</td>
+            <td ><span class="label label-{{ process.status|status_tr_class:process.monitor }}">{{ process.status|status_to_string:process}}</span></td>
+            <td>{{ process.uptime|time_str }}</td>
+            <td>{% if process.children %}{{ process.children|format_number }}{% endif %}</td>
+            <td>{{ process.cpu_percent_last|percent }}</td>
+            <td>{{ process.memory_percent_last|percent }} {% if process.memory_kilobyte_last %}[{{ process.memory_kilobyte_last|kb_formatting}}] {% endif %}</td>
         </tr>
       </tbody>
     </table>
