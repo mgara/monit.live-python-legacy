@@ -86,6 +86,8 @@ def server(request, server_id):
     date_last = "[{0}]".format(",".join(date_last))
 
     processes = server.process_set.all().order_by('name')
+    programs = server.program_set.all().order_by('name')
+    files = server.file_set.all().order_by('name')
     nets = server.net_set.all().order_by('name')
     filesystems = server.filesystem_set.all().order_by('name')
     hosts = server.host_set.all().order_by('name')
@@ -108,6 +110,8 @@ def server(request, server_id):
         'swap_kilobyte': swap_kilobyte,
         'processes': processes,
         'nets': nets,
+        'programs': programs,
+        'files': files,
         'filesystems':filesystems,
         'hosts':hosts,
         'alerts_count':alerts_count,
@@ -121,14 +125,17 @@ def server(request, server_id):
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def process(request, server_id, process_name):
-    try:
+
         server = Server.objects.get(id=server_id)
         process = server.process_set.get(name=process_name)
         return render(request, 'ui/process.html',
-                      {'enable_buttons': False, 'process_found': True, 'server': server, 'process': process,
-                       'monit_update_period': server.monit_update_period})
-    except:
-        return render(request, 'ui/process.html', {'process_found': False})
+                      {'enable_buttons': False,
+                       'process_found': True,
+                       'server': server,
+                       'process': process,
+                       'monit_update_period': server.monit_update_period
+                       })
+
 
 
 @user_passes_test(validate_user, login_url='/accounts/login/')

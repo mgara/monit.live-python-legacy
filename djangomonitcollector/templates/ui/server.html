@@ -57,13 +57,12 @@
             </div>
         </div>
         <div class="col-md-12 column">
-            <h5>Network</h5>
+            <h5>Programs</h5>
 
             <div id="server_table" class="table-responsive">
-                {% include "ui/includes/net_table.html" %}
+                {% include "ui/includes/program_table.html" %}
             </div>
         </div>
-
         <div class="col-md-12 column">
             <h5>FileSystem</h5>
 
@@ -71,7 +70,20 @@
                 {% include "ui/includes/filesystem_table.html" %}
             </div>
         </div>
+        <div class="col-md-12 column">
+            <h5>Files</h5>
 
+            <div id="server_table" class="table-responsive">
+                {% include "ui/includes/file_table.html" %}
+            </div>
+        </div>
+        <div class="col-md-12 column">
+            <h5>Network</h5>
+
+            <div id="server_table" class="table-responsive">
+                {% include "ui/includes/net_table.html" %}
+            </div>
+        </div>
         <div class="col-md-12 column">
             <h5>Hosts</h5>
 
@@ -79,6 +91,7 @@
                 {% include "ui/includes/host_table.html" %}
             </div>
         </div>
+
     </div>
 
     <script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
