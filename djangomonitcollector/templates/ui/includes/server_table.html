@@ -15,13 +15,16 @@
     </thead>
     <tbody>
       {% for process in processes %}
-          <tr href="#" onclick="document.location = '{% url 'ui:process' server.id process.name %}';">
+          <tr class="link" href="#" onclick="document.location = '{% url 'ui:process' server.id process.name %}';">
               <td>{{ process.name }}</td>
               <td ><span class="label label-{{ process.status|status_tr_class:process.monitor }}">{{ process.status|status_to_string:process}}</span></td>
               <td>{{ process.uptime|time_str }}</td>
               <td>{% if process.children %}{{ process.children|format_number }}{% endif %}</td>
-              <td>{{ process.cpu_percent_last|percent }}</td>
-              <td>{{ process.memory_percent_last|percent }} {% if process.memory_kilobyte_last %}[{{ process.memory_kilobyte_last|kb_formatting}}] {% endif %}</td>
+              <td>{% autoescape off %}{{ process.cpu_percent_last|percent_to_bar }}{% endautoescape %}</td>
+
+              <td> {% if process.memory_kilobyte_last %}[{{ process.memory_kilobyte_last|kb_formatting}}] {% endif %}
+                  {% autoescape off %}{{ process.memory_percent_last|percent_to_bar }}{% endautoescape %}
+              </td>
           </tr>
       {% endfor%}
     </tbody>
