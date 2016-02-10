@@ -32,4 +32,4 @@ class File(Service):
         file_.timestamp = get_value(service, "timestamp", "")
 
         file_.save()
-        return file
+        return file_

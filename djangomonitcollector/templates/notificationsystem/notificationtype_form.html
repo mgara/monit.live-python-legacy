@@ -17,7 +17,6 @@
     <form id="notification_type_form" class="form-horizontal" method="post" action="">
         {% csrf_token %}
         {{ form|crispy }}
-
         <div id="extra_params_container"></div>
         <hr class="divider"/>
         <div class="control-group">
@@ -30,9 +29,13 @@
         <script language="javascript">
             // Submit post on submit
             $('#id_notification_class').on("change", function (event) {
-                console.log($(this).val());
                 get_plugin_form($(this).val());
             });
+
+            $(function(){
+                 get_plugin_form($('#id_notification_class').val());
+            })
+            
         </script>
 
 {% endblock content %}

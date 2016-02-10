@@ -7,7 +7,7 @@ from parameter import Parameter
 class SnmpEventNotification(IEventSettingsInterface):
 
     extra_params = {
-        'snmp_managers': Parameter('snmp_managers','SNMP Managers List (comma seperated) '),
+        'snmp_managers': Parameter('snmp_managers','SNMP Managers List (comma seperated)'),
     }
 
     def __init__(self):

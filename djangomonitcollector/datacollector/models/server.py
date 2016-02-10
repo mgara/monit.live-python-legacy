@@ -130,6 +130,7 @@ def collect_data(xml_str, ck):
             'monit')[0].attributes["id"].value
     except:
         return False, "Problem parsing the xml document"
+
     try:
         ckobj = CollectorKey.objects.get(pk=ck)
         if ckobj:
@@ -217,8 +218,9 @@ def check_item(item,string_list_of_items):
         return True
     try:
         list_of_items = ast.literal_eval(string_list_of_items)
-    except:
-        print "exception while parsing {}".format(string_list_of_items)
+    except StandardError as e:
+        print "exception while parsing {} ".format(string_list_of_items)
+        print "exception details {}".format(e)
         return "Error"
     if len(list_of_items) == 0:
         return True

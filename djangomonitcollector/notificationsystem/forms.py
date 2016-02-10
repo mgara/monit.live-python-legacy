@@ -49,6 +49,7 @@ EVENT_ACTION_CHOICES = (
     (5,'5'),
     (6,'6'),
 )
+
 '''
 Check if file is valid : is an actual file and its name doesn't match the pattern (Exclusion list)
 '''
@@ -106,6 +107,7 @@ class NotificationTypeForm(forms.ModelForm):
         fields =[
             'notification_label',
             'notification_enabled',
+          
             #TODO: must find a better way to get the current user.
             'notification_user',
             'notification_message',

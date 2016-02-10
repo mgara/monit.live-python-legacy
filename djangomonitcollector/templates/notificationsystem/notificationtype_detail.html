@@ -25,39 +25,59 @@
                 <small>{{ object.notification_label }}</small>
             </h1>
         </div>
+         {% if "Mute" in object.notification_class %}
+        <div class="row list-group-item list-group-item-danger">
+            <div class="col-sm-12 ">
+                <button type="button" class="btn btn-danger pull-right" data-toggle="modal" data-target=".bs-example-modal-sm">Apply "{{ object.notification_label}}" for previous alerts</button>
+            </div>
+         </div>
+          <div class="modal bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+              <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    test
+                </div>
+              </div>
+            </div>
+            {% endif %}
 
-        <div class="col-md-6">
+        <div class="row col-md-6">
             {% if object.notification_service|check_size %}
                 <p><span class="text-uppercase"> if Services in:  </span> <span
                         class="lead">{{ object.notification_service|parse_service_list | safe }}</span></p>
             {% endif %}
             {% if object.notification_type %}
-                <p><span class="text-uppercase">and monit alert Type in :  </span> <span
+                <p><span class="text-uppercase">And monit alert Type in :  </span> <span
                         class="lead">{{ object.notification_type | parse_notification_type | safe }}</span></p>
             {% endif %}
             {% if object.notification_state %}
-                <p><span class="text-uppercase">and monit alert State in:  </span> <span
+                <p><span class="text-uppercase">And monit alert State in:  </span> <span
                         class="lead">{{ object.notification_state | parse_notification_state | safe }}</span></p>
             {% endif %}
             {% if object.notification_action %}
-                <p><span class="text-uppercase">and monit Action in :  </span> <span
+                <p><span class="text-uppercase">And monit Action in :  </span> <span
                         class="lead">{{ object.notification_action | parse_notification_action | safe }}</span></p>
             {% endif %}
 
             {% if object.notification_message %}
-                <p><span class="text-uppercase">and monit messages matches :  </span> <span
+                <p><span class="text-uppercase">And monit messages matches :  </span> <span
                         class="lead"><h5><span class="label label-info">{{ object.notification_message }}</span>
                 </h5></span></p>
             {% endif %}
 
             {% if object.notification_class %}
-                <p><span class="text-uppercase">apply notification Class :  </span> <span
+                <p><span class="text-uppercase">Apply notification Class :  </span> <span
                         class="lead"><h5><span class="label label-info">{{ object.notification_class }}</span>
                 </h5> </span>
                 </p>
             {% endif %}
 
 
+            {% if object.notification_plugin_extra_params %}
+                <p><span class="text-uppercase"> Plugin extra parameters :  </span> <span
+                        class="lead"><h5><span class="label label-info">{{ object.notification_plugin_extra_params }}</span>
+                </h5> </span>
+                </p>
+            {% endif %}
             <p><span class="text-uppercase">Enabled :  </span> <span
                     class="lead"><h5>
                 {% if object.notification_enabled %}
@@ -66,7 +86,6 @@
                     <span class="label label-danger">OFF</span>
                 {% endif %}
             </h5> </span></p>
-
         </div>
     </div>
     <hr class="divider">
@@ -78,7 +97,6 @@
             <a class="btn btn-warning" href="{% url 'n:notificationtype_activation' object.id %}">Disable</a>
             <a class="btn btn-primary" href="{% url 'n:notificationtype_update' object.id %}">Update</a>
             <a class="btn btn-danger pull-right" href="{% url 'n:notificationtype_delete'  object.id %}">Delete</a>
-            <!-- Your Stuff: Custom user template urls -->
         </div>
     </div>
 

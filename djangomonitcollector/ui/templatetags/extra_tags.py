@@ -199,14 +199,12 @@ def event_state_to_string(state):
 def action_to_string(action):
     action_int = int(action)
     action_dict = {
-        0:' 0',
-        1:' 1',
-        2:' 2',
-        3:' 3',
-        4:' 4',
-        5:' 5',
-        6:' 6',
-        7:' 7',
+        1:'1:ALERT (monit alert generated)',
+        2:'2:RESTART (trying to restart)',
+        3:'3:STOP',
+        4:'4:EXEC',
+        5:'5:UNMONITOR',
+        6:'6:RELOAD',
     }
     return action_dict[action_int]
 
