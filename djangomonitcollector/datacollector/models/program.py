@@ -10,6 +10,7 @@ class Program(Service):
     date = models.TextField(null=True)
     started = models.IntegerField(null=True)
     output = models.TextField(null=True)
+    exitcode = models.CharField(null=True,max_length=5)
 
     @classmethod
     def update(cls, xmldoc, server, service):
@@ -23,6 +24,7 @@ class Program(Service):
         program.pending_action = get_value(service, "pendingaction", "")
         program.started = get_int(service, "program.started", -1)
         program.output = get_string(service, "program.output", "")
+        program.exitcode = get_string(service, "program.status", "")
         program.save()
         return program
 
