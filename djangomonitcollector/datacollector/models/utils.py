@@ -27,7 +27,7 @@ def get_int(xmldoc, element, default=None):
     ret = get_string(xmldoc, element, default)
     if ret:
         return int(ret)
-    return ret
+    return 0
 
 
 def get_float(xmldoc, element, default=None):
