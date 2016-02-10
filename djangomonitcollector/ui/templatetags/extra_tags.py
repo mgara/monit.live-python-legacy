@@ -18,6 +18,9 @@ def timestamp_to_date(timestamp):
         return ""
     return timezone.datetime.fromtimestamp(timestamp)
 
+@register.filter
+def to_html(txt):
+    return txt.replace("\n","<br/>")
 
 @register.filter
 def time_class(timestamp):
@@ -125,10 +128,15 @@ def fs_percent_bar_inode(fs):
     progress_bar_txt=  "{0}% [{1}/{2}]".format(percent_value,get_int(fs.inode_usage_last),get_int(fs.inode_total))
     return get_progress_bar_html(percent_value,progress_bar_txt)
 
+@register.filter
+def percent_to_bar(percent):
+    value = percent if percent else 0.0
+    percent_value = round(value, 1)
+    progress_bar_txt=  "{0}%".format(value)
+    return get_progress_bar_html(percent_value,progress_bar_txt)
 
 @register.filter
 def type_to_string(type):
-
     array_type =["FileSystem","Directory","File","Process","Remote Host","System","Fifo","Program","Network"]
     return array_type[int(type)]
 
@@ -191,17 +199,16 @@ def event_state_to_string(state):
 def action_to_string(action):
     action_int = int(action)
     action_dict = {
-        0:'0',
-        1:'1',
-        2:'2',
-        3:'3',
-        4:'4',
-        5:'Unmonitor',
-        6:'Reload',
-        7:'7',
+        0:' 0',
+        1:' 1',
+        2:' 2',
+        3:' 3',
+        4:' 4',
+        5:' 5',
+        6:' 6',
+        7:' 7',
     }
     return action_dict[action_int]
-
 
 @register.filter
 def event_state_to_style(state):
@@ -242,6 +249,7 @@ def get_progress_bar_html(value,display_txt):
     res = '<span class="label label-{0} small">{2}</span>'\
           '<div class="progress">' \
           '<div class="progress-bar progress-bar-{0}" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: {1}%">' \
+          '<span>{2}</span>'\
           '</div>' \
           '</div>'.format(style,value,display_txt)
     return res
