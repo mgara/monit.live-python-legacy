@@ -1,0 +1,52 @@
+{% load extra_tags %}
+<div id="program_table" class="table-responsive">
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>name</th>
+          <th>status</th>
+
+            <th>Started</th>
+            <th>Output</th>
+            <th>Exit Code</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for program in programs %}
+          <tr class="link" href="#" >
+              <td>{{ program.name }}</td>
+              <td ><span class="label label-{{ program.status|status_tr_class:program.monitor }}">{{ program.status|status_to_string:program}}</span></td>
+
+              <td>{{ program.started|timestamp_to_date}}</td>
+              <td>
+
+                  <button type="button" class="btn btn-xs btn-default" data-html="true" data-toggle="popover" data-placement="left" data-content="{{ program.output|to_html }}">View Output
+                  </button>
+
+              </td>
+            <td>{{ program.exitcode }}</td>
+          </tr>
+      {% endfor%}
+      </tbody>
+    </table>
+</div>
+<script language="JavaScript">
+    $(function () {
+        $('[data-toggle="popover"]').popover({
+                    container: 'body'
+                }
+        )
+    })
+</script>
+<style>
+    .popover-content {
+        color: #eee;
+        background-color: #000;
+        font-family: 'Courier New', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', monospace;'
+    }
+    .popover{
+        max-width:600px;
+    }
+</style>
+
+
