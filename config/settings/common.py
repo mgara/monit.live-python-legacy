@@ -238,3 +238,12 @@ BROKER_URL = env("CELERY_BROKER_URL", default='django://')
 ADMIN_URL = r'^admin/'
 
 # Your common stuff: Below this line define 3rd party library settings
+
+# Enable multi tenant django
+ENABLE_MULTI_TENANT = False
+
+# Require manual intervention when new server
+ENABLE_MANUAL_APPROVAL = False
+
+
+
