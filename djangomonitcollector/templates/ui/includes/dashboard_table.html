@@ -6,6 +6,7 @@
 
         <thead>
         <tr>
+            <th></th>
             <th>Hostname</th>
             <th>Address</th>
             <th>Monit version</th>
@@ -24,6 +25,7 @@
         {% for server in servers %}
             {% if not server.is_new %}
             <tr class="link" onclick="document.location = '{% url 'ui:server' server.id %}';"  >
+                <td>{{ server.server_up|server_status_to_css_class|safe}}</td>
                 <td>{{ server.localhostname }}</td>
                 <td>{{ server.address }}</td>
                 <td>{{ server.monit_version }}</td>
@@ -37,7 +39,8 @@
                 <td><a class="btn btn-xs btn-primary" href="{% url 'ui:server_show' server.id %}"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a></td>
             </tr>
             {% else %}
-            <tr  onclick="document.location = '{% url 'ui:server' server.id %}';"  >
+            <tr>
+                <td></td>
                 <td>{{ server.localhostname }}</td>
                 <td>{{ server.address }}</td>
                 <td>{{ server.monit_version }}</td>
