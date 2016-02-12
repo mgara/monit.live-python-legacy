@@ -41,13 +41,12 @@ EVENT_STATE_CHOICES = (
     (3,'Link mode not changed')
 )
 EVENT_ACTION_CHOICES = (
-    (0,'0'),
-    (1,'1'),
-    (2,'2'),
-    (3,'3'),
-    (4,'4'),
-    (5,'5'),
-    (6,'6'),
+    (1,'Alert (monit alert generated)'),
+    (2,'Restart (trying to restart)'),
+    (3,'Stop'),
+    (4,'Exec'),
+    (5,'Unmonitor'),
+    (6,'Reload'),
 )
 
 '''
@@ -96,7 +95,7 @@ def get_notification_plugins():
 
 class NotificationTypeForm(forms.ModelForm):
 
-    notification_service = forms.ModelMultipleChoiceField(Service.objects.all(), required=False)
+    notification_service = forms.CharField(required=False)
     notification_type = forms.MultipleChoiceField(choices=EVENT_STATUS_CHOICES, required=False)
     notification_action = forms.MultipleChoiceField(choices=EVENT_ACTION_CHOICES, required=False)
     notification_state = forms.MultipleChoiceField(choices=EVENT_STATE_CHOICES, required=False)
@@ -107,21 +106,35 @@ class NotificationTypeForm(forms.ModelForm):
         fields =[
             'notification_label',
             'notification_enabled',
-          
-            #TODO: must find a better way to get the current user.
-            'notification_user',
             'notification_message',
             'notification_service',
             'notification_type',
             'notification_action',
             'notification_state',
             'notification_class',
+            'notification_user',
         ]
 
     def save(self, force_insert=False, force_update=False, commit=True):
         nt = super(NotificationTypeForm, self).save(commit=False)
+        data_dict = dict( self.data.iterlists())
+        print data_dict
+        if 'notification_service' in data_dict:
+            notification_services = data_dict['notification_service']
+            service_array = json.dumps(notification_services)
+            nt.notification_service = service_array
+        else:
+            nt.notification_service =""
 
-        service_array = json.dumps([ service.name for service in self.cleaned_data['notification_service'] ])
+        if not 'notification_type' in data_dict:
+            nt.notification_type = ""
+
+        if not 'notification_action' in data_dict:
+            nt.notification_action = ""
+
+        if not 'notification_state' in data_dict:
+            nt.notification_state = ""
+
         notification_class= self.cleaned_data['notification_class']
         k,plugin_fields = get_class_name_and_extra_params(notification_class.lower())
         notification_extra_params_dict =dict()
@@ -133,9 +146,9 @@ class NotificationTypeForm(forms.ModelForm):
             sort_keys=True
         )
 
-        nt.notification_service = service_array
+        
         if commit:
-            nt.save()
+           nt.save()
         return nt
 
 
