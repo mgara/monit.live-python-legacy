@@ -1,46 +1,33 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-
-
+{% block title %}Dashboard{% endblock %}
 {% block content %}
 
-
-
-
-
 <div class="row clearfix">
-	<div class="column">
-
-
-	{% if server_found %}
+    <div class="column">
+    {% if server_found %}
         <div class="page-header">
             <h1>Dashboard
             </h1>
         </div>
-
-			{% include 'ui/includes/dashboard_table.html' %}
-
-	{% else %}
-	  <p>No servers were found in the database.</p>
+            {% include 'ui/includes/dashboard_table.html' %}
+    {% else %}
+      <p>No servers were found in the database.</p>
         {%  if error %}
             <p class="alert alert-danger">{{ error }}</p>
             {% endif %}
-	{% endif %}
-	</div>
+    {% endif %}
+    </div>
 </div>
 <script src="{% static 'js/jquery-2.1.4.min.js'%}"></script>
 <script src="{% static 'js/csrf.js'%}"></script>
 <script>
 $(document).ready(function () {
-	window.intervalId = setInterval(function() {
-	$.post("{% url 'ui:load_dashboard_table' %}", function(data) {
-	    $( "#dashboard_table" ).replaceWith( data.table_html );
-	});
-	}, 5000);
+    window.intervalId = setInterval(function() {
+    $.post("{% url 'ui:load_dashboard_table' %}", function(data) {
+        $( "#dashboard_table" ).replaceWith( data.table_html );
+    });
+    }, 5000);
 });
 </script>
 {% endblock %}
-
-
-
-

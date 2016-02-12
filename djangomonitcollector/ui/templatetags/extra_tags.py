@@ -3,6 +3,7 @@ import time
 from django import template
 from django.utils import timezone
 from django.conf import settings
+import ast
 
 register = template.Library()
 
@@ -11,6 +12,29 @@ try:
 except:
     monit_update_period = 60
 
+
+@register.filter
+def server_status_to_css_class(status):
+    if status:
+        return " <a href=\"#\" class=\"btn btn-success btn-xs\"><span class=\"glyphicon glyphicon-ok\"></span></a>"
+    else:
+        return " <a href=\"#\" class=\"btn btn-danger btn-xs\"><span class=\"glyphicon glyphicon-remove\"></span></a>"
+
+@register.filter
+def status_to_label(status):
+    if status:
+        return "Disable"
+    else:
+        return "Enable"
+
+@register.filter
+def extra_params(xtra):
+    xtra_params = ast.literal_eval(xtra)
+    output="<ul>"
+    for x in xtra_params:
+        output+="<li><b>{0}</b>: [{1}]</li>".format(x,xtra_params[x])
+    output ="{0}</ul>".format(output)
+    return output
 
 @register.filter
 def timestamp_to_date(timestamp):
@@ -89,6 +113,7 @@ def format_number(value):
         return "{:,}".format(value)
 
     return "-"
+
 
 
 @register.filter

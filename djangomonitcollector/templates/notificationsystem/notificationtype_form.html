@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% load static %}{% load i18n %}
-{% block title %}Members{% endblock %}
 
 {% load staticfiles %}
 {% load extra_tags %}
@@ -10,7 +9,7 @@
 {% block content %}
 
     <div class="page-header">
-        <h1> New Notification
+        <h1> Notification
         </h1>
     </div>
 
@@ -39,9 +38,10 @@
         </script>
 
 {% endblock content %}
+
 {% block customjs %}
     <script language="JavaScript">
-
+     
     $('#id_notification_service').multiSelect({});
     $('#id_notification_type').multiSelect({});
     $('#id_notification_action').multiSelect({});
@@ -75,7 +75,7 @@
         $.ajax({
             url: "{% url 'n:get_plugin_form' %}", // the endpoint
             type: "GET", // http method
-            data: {"plugin_name": plugin_name},
+            data: {"plugin_name": plugin_name,"notification_type_id" : $('#id_object_id').val() },
             success: function (json) {
                 html_form = json.html_form
                 $('#extra_params_container').html(html_form)

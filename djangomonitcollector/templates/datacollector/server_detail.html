@@ -12,9 +12,13 @@
         </div>
         <div class="row">
             <div class="col-sm-12">
+                {% if object.external_ip %}
+                    <p><span class="text-uppercase"> External IP :  </span> <span
+                            class="lead">{{ object.external_ip }}</span></p>
+                {% endif %}
 
                 {% if object.address %}
-                    <p><span class="text-uppercase"> IP Address :  </span> <span
+                    <p><span class="text-uppercase"> Monit Binding IP Address :  </span> <span
                             class="lead">{{ object.address }}</span></p>
                 {% endif %}
                 {% if object.monit_id %}
@@ -25,15 +29,16 @@
                     <p><span class="text-uppercase"> UP Time :  </span> <span
                             class="lead">{{ object.uptime|time_str }}</span></p>
                 {% endif %}
-                {% if object.http_address %}
-                    <p><span class="text-uppercase"> HTTP Address : </span> <span
-                            class="lead"> {{ object.http_address }}</span></p>
-                {% endif %}
+
             </div>
         </div>
         <div class="row">
             <div class="col-sm-12">
                 <h3>Monit Parameters</h3>
+                {% if object.http_address %}
+                    <p><span class="text-uppercase"> HTTP Address : </span> <span
+                            class="lead"> <a target="_blank" href="{{ object.http_address }}">{{ object.http_address }}</a></span></p>
+                {% endif %}
                 {% if object.http_username %}
                     <p><span class="text-uppercase"> Monit Username : </span> <span
                             class="lead"> {{ object.http_username }}</span></p>
@@ -50,8 +55,8 @@
                     <p><span class="text-uppercase"> TimeZone : </span> <span
                             class="lead"> {{ object.data_timezone }}</span></p>
                 {% endif %}
-
-                    <p><span class="text-uppercase"> New Server :  </span> <span class="lead">{{ object.is_new }}</span>
+<hr class="divider"></hr>
+                    <p><span class="text-uppercase"> Monitoring Disabled :  </span> <span class="lead">{{ object.disable_monitoring }}</span>
                     </p>
 
             </div>

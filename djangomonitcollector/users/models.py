@@ -2,6 +2,9 @@
 from __future__ import unicode_literals, absolute_import
 
 import uuid
+import logging
+import hashlib
+import random
 
 from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
@@ -34,6 +37,7 @@ BOOTSTRAP_THEMES = (
 class User(AbstractUser):
     # First Name and Last Name do not cover name patterns
     # around the globe.
+    id = models.CharField(primary_key=True, max_length=40)
     name = models.CharField(_("Name of User"), blank=True, max_length=255)
     is_customer = models.BooleanField(blank=True, default=True)
     bootstrap_theme = models.CharField(max_length=20, choices=BOOTSTRAP_THEMES,default="paper")
@@ -44,7 +48,12 @@ class User(AbstractUser):
 
     def get_absolute_url(self):
         return reverse('users:detail', kwargs={'username': self.username})
+        
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.id = hashlib.sha1(str(random.random())).hexdigest()
 
+        super(User, self).save(*args, **kwargs)
 
 def validate_user(user):
     if not user.id:

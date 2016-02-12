@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}{% load i18n %}
-{% block title %}Members{% endblock %}
+{% block title %}Notification detail{% endblock %}
 
 {% load staticfiles %}
 {% load extra_tags %}
@@ -25,20 +25,14 @@
                 <small>{{ object.notification_label }}</small>
             </h1>
         </div>
-         {% if "Mute" in object.notification_class %}
+        {% if "Mute" in object.notification_class %}
         <div class="row list-group-item list-group-item-danger">
             <div class="col-sm-12 ">
-                <button type="button" class="btn btn-danger pull-right" data-toggle="modal" data-target=".bs-example-modal-sm">Apply "{{ object.notification_label}}" for previous alerts</button>
+            <a class="btn btn-danger pull-right" href="{% url 'n:notification_mute_all' object.id %}">Apply "{{ object.notification_label}}" for previous alerts</a>
             </div>
          </div>
-          <div class="modal bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
-              <div class="modal-dialog modal-sm">
-                <div class="modal-content">
-                    test
-                </div>
-              </div>
-            </div>
-            {% endif %}
+
+        {% endif %}
 
         <div class="row col-md-6">
             {% if object.notification_service|check_size %}
@@ -65,7 +59,7 @@
             {% endif %}
 
             {% if object.notification_class %}
-                <p><span class="text-uppercase">Apply notification Class :  </span> <span
+                <p><span class="text-uppercase">Apply Plugin Class :  </span> <span
                         class="lead"><h5><span class="label label-info">{{ object.notification_class }}</span>
                 </h5> </span>
                 </p>
@@ -73,9 +67,10 @@
 
 
             {% if object.notification_plugin_extra_params %}
-                <p><span class="text-uppercase"> Plugin extra parameters :  </span> <span
-                        class="lead"><h5><span class="label label-info">{{ object.notification_plugin_extra_params }}</span>
-                </h5> </span>
+                <p><span class="text-uppercase"> Plugin extra parameters :  </span>
+                <span class="lead">
+                        {{ object.notification_plugin_extra_params|extra_params|safe }}
+                </span>
                 </p>
             {% endif %}
             <p><span class="text-uppercase">Enabled :  </span> <span
@@ -94,8 +89,8 @@
     <div class="row">
 
         <div class="col-sm-12 ">
-            <a class="btn btn-warning" href="{% url 'n:notificationtype_activation' object.id %}">Disable</a>
             <a class="btn btn-primary" href="{% url 'n:notificationtype_update' object.id %}">Update</a>
+            <a class="btn btn-warning" href="{% url 'n:notificationtype_activation' object.id %}">{{object.notification_enabled|status_to_label}}</a>
             <a class="btn btn-danger pull-right" href="{% url 'n:notificationtype_delete'  object.id %}">Delete</a>
         </div>
     </div>

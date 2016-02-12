@@ -9,6 +9,7 @@ class Service(models.Model):
     monitor = models.IntegerField(null=True)
     monitor_mode = models.IntegerField(null=True)
     pending_action = models.IntegerField(null=True)
+    is_flapping = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
