@@ -11,9 +11,6 @@ logger = logging.getLogger(__name__)
 from models.server import collect_data, Server
 
 
-
-
-
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
@@ -30,8 +27,7 @@ def collector(request, collector_key):
         return HttpResponseNotAllowed(['POST'])
     data = request.body
     ip_addr = get_client_ip(request)
-    collected, status = collect_data(data, collector_key,ip_addr)
-    logger.debug(data)
+    collected, status = collect_data(data, collector_key, ip_addr)
     if not collected:
         # log
         print status
@@ -56,8 +52,15 @@ def list_servers(request):
                 server['ipaddress'] = s.external_ip
                 server['monitid'] = s.monit_id
                 server['incarnation'] = s.last_data_received
+                server['monit_update_period'] = s.monit_update_period
                 servers[s.monit_id] = server
         response = JsonResponse(servers, status=200)
     except StandardError as e:
-        response = JsonResponse({'error': e.message, 'status': '500'}, status=500)
+        response = JsonResponse(
+            {
+                'error': e.message,
+                'status': '500'
+            },
+            status=500
+        )
     return response

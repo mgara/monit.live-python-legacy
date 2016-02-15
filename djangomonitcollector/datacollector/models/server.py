@@ -33,8 +33,6 @@ from djangomonitcollector.users.models import \
     User
 
 
-
-
 def collect_data(xml_str, ck, ip_addr):
     try:
         xmldoc = minidom.parseString(xml_str)
@@ -107,86 +105,88 @@ class Server(models.Model):
         reporting_services = []
         server, created = cls.objects.get_or_create(
             monit_id=monit_id, user_id=user)
+        
+        dom_element = xmldoc.getElementsByTagName(
+                        'monit')[0]
+        externalevent = "externalevent" in dom_element.attributes.keys()
+        if not externalevent:
+            port = get_int(xmldoc,"server.httpd.port")
+            port_str = ":{0}".format(port) if port != 80 else ""
+            protocol = "https" if get_int(xmldoc,"server.httpd.ssl") == 1 else "http"
+            address = server.address if server.address != "0.0.0.0" else external_ip
+            server.last_data_received = datetime.datetime.utcnow().replace(tzinfo=timezone("UTC"))
+            server.monit_version = xmldoc.getElementsByTagName(
+                'monit')[0].attributes["version"].value
+            server.external_ip = external_ip
+            server.localhostname = get_value(xmldoc, "localhostname", "")
+            server.uptime = get_value(xmldoc, "server", "uptime")
+            server.address = get_string(xmldoc,"server.httpd.address")
+            server.http_address = "{0}://{1}{2}/".format(protocol,address,port_str)
+            server.http_username = get_string(xmldoc,"server.credentials.username")
+            server.http_password = get_string(xmldoc,"server.credentials.password")
+            server.monit_update_period = get_int(xmldoc,"server.poll")
+            server.save()
 
-        port = get_int(xmldoc,"server.httpd.port")
-        port_str = ":{0}".format(port) if port != 80 else ""
-        protocol = "https" if get_int(xmldoc,"server.httpd.ssl") == 1 else "http"
-        address = server.address if server.address != "0.0.0.0" else external_ip
-        server.last_data_received = datetime.datetime.utcnow().replace(tzinfo=timezone("UTC"))
-        server.monit_version = xmldoc.getElementsByTagName(
-            'monit')[0].attributes["version"].value
-        server.external_ip = external_ip
-        server.localhostname = get_value(xmldoc, "localhostname", "")
-        server.uptime = get_value(xmldoc, "server", "uptime")
-        server.address = get_string(xmldoc,"server.httpd.address")
-        server.http_address = "{0}://{1}{2}/".format(protocol,address,port_str)
-        server.http_username = get_string(xmldoc,"server.credentials.username")
-        server.http_password = get_string(xmldoc,"server.credentials.password")
-        server.monit_update_period = get_int(xmldoc,"server.poll")
-        server.save()
-
-        Platform.update(xmldoc, server)
+            Platform.update(xmldoc, server)
 
         event_doc = xmldoc.getElementsByTagName('event')
         event_service = None
         event_service_name = None
+
         if event_doc:
             event_xml = event_doc[0]
             event_service_name = get_string(event_xml, "service", "")
-
-        if server.disable_monitoring and manual_approval_required:
-            raise StandardError(
-                "New Server, you must configure it in your server settings, \
-                or set 'ENABLE_MANUAL_APPROVAL' settings parameter to false ")
-        else:
-            for service in xmldoc.getElementsByTagName('services')[0].getElementsByTagName('service'):
-                service_type = get_value(service, "type", "")
-                service_name = get_value(service, "", "", "name")
-                reporting_services.append(service_name)
-
-                if service_type == '0':  # Filesystem
-                    p = FileSystem.update(xmldoc, server, service)
-                    if service_name == event_service_name:
-                        event_service = p
-                elif service_type == '2':  # File
-                    p = File.update(xmldoc, server, service)
-                    if service_name == event_service_name:
-                        event_service = p
-                elif service_type == '3':  # Process
-                    p = Process.update(xmldoc, server, service)
-                    if service_name == event_service_name:
-                        event_service = p
-                elif service_type == '4':  # Host
-                    p = Host.update(xmldoc, server, service)
-                    if service_name == event_service_name:
-                        event_service = p
-                elif service_type == '5':  # System Analysis
-                    p = System.update(xmldoc, server, service)
-                    if "Monit" == event_service_name:
-                        event_service = p
-                elif service_type == '7':  # Program
-                    p = Program.update(xmldoc, server, service)
-                    if service_name == event_service_name:
-                        event_service = p
-                elif service_type == '8':  # Network Card
-                    p = Net.update(xmldoc, server, service)
-                    if service_name == event_service_name:
-                        event_service = p
-                else:
-                    p = Process.update(xmldoc, server, service)
-                    if service_name == event_service_name:
-                        event_service = p
-            remove_old_services(server, reporting_services)
-
-        if event_service == None:
-            event_service = System.get_system_service(server)
-
-        if event_doc:
+            if event_service == None:
+                event_service = System.get_system_service(server)
             MonitEvent.create(
                 event_xml,
                 server,
                 event_service
             )
+        else:
+            if server.disable_monitoring and manual_approval_required:
+                raise StandardError(
+                    "New Server, you must configure it in your server settings, \
+                    or set 'ENABLE_MANUAL_APPROVAL' settings parameter to false ")
+            else:
+                for service in xmldoc.getElementsByTagName('services')[0].getElementsByTagName('service'):
+                    service_type = get_value(service, "type", "")
+                    service_name = get_value(service, "", "", "name")
+                    reporting_services.append(service_name)
+
+                    if service_type == '0':  # Filesystem
+                        p = FileSystem.update(xmldoc, server, service)
+                        if service_name == event_service_name:
+                            event_service = p
+                    elif service_type == '2':  # File
+                        p = File.update(xmldoc, server, service)
+                        if service_name == event_service_name:
+                            event_service = p
+                    elif service_type == '3':  # Process
+                        p = Process.update(xmldoc, server, service)
+                        if service_name == event_service_name:
+                            event_service = p
+                    elif service_type == '4':  # Host
+                        p = Host.update(xmldoc, server, service)
+                        if service_name == event_service_name:
+                            event_service = p
+                    elif service_type == '5':  # System Analysis
+                        p = System.update(xmldoc, server, service)
+                        if "Monit" == event_service_name:
+                            event_service = p
+                    elif service_type == '7':  # Program
+                        p = Program.update(xmldoc, server, service)
+                        if service_name == event_service_name:
+                            event_service = p
+                    elif service_type == '8':  # Network Card
+                        p = Net.update(xmldoc, server, service)
+                        if service_name == event_service_name:
+                            event_service = p
+                    else:
+                        p = Process.update(xmldoc, server, service)
+                        if service_name == event_service_name:
+                            event_service = p
+                remove_old_services(server, reporting_services)
 
 
 class MonitEvent(models.Model):
