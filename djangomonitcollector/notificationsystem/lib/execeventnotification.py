@@ -16,7 +16,7 @@ class ExecEventNotification(IEventSettingsInterface):
         os.environ['SERVICE'] = str(self.event_service)
         os.environ['ACTION'] = str(self.event_action)
         os.environ['TYPE'] = str(self.event_type)
-        os.environ['STATUS'] = str(self.event_status)
+        os.environ['STATUS'] = str(self.event_id)
         os.environ['SERVER'] = str(self.server)
 
         #   FNULL = open(os.devnull, 'w')    #use this if you want to suppress output to stdout from the subprocess

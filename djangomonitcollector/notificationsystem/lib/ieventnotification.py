@@ -1,6 +1,6 @@
 import ast
 from abc import ABCMeta, abstractmethod
-
+import json
 from djangomonitcollector.ui.templatetags.extra_tags \
     import event_status_to_string, \
     event_state_to_string, \
@@ -39,23 +39,37 @@ class IEventSettingsInterface(object):
     def set_event(self, event_object):
         self.event = event_object
         self.server = self.event.server.localhostname
+        self.event_service = self.event.service
+
         self.event_message = self.event.event_message
+
+        self.event_type_id = int(self.event.event_type)
+        self.event_id_id = self.event.event_id
+        self.event_action_id = self.event.event_action
+        self.event_state_id = self.event.event_state
+
         self.event_type = type_to_string(self.event.event_type)
         self.event_action = action_to_string(self.event.event_action)
-        self.event_service = self.event.service
         self.event_state = event_state_to_string(self.event.event_state)
-        self.event_status = event_status_to_string(self.event.event_id)
+        self.event_id = event_status_to_string(self.event.event_id)
 
     def get_event_summary(self):
-        return "Server:\t{4} \nStatus:\t[{0}] \nState:\t[{1}] \nService:\
-\t[{2}] \nType:\t{5} \nMessage:\t[{3}] ".format(
-                self.event_status,
-                self.event_state,
-                self.event_service,
-                self.event_message,
-                self.server,
-                self.event_type
-        )
+        event_dict = dict()
+        event_dict["server"] = self.server
+        event_dict["service"] = self.event_service.name
+        event_dict["message"] = self.event_message
+        # Strings
+        event_dict["state"] = self.event_state
+        event_dict["event_id"] = self.event_id
+        event_dict["action"] = self.event_action
+        event_dict["type"] = self.event_type
+        # Id
+        event_dict["state_id"] = self.event_state_id
+        event_dict["event_id_id"] = self.event_id_id
+        event_dict["action_id"] = self.event_action_id
+        event_dict["type_id"] = self.event_type_id
+
+        return json.dumps(event_dict, sort_keys=True, indent=4)
 
     def set_extra_params(self, extra_params):
         if extra_params:

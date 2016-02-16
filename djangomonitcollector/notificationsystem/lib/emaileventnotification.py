@@ -4,6 +4,7 @@ from ieventnotification import IEventSettingsInterface
 from parameter import Parameter
 
 
+
 class EmailEventNotification(IEventSettingsInterface):
     extra_params = {
         'to': Parameter('to', 'To'),
@@ -18,7 +19,7 @@ class EmailEventNotification(IEventSettingsInterface):
         to = self.extra_params['to']
         subject = "{0}:[{1}] on [{4}/{2}] action [{3}]".format(
                 subjet_prefix,
-                self.event_status,
+                self.event_id,
                 self.event_service,
                 self.event.event_action,
                 self.server

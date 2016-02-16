@@ -213,19 +213,12 @@ class MonitEvent(models.Model):
                 if event.event_id == 4 and "restarted" in event.event_message:
                     service_transition += 1
 
-            print service_transition
             if service_transition >= settings.NUMBER_OF_TRANSITIONS_PER_FLAPPING_PERIOD:
-                if event_service.is_flapping:
-                    print "service {0} STILL flapping".format(event_service)
-                else:
+                if not event_service.is_flapping:
                     event_service.is_flapping = True
-                    print "service {0} STARTED flapping".format(event_service)
             else:
                 if event_service.is_flapping:
                     event_service.is_flapping = False
-                    print "service {0} STOPPED flapping".format(event_service)
-                else:
-                    print "service {0} NOT flapping".format(event_service)
 
             event_service.save()
         except StandardError as e:
