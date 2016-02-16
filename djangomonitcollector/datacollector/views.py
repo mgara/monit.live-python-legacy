@@ -1,14 +1,24 @@
+from xml.dom import minidom
+
+from django.conf import settings
 from django.http import HttpResponseNotAllowed
-from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-import json
+from django.views.decorators.csrf import csrf_exempt
+
+from djangomonitcollector.users.models import CollectorKey
+from djangomonitcollector.users.models import User
+from models.server import Server
+
 # import the logging library
 import logging
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-from models.server import collect_data, Server
+
+class CollectorKeyError(Exception):
+    def __init__(self, message):
+        self.message = message
 
 
 def get_client_ip(request):
@@ -18,6 +28,48 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+
+def collect_data(xml_str, ck, ip_addr):
+    try:
+        xmldoc = minidom.parseString(xml_str)
+        monit_id = xmldoc.getElementsByTagName(
+                'monit')[0].attributes["id"].value
+    except:
+        return False, "Problem parsing the xml document"
+
+    multi_tenant = settings.ENABLE_MULTI_TENANT
+    manual_approval_required = settings.ENABLE_MANUAL_APPROVAL
+
+    # try:
+    if multi_tenant:
+        ckobj = CollectorKey.objects.get(pk=ck)
+        if ckobj:
+            if ckobj.is_enabled:
+                Server.update(
+                        xmldoc,
+                        monit_id,
+                        ckobj.user_id,
+                        ip_addr,
+                        manual_approval_required
+                )
+            else:
+                raise CollectorKeyError("Key Not Active {0}".format(ck))
+        else:
+            raise CollectorKeyError("No Such Key Error {0}".format(ck))
+    else:
+        default_user = User.objects.all()[0]  # first user
+        Server.update(
+                xmldoc,
+                monit_id,
+                default_user,
+                ip_addr,
+                manual_approval_required
+        )
+    return True, "Toto"
+    # except StandardError as e:
+    #    return False, "Error While updating the server instance: {0}".format(e.message)
+    # return True, "Server instance Updated"
 
 
 @csrf_exempt
@@ -57,10 +109,10 @@ def list_servers(request):
         response = JsonResponse(servers, status=200)
     except StandardError as e:
         response = JsonResponse(
-            {
-                'error': e.message,
-                'status': '500'
-            },
-            status=500
+                {
+                    'error': e.message,
+                    'status': '500'
+                },
+                status=500
         )
     return response

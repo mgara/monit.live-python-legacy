@@ -1,10 +1,11 @@
+import datetime
+
 from django.db import models
+from pytz import timezone
 
 from service import Service
 from utils import get_value, get_string, get_int
-import time
-from pytz import timezone
-import datetime
+
 
 # type = 8
 class Net(Service):
@@ -54,21 +55,27 @@ class Net(Service):
             colect_timestamp = int(get_value(service, "collected_sec", ""))
             try:
                 NetStats.create(
-                    net,
-                    net.server.data_timezone,
-                    colect_timestamp,
-                    net.download_packet,
-                    net.download_bytes,
-                    net.download_errors,
-                    net.upload_packet,
-                    net.upload_bytes,
-                    net.upload_errors
+                        net,
+                        net.server.data_timezone,
+                        colect_timestamp,
+                        net.download_packet,
+                        net.download_bytes,
+                        net.download_errors,
+                        net.upload_packet,
+                        net.upload_bytes,
+                        net.upload_errors
                 )
             except ValueError as e:
-                print "{0}:{1}".format(e.args,e.message)
+                print "{0}:{1}".format(e.args, e.message)
             except NameError as e:
-                print "{0}:{1}".format(e.args,e.message)
+                print "{0}:{1}".format(e.args, e.message)
         return net
+
+    @classmethod
+    def get_by_name(cls, server, name):
+        service, created = cls.objects.get_or_create(server=server, name=name)
+        return service
+
 
 class NetStats(models.Model):
     net_id = models.ForeignKey('Net')
@@ -94,7 +101,7 @@ class NetStats(models.Model):
                ):
         entity = cls(net_id=net)
         tz = timezone(tz_str)
-        entity.date_last= datetime.datetime.fromtimestamp(unixtimestamp).replace(tzinfo=tz)
+        entity.date_last = datetime.datetime.fromtimestamp(unixtimestamp).replace(tzinfo=tz)
         entity.download_bytes = download_bytes
         entity.download_errors = download_errors
         entity.download_packet = download_packet

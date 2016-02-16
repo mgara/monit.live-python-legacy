@@ -1,9 +1,10 @@
-from abc import ABCMeta, abstractmethod
 import ast
+from abc import ABCMeta, abstractmethod
+
 from djangomonitcollector.ui.templatetags.extra_tags \
     import event_status_to_string, \
     event_state_to_string, \
-    action_to_string,\
+    action_to_string, \
     type_to_string
 
 '''
@@ -48,13 +49,13 @@ class IEventSettingsInterface(object):
     def get_event_summary(self):
         return "Server:\t{4} \nStatus:\t[{0}] \nState:\t[{1}] \nService:\
 \t[{2}] \nType:\t{5} \nMessage:\t[{3}] ".format(
-            self.event_status,
-            self.event_state,
-            self.event_service,
-            self.event_message,
-            self.server,
-            self.event_type
-            )
+                self.event_status,
+                self.event_state,
+                self.event_service,
+                self.event_message,
+                self.server,
+                self.event_type
+        )
 
     def set_extra_params(self, extra_params):
         if extra_params:

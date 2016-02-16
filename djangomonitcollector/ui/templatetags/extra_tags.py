@@ -1,9 +1,9 @@
+import ast
 import time
 
 from django import template
-from django.utils import timezone
 from django.conf import settings
-import ast
+from django.utils import timezone
 
 register = template.Library()
 
@@ -19,6 +19,13 @@ def server_status_to_css_class(status):
         return " <a href=\"#\" class=\"btn btn-success btn-xs\"><span class=\"glyphicon glyphicon-ok\"></span></a>"
     else:
         return " <a href=\"#\" class=\"btn btn-danger btn-xs\"><span class=\"glyphicon glyphicon-remove\"></span></a>"
+
+
+@register.filter
+def get_server_len(server_set):
+    if not server_set:
+        return 0
+    return len(server_set.all())
 
 
 @register.filter
@@ -89,6 +96,8 @@ def status_alert(alert_counts):
 
 @register.filter
 def status_tr_class(status, monitor):
+    if not monitor:
+        return 'primary'
     if monitor == 0:
         return 'info'
     if int(status) == 0:
@@ -155,7 +164,7 @@ def fs_percent_bar(fs):
     value = fs.blocks_percent_last if fs.blocks_percent_last else 0.0
     percent_value = round(value, 1)
     progress_bar_txt = "{0}% [{1}/{2}]".format(percent_value, disk_size_formatting(
-        fs.blocks_usage_last), disk_size_formatting(fs.blocks_total))
+            fs.blocks_usage_last), disk_size_formatting(fs.blocks_total))
     return get_progress_bar_html(percent_value, progress_bar_txt)
 
 
@@ -164,7 +173,7 @@ def fs_percent_bar_inode(fs):
     value = fs.inode_percent_last if fs.inode_percent_last else 0.0
     percent_value = round(value, 1)
     progress_bar_txt = "{0}% [{1}/{2}]".format(
-        percent_value, get_int(fs.inode_usage_last), get_int(fs.inode_total))
+            percent_value, get_int(fs.inode_usage_last), get_int(fs.inode_total))
     return get_progress_bar_html(percent_value, progress_bar_txt)
 
 
@@ -177,20 +186,24 @@ def percent_to_bar(percent):
 
 
 @register.filter
+def status_to_string(status, p):
+    if not p:
+        return "not p"
+    if not status:
+        return "not status"
+    type_of_service = p.service_type
+    monitor_status = p.monitor
+    return status_to_string_(status, type_of_service, monitor_status)
+
+
+@register.filter  # Event type
 def type_to_string(type):
     array_type = ["FileSystem", "Directory", "File", "Process",
                   "Remote Host", "System", "Fifo", "Program", "Network"]
     return array_type[int(type)]
 
 
-@register.filter
-def status_to_string(status, p):
-    type_of_service = p.service_type
-    monitor_status = p.monitor
-    return status_to_string_(status, type_of_service, monitor_status)
-
-
-@register.filter
+@register.filter  # Event id
 def event_status_to_string(status):
     status_int = int(status)
     state_dic = {
@@ -226,7 +239,7 @@ def event_status_to_string(status):
         return status_int
 
 
-@register.filter
+@register.filter  # Event State
 def event_state_to_string(state):
     state_int = int(state)
     state_dic = {
@@ -239,7 +252,7 @@ def event_state_to_string(state):
     return state_dic[state_int]
 
 
-@register.filter
+@register.filter  # Event Action
 def action_to_string(action):
     action_int = int(action)
     action_dict = {
@@ -260,6 +273,14 @@ def event_state_to_style(state):
     if int(state) == 1:
         return "danger"
     return "info"
+
+
+@register.filter
+def flapping_status(flapping):
+    if flapping:
+        return '<span class="label label-danger small">Yes</span>'
+    else:
+        return '<span class="label label-success small">No</span>'
 
 
 def status_to_string_(status, type_of_service, monitor_status):
@@ -291,10 +312,10 @@ def status_to_string_(status, type_of_service, monitor_status):
 
 def get_progress_bar_html(value, display_txt):
     style = get_style_from_value(value)
-    res = '<span class="label label-{0} small">{2}</span>'\
+    res = '<span class="label label-{0} small">{2}</span>' \
           '<div class="progress">' \
           '<div class="progress-bar progress-bar-{0}" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: {1}%">' \
-          '<span>{2}</span>'\
+          '<span>{2}</span>' \
           '</div>' \
           '</div>'.format(style, value, display_txt)
     return res

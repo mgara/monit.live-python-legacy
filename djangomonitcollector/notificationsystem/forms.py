@@ -1,59 +1,62 @@
-from django import forms
-from models import NotificationType
-from djangomonitcollector.datacollector.models.service import Service
+import importlib
+import json
+import os
 from os import listdir
 from os.path import isfile, join
-import os
-import json
-import importlib
+
+from django import forms
+
+from models import NotificationType
 
 EVENT_STATUS_CHOICES = (
-    (1,'checksum'),
-    (2,'resource'),
-    (4,'timeout'),
-    (8,'timestamp'),
-    (16,'size'),
-    (32,'connection'),
-    (64,'permission'),
-    (128,'UID'),
-    (256,'GID'),
-    (512,'nonexist'),
-    (1024,'invalid'),
-    (2048,'data'),
-    (4096,'exec'),
-    (8192,'fsflags'),
-    (16384,'icmp'),
-    (32768,'content'),
-    (65536,'instance'),
-    (131072,'action'),
-    (262144,'PID'),
-    (524288,'PPID'),
-    (1048576,'heartbeat'),
-    (16777216,'link mode/speed'),
-    (2097152,'status'),
-    (4194304,'uptime')
+    (1, 'checksum'),
+    (2, 'resource'),
+    (4, 'timeout'),
+    (8, 'timestamp'),
+    (16, 'size'),
+    (32, 'connection'),
+    (64, 'permission'),
+    (128, 'UID'),
+    (256, 'GID'),
+    (512, 'nonexist'),
+    (1024, 'invalid'),
+    (2048, 'data'),
+    (4096, 'exec'),
+    (8192, 'fsflags'),
+    (16384, 'icmp'),
+    (32768, 'content'),
+    (65536, 'instance'),
+    (131072, 'action'),
+    (262144, 'PID'),
+    (524288, 'PPID'),
+    (1048576, 'heartbeat'),
+    (16777216, 'link mode/speed'),
+    (2097152, 'status'),
+    (4194304, 'uptime')
 )
 
 EVENT_STATE_CHOICES = (
-    (0,'Success'),
-    (1,'Error'),
-    (2,'Change'),
-    (3,'Link mode not changed')
+    (0, 'Success'),
+    (1, 'Error'),
+    (2, 'Change'),
+    (3, 'Link mode not changed')
 )
 EVENT_ACTION_CHOICES = (
-    (1,'Alert (monit alert generated)'),
-    (2,'Restart (trying to restart)'),
-    (3,'Stop'),
-    (4,'Exec'),
-    (5,'Unmonitor'),
-    (6,'Reload'),
+    (1, 'Alert (monit alert generated)'),
+    (2, 'Restart (trying to restart)'),
+    (3, 'Stop'),
+    (4, 'Exec'),
+    (5, 'Unmonitor'),
+    (6, 'Reload'),
 )
 
 '''
 Check if file is valid : is an actual file and its name doesn't match the pattern (Exclusion list)
 '''
-def validate_file(classes_path,f):
-    excluded_files = ('__init__.py','ieventnotification.py','parameter.py','.pyc')
+
+
+def validate_file(classes_path, f):
+    excluded_files = ('__init__.py', 'ieventnotification.py', 'parameter.py', '.pyc')
     if isfile(join(classes_path, f)):
         for excluded_pattern in excluded_files:
             if excluded_pattern in f:
@@ -61,13 +64,17 @@ def validate_file(classes_path,f):
         return True
     return False
 
+
 '''
 Get the class name and the extra parameters field
 '''
+
+
 def get_class_name_and_extra_params(classname):
     # TODO: read the module from settings ?
-    notification_handler_module = importlib.import_module("djangomonitcollector.notificationsystem.lib.{0}".format(classname))
-    module_attrs= notification_handler_module.__dict__
+    notification_handler_module = importlib.import_module(
+            "djangomonitcollector.notificationsystem.lib.{0}".format(classname))
+    module_attrs = notification_handler_module.__dict__
     for k in module_attrs.keys():
         if k.lower() == classname:
             return k, module_attrs[k].extra_params
@@ -76,13 +83,15 @@ def get_class_name_and_extra_params(classname):
 '''
 Return a tuple that contains the class name and the actual name that we want to display in the form
 '''
+
+
 def get_notification_plugins_classes():
     classes_list = get_notification_plugins()
     classes_tuple = list()
-    for path in classes_list :
+    for path in classes_list:
         class_name = path.split(".")[0]
-        class_name, extra_attr =get_class_name_and_extra_params(class_name)
-        e = (class_name,class_name)
+        class_name, extra_attr = get_class_name_and_extra_params(class_name)
+        e = (class_name, class_name)
         classes_tuple.append(e)
     return tuple(classes_tuple)
 
@@ -94,7 +103,6 @@ def get_notification_plugins():
 
 
 class NotificationTypeForm(forms.ModelForm):
-
     notification_service = forms.CharField(required=False)
     notification_type = forms.MultipleChoiceField(choices=EVENT_STATUS_CHOICES, required=False)
     notification_action = forms.MultipleChoiceField(choices=EVENT_ACTION_CHOICES, required=False)
@@ -103,7 +111,7 @@ class NotificationTypeForm(forms.ModelForm):
 
     class Meta:
         model = NotificationType
-        fields =[
+        fields = [
             'notification_label',
             'notification_enabled',
             'notification_message',
@@ -117,14 +125,13 @@ class NotificationTypeForm(forms.ModelForm):
 
     def save(self, force_insert=False, force_update=False, commit=True):
         nt = super(NotificationTypeForm, self).save(commit=False)
-        data_dict = dict( self.data.iterlists())
-        print data_dict
+        data_dict = dict(self.data.iterlists())
         if 'notification_service' in data_dict:
             notification_services = data_dict['notification_service']
             service_array = json.dumps(notification_services)
             nt.notification_service = service_array
         else:
-            nt.notification_service =""
+            nt.notification_service = ""
 
         if not 'notification_type' in data_dict:
             nt.notification_type = ""
@@ -135,22 +142,17 @@ class NotificationTypeForm(forms.ModelForm):
         if not 'notification_state' in data_dict:
             nt.notification_state = ""
 
-        notification_class= self.cleaned_data['notification_class']
-        k,plugin_fields = get_class_name_and_extra_params(notification_class.lower())
-        notification_extra_params_dict =dict()
+        notification_class = self.cleaned_data['notification_class']
+        k, plugin_fields = get_class_name_and_extra_params(notification_class.lower())
+        notification_extra_params_dict = dict()
         for plugin_field in plugin_fields:
             notification_extra_params_dict[plugin_field] = self.data[plugin_field]
 
         nt.notification_plugin_extra_params = json.dumps(
-            notification_extra_params_dict,
-            sort_keys=True
+                notification_extra_params_dict,
+                sort_keys=True
         )
 
-        
         if commit:
-           nt.save()
+            nt.save()
         return nt
-
-
-
-

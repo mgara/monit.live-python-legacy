@@ -20,7 +20,7 @@
                 <h4 class="list-group-item-heading">[{{ monit_event.id }}] {{ monit_event.event_message }}<span class="pull-right"><small><span style="color:black;font-family:Monospace">{{ monit_event.event_time|date:"r e" }}</span></small></span></h4>
 
                 <p class="list-group-item-text">
-                <h4>{{ monit_event.event_type|type_to_string }} :<b>{{ monit_event.service}} </b> </h4>
+                <h4>{{ monit_event.event_type|type_to_string }}: <b>{{ monit_event.service}} </b> </h4>
                 <h5> Event <b>{{ monit_event.event_id|event_status_to_string }}</b> : <b>{{ monit_event.event_state|event_state_to_string }}</b></h5>
 
                 <span >Action : {{ monit_event.event_action|action_to_string }}</span>

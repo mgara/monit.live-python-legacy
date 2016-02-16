@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
-from django.core.urlresolvers import reverse
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView
-from braces.views import LoginRequiredMixin
-from django.http import JsonResponse
 import uuid
-from .models import User,CollectorKey
+
+from braces.views import LoginRequiredMixin
+from django.core.urlresolvers import reverse
+from django.http import JsonResponse
+from django.views.generic import DetailView, ListView, RedirectView, UpdateView
+
+from .models import User, CollectorKey
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
@@ -50,18 +52,18 @@ class UserListView(LoginRequiredMixin, ListView):
 def new_collector_key(request):
     user_id = request.user.id
     create = request.POST['create']
-    if create in  ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']:
+    if create in ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']:
         create = True
     try:
         user = User.objects.get(pk=user_id)
 
-        if create==True:
+        if create == True:
             user.collectorkey_set.all().delete()
-            CollectorKey.create(uuid.uuid4(),user)
+            CollectorKey.create(uuid.uuid4(), user)
         html = ""
         user_keys = user.collectorkey_set.all()
         for ck in list(user_keys):
-            html +=build_collector_key_view(ck)
+            html += build_collector_key_view(ck)
 
         res = {
             'data': html,
@@ -74,8 +76,8 @@ def new_collector_key(request):
         }
     return JsonResponse(res)
 
+
 def build_collector_key_view(ck):
     res = ' <li class="list-group-item">\
     {0}</li>'.format(ck.collector_key)
     return res
-

@@ -1,4 +1,3 @@
-
 import logging
 
 # Get an instance of a logger

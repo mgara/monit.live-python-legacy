@@ -9,6 +9,9 @@ Local settings
 '''
 
 from .common import *  # noqa
+import os
+import logging
+
 
 # DEBUG
 # ------------------------------------------------------------------------------
@@ -64,3 +67,19 @@ CELERY_ALWAYS_EAGER = True
 ########## END CELERY
 
 # Your local stuff: Below this line define 3rd party library settings
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+    },
+}

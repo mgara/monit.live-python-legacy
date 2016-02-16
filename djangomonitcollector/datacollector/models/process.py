@@ -1,11 +1,11 @@
-
+import datetime
 
 from django.db import models
-
-from utils import get_value
-from service import Service
 from pytz import timezone
-import datetime
+
+from service import Service
+from utils import get_value
+
 
 class Process(Service):
     server = models.ForeignKey('Server')
@@ -39,14 +39,19 @@ class Process(Service):
         if get_value(service, "cpu", "percent") != "none":
             colect_timestamp = int(get_value(service, "collected_sec", ""))
             MemoryCPUProcessStats.create(
-                process,
-                process.server.data_timezone,
-                colect_timestamp,
-                process.cpu_percent_last,
-                process.memory_percent_last,
-                process.memory_kilobyte_last
+                    process,
+                    process.server.data_timezone,
+                    colect_timestamp,
+                    process.cpu_percent_last,
+                    process.memory_percent_last,
+                    process.memory_kilobyte_last
             )
         return process
+
+    @classmethod
+    def get_by_name(cls, server, name):
+        service, created = cls.objects.get_or_create(server=server, name=name)
+        return service
 
 
 class MemoryCPUProcessStats(models.Model):
@@ -58,17 +63,17 @@ class MemoryCPUProcessStats(models.Model):
 
     @classmethod
     def create(
-        cls, 
-        process,
-        tz_str,
-        unixtimestamp, 
-        cpu_percent, 
-        memory_percent,
-        memory_kilobyte
-        ):
+            cls,
+            process,
+            tz_str,
+            unixtimestamp,
+            cpu_percent,
+            memory_percent,
+            memory_kilobyte
+    ):
         entry = cls()
         tz = timezone(tz_str)
-        entry.date_last= datetime.datetime.fromtimestamp(unixtimestamp).replace(tzinfo=tz)
+        entry.date_last = datetime.datetime.fromtimestamp(unixtimestamp).replace(tzinfo=tz)
         entry.process_id = process
         entry.cpu_percent = cpu_percent
         entry.memory_kilobyte = memory_kilobyte

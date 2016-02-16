@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
-import uuid
-import logging
 import hashlib
 import random
+import uuid
 
 from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
@@ -14,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 
 BOOTSTRAP_THEMES = (
 
-    ('default','default'),
+    ('default', 'default'),
     ('cerulean', 'Cerulean'),
     ('cosmo', 'Cosmo'),
     ('cyborg', 'Cyborg'),
@@ -33,6 +32,7 @@ BOOTSTRAP_THEMES = (
     ('yeti', 'Yeti'),
 )
 
+
 @python_2_unicode_compatible
 class User(AbstractUser):
     # First Name and Last Name do not cover name patterns
@@ -40,20 +40,21 @@ class User(AbstractUser):
     id = models.CharField(primary_key=True, max_length=40)
     name = models.CharField(_("Name of User"), blank=True, max_length=255)
     is_customer = models.BooleanField(blank=True, default=True)
-    bootstrap_theme = models.CharField(max_length=20, choices=BOOTSTRAP_THEMES,default="paper")
-    dygraph_color_palette = models.CharField(max_length=255,default='["#173e43", "#b56969", "#22264b", "#3fb0ac"]')
+    bootstrap_theme = models.CharField(max_length=20, choices=BOOTSTRAP_THEMES, default="paper")
+    dygraph_color_palette = models.CharField(max_length=255, default='["#173e43", "#b56969", "#22264b", "#3fb0ac"]')
 
     def __str__(self):
         return self.username
 
     def get_absolute_url(self):
         return reverse('users:detail', kwargs={'username': self.username})
-        
+
     def save(self, *args, **kwargs):
         if not self.id:
             self.id = hashlib.sha1(str(random.random())).hexdigest()
 
         super(User, self).save(*args, **kwargs)
+
 
 def validate_user(user):
     if not user.id:
@@ -75,5 +76,3 @@ class CollectorKey(models.Model):
         entity = cls(collector_key=uuid, user_id=user, is_enabled=True)
         entity.save()
         return entity
-
-

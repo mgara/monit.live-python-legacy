@@ -23,7 +23,7 @@
         <tbody>
 
         {% for server in servers %}
-            {% if not server.is_new %}
+            {% if not server.disable_monitoring %}
             <tr class="link" onclick="document.location = '{% url 'ui:server' server.id %}';"  >
                 <td>{{ server.server_up|server_status_to_css_class|safe}}</td>
                 <td>{{ server.localhostname }}</td>

@@ -90,7 +90,6 @@ def remove_old_services(server, service_list):
     server.save()
 
 
-
 TIMEZONES_CHOICES = (
     ('Africa/Abidjan', 'Africa/Abidjan'),
     ('Africa/Accra', 'Africa/Accra'),

@@ -20,3 +20,8 @@ class Host(Service):
         host.pending_action = get_value(service, "pendingaction", "")
         host.save()
         return host
+
+    @classmethod
+    def get_by_name(cls, server, name):
+        service, created = cls.objects.get_or_create(server=server, name=name)
+        return service

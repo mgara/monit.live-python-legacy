@@ -25,3 +25,8 @@ class Platform(models.Model):
         platform.swap = get_value(xmldoc, "platform", "swap")
         platform.save()
         return platform
+
+    @classmethod
+    def get_by_name(cls, server):
+        service = cls.objects.get(server=server)
+        return service

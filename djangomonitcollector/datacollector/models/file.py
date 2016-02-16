@@ -7,10 +7,10 @@ from utils import get_value, get_int
 class File(Service):
     server = models.ForeignKey('Server')
     size = models.PositiveIntegerField(null=True)
-    permission = models.CharField(null=True ,max_length=4)
+    permission = models.CharField(null=True, max_length=4)
     uid = models.IntegerField(null=True)
     gid = models.IntegerField(null=True)
-    timestamp = models.CharField(null=True,max_length=20)
+    timestamp = models.CharField(null=True, max_length=20)
 
     @classmethod
     def update(cls, xmldoc, server, service):
@@ -33,3 +33,8 @@ class File(Service):
 
         file_.save()
         return file_
+
+    @classmethod
+    def get_by_name(cls, server, name):
+        service, created = cls.objects.get_or_create(server=server, name=name)
+        return service

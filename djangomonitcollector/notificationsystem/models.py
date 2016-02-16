@@ -1,20 +1,19 @@
 from __future__ import unicode_literals, absolute_import
 
-import logging
 import hashlib
+import logging
 import random
 
-from django.db import models
-from djangomonitcollector.datacollector.models.server import MonitEvent
-from djangomonitcollector.users.models import User
 from django.core.urlresolvers import reverse
+from django.db import models
 
+from djangomonitcollector.users.models import User
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-class NotificationType(models.Model):
 
+class NotificationType(models.Model):
     id = models.CharField(primary_key=True, max_length=40)
     notification_user = models.ForeignKey(User)
     notification_service = models.CharField(null=True, max_length=255)
@@ -40,5 +39,3 @@ class NotificationType(models.Model):
             self.id = hashlib.sha1(str(random.random())).hexdigest()
 
         super(NotificationType, self).save(*args, **kwargs)
-
-

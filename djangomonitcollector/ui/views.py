@@ -1,24 +1,22 @@
-import time
 import datetime
+import time
 
+import requests
+from braces.views import LoginRequiredMixin
+from django.conf import settings
+from django.contrib.auth.decorators import user_passes_test
+from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseNotAllowed
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
-from django.core.urlresolvers import reverse
-from django.http import JsonResponse
-from django.conf import settings
-import requests
-from django.contrib.auth.decorators import user_passes_test
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView, DeleteView
-from braces.views import LoginRequiredMixin
-
+from django.views.generic import DetailView, ListView, UpdateView, DeleteView
 from pytz import timezone
 
-from djangomonitcollector.datacollector.models import  Server, MonitEvent
 from djangomonitcollector.datacollector.models import MemoryCPUSystemStats
+from djangomonitcollector.datacollector.models import Server, MonitEvent
 from djangomonitcollector.users.models import validate_user
-from django.core.urlresolvers import reverse_lazy
-
 
 # import the logging library
 import logging
@@ -42,7 +40,6 @@ def dashboard(request):
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def server(request, server_id):
-
     tz = timezone('UTC')
     now = datetime.datetime.now().replace(tzinfo=tz)
     display_time = datetime.timedelta(hours=default_display_period)
@@ -52,9 +49,9 @@ def server(request, server_id):
     server = Server.objects.get(id=server_id)
     system = server.system
     system_resources = MemoryCPUSystemStats.objects.filter(
-        date_last__gt=min_display,
-        date_last__lt=now,
-        system_id=system
+            date_last__gt=min_display,
+            date_last__lt=now,
+            system_id=system
     )
     system_resources_list = list(system_resources)
 
@@ -112,9 +109,9 @@ def server(request, server_id):
         'nets': nets,
         'programs': programs,
         'files': files,
-        'filesystems':filesystems,
-        'hosts':hosts,
-        'alerts_count':alerts_count,
+        'filesystems': filesystems,
+        'hosts': hosts,
+        'alerts_count': alerts_count,
         'monit_update_period': server.monit_update_period,
     })
 
@@ -125,17 +122,15 @@ def server(request, server_id):
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def process(request, server_id, process_name):
-
-        server = Server.objects.get(id=server_id)
-        process = server.process_set.get(name=process_name)
-        return render(request, 'ui/process.html',
-                      {'enable_buttons': False,
-                       'process_found': True,
-                       'server': server,
-                       'process': process,
-                       'monit_update_period': server.monit_update_period
-                       })
-
+    server = Server.objects.get(id=server_id)
+    process = server.process_set.get(name=process_name)
+    return render(request, 'ui/process.html',
+                  {'enable_buttons': False,
+                   'process_found': True,
+                   'server': server,
+                   'process': process,
+                   'monit_update_period': server.monit_update_period
+                   })
 
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
@@ -164,7 +159,7 @@ def process_action(request, server_id):
                 process.monitor = 2
             process.save()
         return redirect(
-            reverse('ui.views.process', kwargs={'server_id': server.id, 'process_name': process_name}))
+                reverse('ui.views.process', kwargs={'server_id': server.id, 'process_name': process_name}))
     except:
         return render(request, 'ui/error.html',
                       {'time_out': time_out, 'monit_user': monit_user, 'ip_address': ip_address,
@@ -239,7 +234,7 @@ def load_process_data(request, server_id, process_name):
             'cpu_percenttotal': process.cpu_percenttotal_last,
             'memory_percenttotal': process.memory_percenttotal_last,
             'memory_kilobytetotal': process.memory_kilobytetotal_last,
-            'table_html' : table_html
+            'table_html': table_html
             }
     return JsonResponse(data)
 
@@ -247,18 +242,27 @@ def load_process_data(request, server_id, process_name):
 class ServerShowView(LoginRequiredMixin, DetailView):
     model = Server
 
+
 class ServerDeleteView(LoginRequiredMixin, DeleteView):
     model = Server
     success_url = reverse_lazy('ui:dashboard')
 
+
 class ServerUpdateView(LoginRequiredMixin, UpdateView):
-    fields = ['http_address', 'http_username', 'http_password','monit_update_period','data_timezone','is_new']
+    fields = ['http_address',
+              'http_username',
+              'http_password',
+              'monit_update_period',
+              'data_timezone',
+              'disable_monitoring'
+              ]
     model = Server
 
     def get_success_url(self):
         server_id = self.kwargs['pk']
         return reverse("ui:server_show",
                        kwargs={"pk": server_id})
+
 
 class EventListView(LoginRequiredMixin, ListView):
     model = MonitEvent
@@ -276,6 +280,7 @@ class EventListView(LoginRequiredMixin, ListView):
         context['alerts_count'] = server.monitevent_set.filter(is_ack=False).count()
         return context
 
+
 def ack_event(request):
     event_id = request.POST['event_id']
     try:
@@ -283,8 +288,8 @@ def ack_event(request):
         event.is_ack = True
         event.save()
         res = {
-            'error_id' : 0,
-            'event_id' : event_id
+            'error_id': 0,
+            'event_id': event_id
         }
 
     except StandardError as e:

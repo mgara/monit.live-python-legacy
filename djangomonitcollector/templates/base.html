@@ -1,4 +1,5 @@
 {% load staticfiles i18n %}<!DOCTYPE html>
+{% load extra_tags %}
 <html lang="en" ng-app>
 <head>
     <meta charset="utf-8">
@@ -59,7 +60,7 @@
                     </li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                           aria-expanded="false">Servers <span class="label label-danger">{{ request.user.server_set.size }}</span><span class="caret"></span></a>
+                           aria-expanded="false">Servers <span class="label label-danger">{{ request.user.server_set|get_server_len }}</span><span class="caret"></span></a>
                         <ul class="dropdown-menu">
 
                             {% for server in request.user.server_set.all %}
@@ -119,11 +120,6 @@
     </div>
 </div>
 <div class="container">
-    <p class="divide-text">
-        {% block page_header %}
-        {% endblock page_header %}
-    </p>
-
     {% if messages %}
         {% for message in messages %}
             <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
@@ -133,7 +129,7 @@
     {% block content %}
         <p>Use this document as a way to quick start any new project.</p>
     {% endblock content %}
-
+    <div class="filler"></div>
 </div>
 <!-- /container -->
 <footer class="footer">

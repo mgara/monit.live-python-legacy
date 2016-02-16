@@ -1,9 +1,11 @@
-from django.db import models
-import time
-from service import Service
-from utils import get_value, get_float, get_int
-from pytz import timezone
 import datetime
+
+from django.db import models
+from pytz import timezone
+
+from service import Service
+from utils import get_value, get_float
+
 
 class FileSystem(Service):
     server = models.ForeignKey('Server')
@@ -41,18 +43,24 @@ class FileSystem(Service):
 
         filesystem.save()
 
-        if percent_last :
+        if percent_last:
             colect_timestamp = int(get_value(service, "collected_sec", ""))
             FsAndDiskUsageStats.create(
-                filesystem,
-                filesystem.server.data_timezone,
-                colect_timestamp,
-                filesystem.blocks_percent_last,
-                filesystem.blocks_usage_last,
-                filesystem.inode_percent_last,
-                filesystem.inode_usage_last
+                    filesystem,
+                    filesystem.server.data_timezone,
+                    colect_timestamp,
+                    filesystem.blocks_percent_last,
+                    filesystem.blocks_usage_last,
+                    filesystem.inode_percent_last,
+                    filesystem.inode_usage_last
             )
         return filesystem
+
+    @classmethod
+    def get_by_name(cls, server, name):
+        service, created = cls.objects.get_or_create(server=server, name=name)
+        return service
+
 
 class FsAndDiskUsageStats(models.Model):
     fs_id = models.ForeignKey('FileSystem')
@@ -62,15 +70,14 @@ class FsAndDiskUsageStats(models.Model):
     inode_percent = models.FloatField(null=True)
     inode_usage = models.FloatField(null=True)
 
-    #'US/Eastern'
     @classmethod
-    def create(cls,fs,tz_str,unixtimestamp, blocks_percent, blocks_usage, inode_percent, inode_usage):
+    def create(cls, fs, tz_str, unixtimestamp, blocks_percent, blocks_usage, inode_percent, inode_usage):
         entry = cls(fs_id=fs)
         tz = timezone(tz_str)
-        entry.date_last= datetime.datetime.fromtimestamp(unixtimestamp).replace(tzinfo=tz)
+        entry.date_last = datetime.datetime.fromtimestamp(unixtimestamp).replace(tzinfo=tz)
         entry.blocks_percent = blocks_percent
         entry.blocks_usage = blocks_usage
-        entry.inode_percent  = inode_percent
+        entry.inode_percent = inode_percent
         entry.inode_usage = inode_usage
         entry.save()
         return entry

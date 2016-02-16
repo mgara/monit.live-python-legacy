@@ -1,7 +1,7 @@
 from django.db import models
 
-from utils import get_value, get_int, get_string
 from service import Service
+from utils import get_value, get_int, get_string
 
 
 class Program(Service):
@@ -10,7 +10,7 @@ class Program(Service):
     date = models.TextField(null=True)
     started = models.IntegerField(null=True)
     output = models.TextField(null=True)
-    exitcode = models.CharField(null=True,max_length=5)
+    exitcode = models.CharField(null=True, max_length=5)
 
     @classmethod
     def update(cls, xmldoc, server, service):
@@ -28,3 +28,7 @@ class Program(Service):
         program.save()
         return program
 
+    @classmethod
+    def get_by_name(cls, server, name):
+        service, created = cls.objects.get_or_create(server=server, name=name)
+        return service

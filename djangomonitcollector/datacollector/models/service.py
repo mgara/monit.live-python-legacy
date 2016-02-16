@@ -1,7 +1,7 @@
 from django.db import models
 
-class Service(models.Model):
 
+class Service(models.Model):
     name = models.TextField()
     service_type = models.PositiveIntegerField(null=True)
     status = models.TextField(null=True)
@@ -10,6 +10,7 @@ class Service(models.Model):
     monitor_mode = models.IntegerField(null=True)
     pending_action = models.IntegerField(null=True)
     is_flapping = models.BooleanField(default=False)
+    process_running_status = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

@@ -1,18 +1,20 @@
-from braces.views import LoginRequiredMixin
-from django.core.urlresolvers import reverse_lazy
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic import DetailView, ListView
-from models import NotificationType
-from forms import NotificationTypeForm, get_class_name_and_extra_params
-from django import forms
 import ast
-from django.http import JsonResponse
-from djangomonitcollector.datacollector.models import Server, MonitEvent
-from django.http import HttpResponseRedirect
-from django.shortcuts import redirect
 import re
 
-def check_item(item,string_list_of_items):
+from braces.views import LoginRequiredMixin
+from django import forms
+from django.core.urlresolvers import reverse_lazy
+from django.http import JsonResponse
+from django.shortcuts import redirect
+from django.views.generic import DetailView, ListView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+
+from djangomonitcollector.datacollector.models import Server, MonitEvent
+from forms import NotificationTypeForm, get_class_name_and_extra_params
+from models import NotificationType
+
+
+def check_item(item, string_list_of_items):
     if not string_list_of_items.strip():
         return True
     try:
@@ -28,6 +30,7 @@ def check_item(item,string_list_of_items):
             return True
         return False
     return True
+
 
 def notificationtypeactivation(request, pk):
     nt = NotificationType.objects.get(id=pk)
@@ -45,15 +48,15 @@ def notificationtype_mute_all(request, pk):
     for event_object in MonitEvent.objects.filter(is_ack=False):
         if nt.notification_enabled:
             name_matches = check_item(
-                event_object.service.name, nt.notification_service)
+                    event_object.service.name, nt.notification_service)
             state_matches = check_item(
-                event_object.event_state, nt.notification_state)
+                    event_object.event_state, nt.notification_state)
             action_matches = check_item(
-                event_object.event_action, nt.notification_action)
+                    event_object.event_action, nt.notification_action)
             type_matches = check_item(
-                event_object.event_type, nt.notification_type)
+                    event_object.event_type, nt.notification_type)
             messages_matches = True if re.search(
-                nt.notification_message, event_object.event_message) else False
+                    nt.notification_message, event_object.event_message) else False
 
         if name_matches and state_matches and action_matches and type_matches and messages_matches:
             MonitEvent.mute(event_object)
@@ -79,14 +82,13 @@ def get_user_services(user):
         items += server.host_set.all().order_by('name')
         items.append(server.system)
 
-    items = (i.name for i in items)                # get the name only
-    items = list(set(items))                       # remove duplicates
-    service_list += tuple((i, i) for i in items)   # create final tuple
+    items = (i.name for i in items)  # get the name only
+    items = list(set(items))  # remove duplicates
+    service_list += tuple((i, i) for i in items)  # create final tuple
     return service_list
 
 
 class NotificationTypeView(LoginRequiredMixin, DetailView):
-
     model = NotificationType
     fields = [
         'notification_server',
@@ -108,14 +110,15 @@ class NotificationTypeCreate(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(
-            NotificationTypeCreate, self).get_context_data(**kwargs)
+                NotificationTypeCreate, self).get_context_data(**kwargs)
         context['form'].fields['notification_user'] = forms.CharField(widget=forms.HiddenInput(),
                                                                       initial=self.request.user.id
                                                                       )
         context['form'].fields['notification_service'] = forms.MultipleChoiceField(widget=forms.SelectMultiple(),
                                                                                    choices=get_user_services(
-            self.request.user), required=False
-        )
+                                                                                           self.request.user),
+                                                                                   required=False
+                                                                                   )
         return context
 
 
@@ -125,7 +128,7 @@ class NotificationTypeUpdate(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(
-            NotificationTypeUpdate, self).get_context_data(**kwargs)
+                NotificationTypeUpdate, self).get_context_data(**kwargs)
         context['form'].fields['notification_user'] = forms.CharField(widget=forms.HiddenInput(),
                                                                       initial=self.request.user.id
                                                                       )
@@ -134,8 +137,8 @@ class NotificationTypeUpdate(LoginRequiredMixin, UpdateView):
                                                               )
         context['form'].fields['notification_service'] = forms.MultipleChoiceField(widget=forms.SelectMultiple(),
                                                                                    choices=get_user_services(
-            self.request.user)
-        )
+                                                                                           self.request.user)
+                                                                                   )
         return context
 
 
@@ -160,7 +163,7 @@ def get_notification_plugin_form(request):
             notification_type_id = request.GET['notification_type_id']
             if notification_type_id.strip():
                 extra_params_values = ast.literal_eval(NotificationType.objects.get(
-                    id=notification_type_id).notification_plugin_extra_params)
+                        id=notification_type_id).notification_plugin_extra_params)
 
         k, extra_params = get_class_name_and_extra_params(plugin_name.lower())
         output = ""
@@ -169,18 +172,18 @@ def get_notification_plugin_form(request):
             for field in extra_params.keys():
                 field_id = extra_params[field].id
                 field_value = extra_params_values[extra_params[field].id] if extra_params[
-                    field].id in extra_params_values else ""
+                                                                                 field].id in extra_params_values else ""
                 field_label = extra_params[field].label
                 output += get_component(
-                    field_id,
-                    field_label,
-                    field_value
+                        field_id,
+                        field_label,
+                        field_value
                 )
         else:
             for field in extra_params.keys():
                 output += get_component(
-                    extra_params[field].id,
-                    extra_params[field].label
+                        extra_params[field].id,
+                        extra_params[field].label
                 )
 
         res = {

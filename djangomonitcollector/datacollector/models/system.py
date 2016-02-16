@@ -1,11 +1,11 @@
+import datetime
 import time
 
 from django.db import models
+from pytz import timezone
 
 from service import Service
 from utils import get_value, json_list_append
-from pytz import timezone
-import datetime
 
 
 class System(Service):
@@ -50,26 +50,27 @@ class System(Service):
         if get_value(service, "load", "avg01") != "none":
             colect_timestamp = int(get_value(service, "collected_sec", ""))
             MemoryCPUSystemStats.create(
-                system,
-                system.server.data_timezone,
-                colect_timestamp,
-                system.load_avg01_last,
-                system.load_avg05_last,
-                system.load_avg15_last,
-                system.cpu_user_last,
-                system.cpu_system_last,
-                system.cpu_wait_last,
-                system.memory_percent_last,
-                system.memory_kilobyte_last,
-                system.swap_percent_last,
-                system.swap_kilobyte_last
+                    system,
+                    system.server.data_timezone,
+                    colect_timestamp,
+                    system.load_avg01_last,
+                    system.load_avg05_last,
+                    system.load_avg15_last,
+                    system.cpu_user_last,
+                    system.cpu_system_last,
+                    system.cpu_wait_last,
+                    system.memory_percent_last,
+                    system.memory_kilobyte_last,
+                    system.swap_percent_last,
+                    system.swap_kilobyte_last
             )
         return system
 
     @classmethod
-    def get_system_service(cls,server):
+    def get_by_server(cls, server):
         system, created = cls.objects.get_or_create(server=server)
         return system
+
 
 class MemoryCPUSystemStats(models.Model):
     system_id = models.ForeignKey('System')
@@ -103,7 +104,7 @@ class MemoryCPUSystemStats(models.Model):
                ):
         entry = cls(system_id=system)
         tz = timezone(tz_str)
-        entry.date_last= datetime.datetime.fromtimestamp(unixtimestamp).replace(tzinfo=tz)
+        entry.date_last = datetime.datetime.fromtimestamp(unixtimestamp).replace(tzinfo=tz)
         entry.load_avg01 = load_avg01
         entry.load_avg05 = load_avg05
         entry.load_avg15 = load_avg15

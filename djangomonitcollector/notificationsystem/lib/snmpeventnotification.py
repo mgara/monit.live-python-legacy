@@ -5,13 +5,12 @@ from parameter import Parameter
 
 
 class SnmpEventNotification(IEventSettingsInterface):
-
     extra_params = {
-        'snmp_managers': Parameter('snmp_managers','SNMP Managers List (comma seperated)'),
+        'snmp_managers': Parameter('snmp_managers', 'SNMP Managers List (comma seperated)'),
     }
 
     def __init__(self):
-            pass
+        pass
 
     def process(self):
         print self.event
@@ -20,4 +19,3 @@ class SnmpEventNotification(IEventSettingsInterface):
     def finalize(self, event_object):
         # put whatever you want to be done after the process command
         pass
-

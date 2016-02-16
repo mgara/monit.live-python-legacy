@@ -2,31 +2,35 @@
 
 {# table-striped table-condensed table-hover class="success" class="warning" class="danger"#}
 <div id="server_table" class="table-responsive">
-  <table class="table table-hover table-striped table-bordered ">
-    <thead>
-      <tr>
-	<th>name</th>
-	<th>status</th>
-	<th>uptime</th>
-	<th>children</th>
-	<th>CPU total</th>
-	<th>memory total</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for process in processes %}
-          <tr class="link" href="#" onclick="document.location = '{% url 'ui:process' server.id process.name %}';">
-              <td>{{ process.name }}</td>
-              <td ><span class="label label-{{ process.status|status_tr_class:process.monitor }}">{{ process.status|status_to_string:process}}</span></td>
-              <td>{{ process.uptime|time_str }}</td>
-              <td>{% if process.children %}{{ process.children|format_number }}{% endif %}</td>
-              <td>{% autoescape off %}{{ process.cpu_percent_last|percent_to_bar }}{% endautoescape %}</td>
+    <table class="table table-hover table-striped table-bordered ">
+        <thead>
+        <tr>
+            <th>name</th>
+            <th>status</th>
+            <th>uptime</th>
+            <th>children</th>
+            <th>CPU total</th>
+            <th>memory total</th>
+            <th>Flapping</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for process in processes %}
+            <tr class="link" href="#" onclick="document.location = '{% url 'ui:process' server.id process.name %}';">
+                <td>{{ process.name }}</td>
+                <td><span
+                        class="label label-{{ process.status|status_tr_class:process.monitor }}">{{ process.status|status_to_string:process }}</span>
+                </td>
+                <td>{{ process.uptime|time_str }}</td>
+                <td>{% if process.children %}{{ process.children|format_number }}{% endif %}</td>
+                <td>{% autoescape off %}{{ process.cpu_percent_last|percent_to_bar }}{% endautoescape %}</td>
 
-              <td> {% if process.memory_kilobyte_last %}[{{ process.memory_kilobyte_last|kb_formatting}}] {% endif %}
-                  {% autoescape off %}{{ process.memory_percent_last|percent_to_bar }}{% endautoescape %}
-              </td>
-          </tr>
-      {% endfor%}
-    </tbody>
-  </table>
+                <td> {% if process.memory_kilobyte_last %}[{{ process.memory_kilobyte_last|kb_formatting }}] {% endif %}
+                    {% autoescape off %}{{ process.memory_percent_last|percent_to_bar }}{% endautoescape %}
+                </td>
+                <td>{{ process.is_flapping|flapping_status|safe }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
