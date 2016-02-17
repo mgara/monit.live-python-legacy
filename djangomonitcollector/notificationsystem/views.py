@@ -150,6 +150,16 @@ class NotificationTypeDelete(DeleteView):
 class NotificationTypeListView(LoginRequiredMixin, ListView):
     model = NotificationType
 
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(NotificationTypeListView, self).get_context_data(**kwargs)
+        messages = dict()
+        message = dict()
+        message.tags = "info"
+        messages['test'] = message
+        context['messages'] = messages
+        return context
+
     def get_queryset(self):
         user = self.request.user
         return self.model.objects.filter(notification_user=user)

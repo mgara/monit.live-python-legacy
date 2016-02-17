@@ -60,12 +60,12 @@ class IEventSettingsInterface(object):
         event_dict["message"] = self.event_message
         # Strings
         event_dict["state"] = self.event_state
-        event_dict["event_id"] = self.event_id
+        event_dict["event"] = self.event_id
         event_dict["action"] = self.event_action
         event_dict["type"] = self.event_type
         # Id
         event_dict["state_id"] = self.event_state_id
-        event_dict["event_id_id"] = self.event_id_id
+        event_dict["event_id"] = self.event_id_id
         event_dict["action_id"] = self.event_action_id
         event_dict["type_id"] = self.event_type_id
 

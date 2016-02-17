@@ -14,7 +14,7 @@ from django.template.loader import render_to_string
 from django.views.generic import DetailView, ListView, UpdateView, DeleteView
 from pytz import timezone
 
-from djangomonitcollector.datacollector.models import MemoryCPUSystemStats
+from djangomonitcollector.datacollector.models import MemoryCPUSystemStats,MemoryCPUProcessStats
 from djangomonitcollector.datacollector.models import Server, MonitEvent
 from djangomonitcollector.users.models import validate_user
 
@@ -122,15 +122,54 @@ def server(request, server_id):
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def process(request, server_id, process_name):
+    tz = timezone('UTC')
+    now = datetime.datetime.now().replace(tzinfo=tz)
+    display_time = datetime.timedelta(hours=default_display_period)
+    min_display = now - display_time
+    min_display = min_display.replace(tzinfo=tz)
+
     server = Server.objects.get(id=server_id)
     process = server.process_set.get(name=process_name)
+    '''
+    process_id = models.ForeignKey('Process')
+    date_last = models.DateTimeField()
+    cpu_percent = models.FloatField(null=True)
+    memory_percent = models.FloatField(null=True)
+    memory_kilobyte = models.PositiveIntegerField(null=True)
+    '''
+    process_resources = MemoryCPUProcessStats.objects.filter(
+            date_last__gt=min_display,
+            date_last__lt=now,
+            process_id=process
+    )
+    process_resources_list = list(process_resources)
+
+    date_last = []
+    cpu_percent = []
+    memory_percent = []
+    memory_kilobyte = []
+
+    for resources_at_some_time in process_resources_list:
+        date_last.append(str(time.mktime(resources_at_some_time.date_last.replace(tzinfo=None).timetuple())))
+        cpu_percent.append(resources_at_some_time.cpu_percent)
+        memory_percent.append(resources_at_some_time.memory_percent)
+        memory_kilobyte.append(resources_at_some_time.memory_kilobyte)
+
+    date_last = "[{0}]".format(",".join(date_last))
+
     return render(request, 'ui/process.html',
-                  {'enable_buttons': False,
-                   'process_found': True,
-                   'server': server,
-                   'process': process,
-                   'monit_update_period': server.monit_update_period
-                   })
+                  {
+                      'enable_buttons': False,
+                      'process_found': True,
+                      'server': server,
+                      'process': process,
+                      'date_last': date_last,
+                      'cpu_percent': cpu_percent,
+                      'memory_percent': memory_percent,
+                      'memory_kilobyte': memory_kilobyte,
+                      'monit_update_period': server.monit_update_period
+                  }
+                  )
 
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
@@ -198,13 +237,6 @@ def load_system_table(request, server_id):
     return JsonResponse({'table_html': table_html})
 
 
-def load_process_table(request, server_id, process_name):
-    server = Server.objects.get(id=server_id)
-    process = server.process_set.get(name=process_name)
-    table_html = render_to_string('ui/includes/process_table.html', {'process': process})
-    return JsonResponse({'table_html': table_html})
-
-
 def load_system_data(request, server_id):
     server = Server.objects.get(id=server_id)
     system = server.system
@@ -224,6 +256,13 @@ def load_system_data(request, server_id):
             'swap_percent': system.swap_percent_last,
             'swap_kilobyte': system.swap_kilobyte_last}
     return JsonResponse(data)
+
+
+def load_process_table(request, server_id, process_name):
+    server = Server.objects.get(id=server_id)
+    process = server.process_set.get(name=process_name)
+    table_html = render_to_string('ui/includes/process_table.html', {'process': process})
+    return JsonResponse({'table_html': table_html})
 
 
 def load_process_data(request, server_id, process_name):

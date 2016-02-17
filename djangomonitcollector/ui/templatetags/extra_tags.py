@@ -16,9 +16,9 @@ except:
 @register.filter
 def server_status_to_css_class(status):
     if status:
-        return " <a href=\"#\" class=\"btn btn-success btn-xs\"><span class=\"glyphicon glyphicon-ok\"></span></a>"
+        return " <a href=\"#\" class=\"btn btn-success btn-xs\"><span class=\"glyphicon glyphicon-upload\"></span></a>"
     else:
-        return " <a href=\"#\" class=\"btn btn-danger btn-xs\"><span class=\"glyphicon glyphicon-remove\"></span></a>"
+        return " <a href=\"#\" class=\"btn btn-danger btn-xs\"><span class=\"glyphicon glyphicon-download\"></span></a>"
 
 
 @register.filter
@@ -327,3 +327,14 @@ def get_style_from_value(value, thresh1=50, thresh2=85):
     if value >= thresh1 and value < thresh2:
         return "warning"
     return "danger"
+
+@register.simple_tag
+def get_current_notification_number():
+    return 999
+    pass
+
+@register.filter
+def nt_status_to_label(status):
+    if status:
+        return  '<span class="label label-success small">On</span>'
+    return '<span class="label label-danger small">Off</span>'
