@@ -1,0 +1,25 @@
+before_script:
+  - virtualenv /opt/dmc
+  - source /opt/dmc/bin/activate
+  - pip install -r requirements/test.txt
+
+stages:
+  - build
+  - test
+  - deploy
+
+job1:
+  stage: migrte
+  script:
+    - "python manage.py migrate"
+    - "python manage.py compilemessages"
+    - "python manage.py collectstatic --noinput"
+  only:
+    - devel
+
+job1:
+  stage: test
+  script:
+    - "python manage.py test --noinput"
+  only:
+    - devel
