@@ -1,3 +1,6 @@
+.. image:: http://10.104.1.167:8080/buildStatus/icon?job=django-monit-collector
+    :target: http://10.104.1.167:8080/job/django-monit-collector
+    
 djangomonitcollector
 ==============================
 
