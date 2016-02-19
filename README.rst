@@ -1,13 +1,17 @@
+<<<<<<< HEAD
 .. image:: http://10.104.1.167:8080/buildStatus/icon?job=django-monit-collector
     :target: http://10.104.1.167:8080/job/django-monit-collector
     
 djangomonitcollector
+=======
+django-monit-collector
+>>>>>>> da75aebcaeb3b3f570fb72dd97e1b22cfc81cad1
 ==============================
 
 A short description of the project.
 
 
-LICENSE: BSD
+LICENSE: Commercial
 
 Settings
 ------------
