@@ -42,6 +42,6 @@ celery==3.1.19
 
 
 # Your custom requirements go here
-django-mongodb-engine
+django-socketio
 
 

@@ -47,7 +47,8 @@ LOCAL_APPS = (
     # Your stuff: custom apps go here
     'djangomonitcollector.datacollector',
     'djangomonitcollector.ui',
-    'djangomonitcollector.notificationsystem'
+    'djangomonitcollector.notificationsystem',
+    'django_socketio'
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -229,8 +230,12 @@ AUTOSLUG_SLUGIFY_FUNCTION = 'slugify.slugify'
 ########## CELERY
 INSTALLED_APPS += ('djangomonitcollector.taskapp.celery.CeleryConfig',)
 # if you are not using the django database broker (e.g. rabbitmq, redis, memcached), you can remove the next line.
-INSTALLED_APPS += ('kombu.transport.django',)
-BROKER_URL = env("CELERY_BROKER_URL", default='django://')
+#INSTALLED_APPS += ('kombu.transport.django',)
+BROKER_URL = env("CELERY_BROKER_URL", default='amqp://dmc:va2root@172.16.5.82:5672')
+# CELERY SETTINGS
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 ########## END CELERY
 
 
@@ -250,5 +255,8 @@ NUMBER_OF_TRANSITIONS_PER_FLAPPING_PERIOD = 2
 
 SERVICE_FLAPPING_PERIOD = 60
 
+
+SOCKETIO_HOST = "0.0.0.0"
+SOCKETIO_PORT = "9000"
 
 

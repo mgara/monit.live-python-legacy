@@ -24,6 +24,6 @@ class TestFileModel(TestCase):
     def test_update_or_create(self):
         service = minidom.parseString(self.xmldoc)
         server = factory.RelatedFactory(factories.ServerFactory, 'server')
-        f = File.update(None,server,service)
+        f = File.update(None, server, service)
 
         self.assertTrue(f)

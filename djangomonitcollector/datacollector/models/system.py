@@ -6,6 +6,8 @@ from pytz import timezone
 
 from service import Service
 from utils import get_value, json_list_append
+from djangomonitcollector.ui.events import broadcast_to_websocket_channel
+
 
 
 class System(Service):
@@ -47,6 +49,8 @@ class System(Service):
             system.swap_percent_last = float(get_value(service, "swap", "percent"))
             system.swap_kilobyte_last = int(get_value(service, "swap", "kilobyte"))
         system.save()
+        broadcast_to_websocket_channel(server,system)
+
         if get_value(service, "load", "avg01") != "none":
             colect_timestamp = int(get_value(service, "collected_sec", ""))
             MemoryCPUSystemStats.create(
@@ -117,3 +121,4 @@ class MemoryCPUSystemStats(models.Model):
         entry.swap_kilobyte = swap_kilobyte
         entry.save()
         return entry
+

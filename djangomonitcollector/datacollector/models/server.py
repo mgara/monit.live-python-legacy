@@ -47,7 +47,7 @@ class Server(models.Model):
     monit_version = models.TextField(null=True)
     server_up = models.BooleanField(default=True)
     uptime = models.IntegerField(null=True)
-    last_data_received = models.DateTimeField()
+    last_data_received = models.DateTimeField(null=True)
 
     @classmethod
     def update(cls, xmldoc, monit_id, user, external_ip, manual_approval_required):
