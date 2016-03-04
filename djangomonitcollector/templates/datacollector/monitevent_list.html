@@ -1,113 +1,149 @@
 {% extends "ui/server.html" %}
 {% load static %}
 {% load extra_tags %}
-
 {% block title %}Server {{ server.localhostname }} {% endblock %}
 {% block content %}
-<div class="container">
-    <div class="page-header">
-        <h1>Last Events for <small>{{ server.localhostname }}</small>
-        </h1>
-    </div>
-    <div class="row">
-
-    </div>
-    <div class="row">
-
-        <div class="list-group">
-            {% for monit_event in object_list %}
-            <a href="#" id="event-element-{{ monit_event.id }}" class="list-group-item list-group-item-{{ monit_event.event_state|event_state_to_style }}">
-                <h4 class="list-group-item-heading">[{{ monit_event.id }}] {{ monit_event.event_message }}<span class="pull-right"><small><span style="color:black;font-family:Monospace">{{ monit_event.event_time|date:"r e" }}</span></small></span></h4>
-
-                <p class="list-group-item-text">
-                <h4>{{ monit_event.event_type|type_to_string }}: <b>{{ monit_event.service}} </b> </h4>
-                <h5> Event <b>{{ monit_event.event_id|event_status_to_string }}</b> : <b>{{ monit_event.event_state|event_state_to_string }}</b></h5>
-
-                <span >Action : {{ monit_event.event_action|action_to_string }}</span>
-                </p>
-                <div class="btn-group" role="group" aria-label="...">
-                    <button type="button" id="create_notification"
-                            class="btn btn-xs btn-default btn-{{ monit_event.event_state|event_state_to_style }}"> Mute or Create
-                        Notification for Events Like This
-                    </button>
-                    <button type="button" id="ack-{{ monit_event.id }}" data-id="{{ monit_event.id }}"
-                            class="btn btn-xs btn-default btn-{{ monit_event.event_state|event_state_to_style }}">ACK
-                    </button>
-                    <script language="javascript">
-                        // Submit post on submit
-                        $('#ack-{{ monit_event.id }}').on("click", function (event) {
-                            event_id = $(this).data("id");
-                            ack(event_id);
-                            return false
-                        });
-                    </script>
-                </div>
-            </a>
-            {% empty %}
-                <a href="#" class="list-group-item">
-                <span>No Events yet. :) </span>
-                </a>
-            {% endfor %}
+    <div class="container">
+        <div class="page-header">
+            <h1>Last Events for <small>{{ server.localhostname }}</small>
+            </h1>
         </div>
-
-
+        <div class="row">
+        </div>
+        <div class="row">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Custom responsive table </h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li><a href="#">Config option 1</a>
+                        </li>
+                        <li><a href="#">Config option 2</a>
+                    </li>
+                </ul>
+                <a class="close-link">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+        </div>
+        <div class="ibox-content">
+            <div class="row">
+            <div class="col-sm-4 m-b-xs">
+            Filter by :
+                <div data-toggle="buttons" class="btn-group">
+                    <label class="btn btn-sm btn-white"> <input type="radio" id="option1" name="options"> Day </label>
+                    <label class="btn btn-sm btn-white active"> <input type="radio" id="option2" name="options"> Week </label>
+                    <label class="btn btn-sm btn-white"> <input type="radio" id="option3" name="options"> Month </label>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="input-group"><input type="text" placeholder="Search (Not available yet!)" class="input-sm form-control"> <span class="input-group-btn">
+            <button type="button" class="btn btn-sm btn-primary"> Go!</button> </span></div>
+        </div>
     </div>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Message</th>
+                    <th>Date </th>
+                    <th>Event</th>
+                    <th>Type</th>
+                    <th>Monit Action</th>
+                    <th>Operations<th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for monit_event in object_list %}
+                        <tr>
+                            <td>{{ monit_event.event_message }}</td>
+                            <td>{{ monit_event.event_time|date:"r e" }}</td>
+                            <td><b>{{ monit_event.event_id|event_status_to_string }}</b> : <b>{{ monit_event.event_state|event_state_to_string }}</b></td>
+                            <td>{{ monit_event.event_type|type_to_string }}: <b>{{ monit_event.service}} </b></td>
+                            <td>{{ monit_event.event_action|action_to_string }}</td>
+                            <td><div class="btn-group" role="group" aria-label="...">
+                                <button type="button" id="create_notification"
+                                class="btn btn-xs btn-{{ monit_event.event_state|event_state_to_style }}"><i class="fa fa-filter"></i>
+                                </button>
+                                <button type="button" id="ack-{{ monit_event.id }}" data-id="{{ monit_event.id }}"
+                                class="btn btn-xs btn-{{ monit_event.event_state|event_state_to_style }}"><i class="fa fa-check"></i>
+
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <script language="javascript">
+                    // Submit post on submit
+                    $('#ack-{{ monit_event.id }}').on("click", function (event) {
+                    event_id = $(this).data("id");
+                    ack(event_id);
+                    return false
+                    });
+                    </script>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+</div>
 </div>
 {% endblock %}
 {% block customjs %}
-    <script language="JavaScript">
-
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie != '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = jQuery.trim(cookies[i]);
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-            var csrftoken = getCookie('csrftoken');
-
-        function csrfSafeMethod(method) {
-            // these HTTP methods do not require CSRF protection
-            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-        }
-
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            }
-        });
-
-        // AJAX for posting
-        var ack = function(event_id) {
-            $.ajax({
-                url: "{% url 'ui:ack_event' %}", // the endpoint
-                type: "POST", // http method
-                data: {"event_id": event_id},
-                // handle a successful response
-                success: function (json) {
-                    event_id = json.event_id
-                    element_selector = "#event-element-"+event_id
-                    $(element_selector).fadeOut(150)
-                },
-
-                // handle a non-successful response
-                error: function (xhr, errmsg, err) {
-                    $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
-                            " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-                    console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-                }
-            });
-        };
-        console.log("Loaded")
-    </script>
+<script language="JavaScript">
+function getCookie(name) {
+var cookieValue = null;
+if (document.cookie && document.cookie != '') {
+var cookies = document.cookie.split(';');
+for (var i = 0; i < cookies.length; i++) {
+var cookie = jQuery.trim(cookies[i]);
+// Does this cookie string begin with the name we want?
+if (cookie.substring(0, name.length + 1) == (name + '=')) {
+cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+break;
+}
+}
+}
+return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');
+function csrfSafeMethod(method) {
+// these HTTP methods do not require CSRF protection
+return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+$.ajaxSetup({
+beforeSend: function (xhr, settings) {
+if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+xhr.setRequestHeader("X-CSRFToken", csrftoken);
+}
+}
+});
+// AJAX for posting
+var ack = function(event_id) {
+$.ajax({
+url: "{% url 'ui:ack_event' %}", // the endpoint
+type: "POST", // http method
+data: {"event_id": event_id},
+// handle a successful response
+success: function (json) {
+event_id = json.event_id
+element_selector = "#event-element-"+event_id
+$(element_selector).fadeOut(150)
+},
+// handle a non-successful response
+error: function (xhr, errmsg, err) {
+$('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+" <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+}
+});
+};
+console.log("Loaded")
+</script>
 {% endblock customjs %}

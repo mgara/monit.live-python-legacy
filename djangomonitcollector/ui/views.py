@@ -24,11 +24,12 @@ import logging
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-default_display_period = int(getattr(settings, 'DISPLAY_PERIOD', 24))  # four_hours
+default_display_period = int(getattr(settings, 'DISPLAY_PERIOD', 1))  # four_hours
 
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def dashboard(request):
+    print "Im here"
     servers = Server.objects.filter(user_id=request.user).order_by('localhostname')
     if request.user.server_set.all().count() > 0:
         for server in servers:
@@ -85,6 +86,7 @@ def server(request, server_id):
     processes = server.process_set.all().order_by('name')
     programs = server.program_set.all().order_by('name')
     files = server.file_set.all().order_by('name')
+    directories = server.directory_set.all().order_by('name')
     nets = server.net_set.all().order_by('name')
     filesystems = server.filesystem_set.all().order_by('name')
     hosts = server.host_set.all().order_by('name')
@@ -109,6 +111,7 @@ def server(request, server_id):
         'nets': nets,
         'programs': programs,
         'files': files,
+        'directories': directories,
         'filesystems': filesystems,
         'hosts': hosts,
         'alerts_count': alerts_count,

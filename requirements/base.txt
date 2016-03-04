@@ -40,8 +40,6 @@ redis>=2.10.0
 
 celery==3.1.19
 
+# Add your custom stuff here.
 
-# Your custom requirements go here
-django-socketio
-
-
+pika

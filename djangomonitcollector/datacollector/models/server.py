@@ -13,6 +13,7 @@ from pytz import timezone
 from djangomonitcollector.users.models import User
 from file import File
 from filesystem import FileSystem
+from directory import Directory
 from net import Net
 from platform import Platform
 from process import Process
@@ -37,9 +38,9 @@ class Server(models.Model):
     address = models.TextField(null=True)
     data_timezone = models.CharField(max_length=30, choices=TIMEZONES_CHOICES, default=settings.TIME_ZONE)
     external_ip = models.TextField(null=True)
-    http_address = models.CharField(max_length=200, null=True)
-    http_password = models.CharField(max_length=45, default="admin")
-    http_username = models.CharField(max_length=45, default="monit")
+    http_address = models.CharField(max_length=200,null=True)
+    http_password = models.CharField(max_length=45,null=True,default="admin")
+    http_username = models.CharField(max_length=45,null=True,default="monit")
     disable_monitoring = models.BooleanField(default=True)
     localhostname = models.TextField(null=True)
     monit_id = models.CharField(max_length=32, unique=True)
@@ -102,6 +103,8 @@ class Server(models.Model):
 
                     if service_type == '0':  # Filesystem
                         FileSystem.update(xmldoc, server, service)
+                    elif service_type == '1':  # Directory
+                        Directory.update(xmldoc, server, service)
                     elif service_type == '2':  # File
                         File.update(xmldoc, server, service)
                     elif service_type == '3':  # Process
@@ -295,6 +298,8 @@ def get_service_by_name(server, event_type, service_name):
 
     if event_type == 0:
         return FileSystem.get_by_name(server, service_name)
+    if event_type == 1:
+        return Directory.get_by_name(server, service_name)
     if event_type == 2:
         return File.get_by_name(server, service_name)
     if event_type == 3:

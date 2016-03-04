@@ -3,16 +3,24 @@
 {% load extra_tags %}
 
 
-{% block additinal_nav %}
-    <li><a href="{% url 'monitcollector.views.server' server.id %}"> Server </a></li>
+{% block submenu %}
+    <li><a href="{% url 'ui:server' server.id %}"> Back to Server </a></li>
 {% endblock %}
 
-<div class="alert alert-info">
-    Process {{ process.name }} has status {{ process.status }} with uptime {{ process.uptime|time_str }}
-</div>
 
 {% block content %}
     {% if process_found %}
+
+
+
+    <div class="row clearfix">
+
+        <div class="page-header">
+            <h1>Process <b>{{process.name}}</b> on <small>{{ server.localhostname }}</small>
+            </h1>
+        </div>
+
+
         <div class="row clearfix marginTop">
             <div class="col-md-12 column">
                 {% include "ui/includes/process_table.html" %}
@@ -29,22 +37,13 @@
         </div>
         <div class="divider"></div>
 
-        <div class="row clearfix">
-            <p class="helper">Zoom: click-drag --- Pan: shift-click-drag --- Restore zoom level: double-click</p>
+        <div class="row">
+            <p class="helper"> Zoom: click-drag --- Pan: shift-click-drag --- Restore zoom level: double-click</p>
 
         </div>
 
-
-    {% else %}
-        <div class="row clearfix">
-            <div class="col-md-12 column">
-                <p>Something went wrong. Process not found.</p>
-            </div>
-        </div>
-    {% endif %}
-
-
-    <script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
+    </div>
+  <script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
     <script src="{% static 'js/dygraph-combined.js' %}"></script>
     <script src="{% static 'js/csrf.js' %}"></script>
 
@@ -176,4 +175,12 @@
         });
     </script>
     {% csrf_token %}
+    {% else %}
+        <div class="row clearfix">
+            <div class="col-md-12 column">
+                <p>Something went wrong. Process not found.</p>
+            </div>
+        </div>
+    {% endif %}
+
 {% endblock %}

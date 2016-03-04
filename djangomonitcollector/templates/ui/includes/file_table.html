@@ -15,7 +15,7 @@
       <tbody>
       {% for file in files %}
         <tr  class="link">
-            <td>{{ file.name }}</td>
+            <td>{{ file.name|to_path }}</td>
             <td ><span class="label label-{{ file.status|status_tr_class:file.monitor }}">{{ file.status|status_to_string:file}}</span></td>
             <td>{{ file.status_hint }}</td>
             <td>{{ file.size|human_readable_size }}</td>

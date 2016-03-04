@@ -1,166 +1,153 @@
-{% load staticfiles i18n %}<!DOCTYPE html>
+{% load staticfiles %}
 {% load extra_tags %}
+<!DOCTYPE html>
 <html lang="en" ng-app>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>{% block title %}djangomonitcollector{% endblock title %}</title>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Monit Collector | {% block title %}Dashboard{% endblock title %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
-
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
-
-    <!-- Latest compiled and minified CSS -->
-    {% if request.user.bootstrap_theme  and request.user.bootstrap_theme != "default" %}
-        <link rel="stylesheet"
-              href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/{{ request.user.bootstrap_theme }}/bootstrap.min.css">
-    {% else %}
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/paper/bootstrap.min.css">
-    {% endif %}
     <!-- Your stuff: Third-party css libraries go here -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'font-awesome/css/font-awesome.css' %}" rel="stylesheet">
+    <link href="{% static 'css/plugins/toastr/toastr.min.css' %}" rel="stylesheet">
+
+    <link href="{% static 'css/animate.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
 
     <!-- This file store project specific CSS -->
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
     <link href="{% static 'css/multiselect.css' %}" rel="stylesheet">
     {% block css %}
     {% endblock %}
-
     <!-- Latest JQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     {%  block head %}
-
-    {% endblock head %}
+{% endblock head %}
 </head>
-
-<body>
-
-<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="#">Monit Collector</a>
-    </div>
-    <div class="container">
+<body class="fixed-sidebar fixed-nav fixed-nav-basic">
+<div id="wrapper">
 
 
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-                {% if request.user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'ui:dashboard' %}">Dashboard</a>
+        <nav class="navbar-default navbar-static-side" role="navigation">
+            <div class="sidebar-collapse">
+                <ul class="nav metismenu" id="side-menu">
+                    <li class="nav-header">
+                        <div class="dropdown profile-element">
+                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                <span class="clear">
+                                    <span class="block m-t-xs">
+                                        <strong class="font-bold">David Williams</strong>
+                                        </span> <span class="text-muted text-xs block">Art Director <b class="caret"></b></span>
+                                    </span>
+                                </a>
+                                <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                    <li><a href="">Profile</a>
+                                </li>
+                                <li><a href="">Contacts</a>
+                            </li>
+                            <li><a href="">Mailbox</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li><a href="">Logout</a>
                     </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                           aria-expanded="false">Servers <span class="label label-danger">{{ request.user.server_set|get_server_len }}</span><span class="caret"></span></a>
-                        <ul class="dropdown-menu">
+                </ul>
+            </div>
+            <div class="logo-element">
+                IN+
+            </div>
+        </li>
+        {% if request.user.is_authenticated %}
 
-                            {% for server in request.user.server_set.all %}
-                                <li><a href="{% url 'ui:server' server.id %}">{{ server.localhostname }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                    {% block submenu %}
-                    {% endblock %}
-                {% endif %}
-
+        <li >
+        <a class="nav-link" href="{% url 'ui:dashboard' %}"><i class="fa fa-th-large"></i>Dashboard</a>
+        </li>
+        <li>
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+            aria-expanded="false">Servers <span class="label label-danger pull-right">{{ request.user.server_set|get_server_len }}</span></a>
+            <ul class="nav nav-second-level collapse">
+                {% for server in request.user.server_set.all %}
+                    <li><a href="{% url 'ui:server' server.id %}">{{ server.localhostname }}</a></li>
+                {% endfor %}
             </ul>
+        </li>
+        {% block submenu %}
+        {% endblock %}
+        {% endif %}
+        </nav>
 
-            <ul class="nav navbar-nav navbar-right">
+    <div id="page-wrapper" class="gray-bg">
+        {% include "ui/_topnavbar.html" %}
 
-                {% if request.user.is_authenticated %}
 
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                           aria-expanded="false">Notifications Center<span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{% url 'n:notificationtype_list' %}">Manage Notifications</a></li>
-                             <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'n:notificationtype_create' %}">Create Notifications </a></li>
-                        </ul>
-                    </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link"
-                           href="{% url 'users:detail' request.user.username %}">{% trans "My Profile" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'account_logout' %}">{% trans "Logout" %}</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a id="sign-up-link" class="nav-link"
-                           href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">{% trans "Log In" %}</a>
-                    </li>
-                {% endif %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'about' %}">About</a>
-                </li>
-            </ul>
+        <div id="inner-wrapper" class="row wrapper border-bottom white-bg page-heading  wrapper-content animated fadeInRight">
+            <div class="container row-fluid">
 
+                {% block content %}
+                    <p>Use this document as a way to quick start any new project.</p>
+                {% endblock content %}
+            <!-- /row wrapper border-bottom white-bg page-heading -->
         </div>
-        <!-- /.navbar-collapse -->
-    </div>
-    <!-- /.container-fluid -->
-</nav>
-<div class="container">
-    <div class="row">
-        <div class="filler"></div>
-    </div>
-</div>
-<div class="container">
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
+        <div class="filler">
+        </div>
 
-    {% block content %}
-        <p>Use this document as a way to quick start any new project.</p>
-    {% endblock content %}
-    <div class="filler"></div>
-</div>
-<!-- /container -->
-<footer class="footer">
-    <div class="container">
-        <p class="text-muted">Place sticky footer content here.</p>
-    </div>
-</footer>
 
-{% block modal %}{% endblock modal %}
+    </div>
+{% include "ui/_footer.html" %}
+</div>
+{% block customjs %}
+
+{% endblock customjs %}
 
 <!-- Le javascript
+
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-{% block javascript %}
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+    <script src="{% static 'js/plugins/metisMenu/jquery.metisMenu.js' %}"></script>
+    <script src="{% static 'js/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'js/plugins/toastr/toastr.min.js' %}"></script>
+    <script src="{% static 'js/plugins/pace/pace.min.js' %}"></script>
+    <script src="{% static 'js/inspinia.js' %}"></script>
 
+
+
+{% if messages %}
+    {% for message in messages %}
+        <script type="text/javascript">
+        $(function () {
+
+        toastr.options = {
+            closeButton: true,
+            progressBar: true,
+            showMethod: 'slideDown',
+            timeOut: 4000
+        };
+
+        toastr.{% if message.tags %}{{ message.tags }}{% else %}sucess{% endif %}('','{{ message }}')
+
+        });
+        </script>
+    {% endfor %}
+{% endif %}
+
+{% block javascript %}
     <!-- Latest compiled and minified JavaScript -->
     <!-- Your stuff: Third-party javascript libraries go here -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <!-- place project specific Javascript in this file -->
     <script src="{% static 'js/project.js' %}"></script>
     <script src="{% static 'js/jquery.multiselect.js' %}"></script>
 {% endblock javascript %}
 {% block ajaxcalls %}
-
 {% endblock ajaxcalls %}
-{% block customjs %}
 
-{% endblock customjs %}
 </body>
 </html>
- 

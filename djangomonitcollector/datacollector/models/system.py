@@ -3,11 +3,12 @@ import time
 
 from django.db import models
 from pytz import timezone
-
+import pika
+import json
 from service import Service
 from utils import get_value, json_list_append
-from djangomonitcollector.ui.events import broadcast_to_websocket_channel
 
+from django.conf import settings
 
 
 class System(Service):
@@ -122,3 +123,38 @@ class MemoryCPUSystemStats(models.Model):
         entry.save()
         return entry
 
+
+def broadcast_to_websocket_channel(server,system):
+    response = dict()
+    response['channel'] = "server_dashboard_{0}".format(server.id)
+    response['cpu_user_last'] = system.cpu_user_last
+    response['cpu_system_last'] = system.cpu_user_last
+    response['cpu_wait_last'] = system.cpu_wait_last
+    response['memory_percent_last'] = system.memory_percent_last
+    response['memory_kilobyte_last'] = system.memory_kilobyte_last
+    response_str = json.dumps(response)
+    to_queue(response_str)
+
+
+def to_queue(message):
+
+    rabbitmq_resource = getattr(settings, 'BROKER_URL', 'amqp://dmc:va2root@172.16.5.82:5672/%2f')
+    rabbitmq_queue = getattr(settings, 'RABBITMQ_QUEUE', 'dmc')
+
+    parameters = pika.URLParameters(rabbitmq_resource)
+    connection = pika.BlockingConnection(parameters)
+
+    channel = connection.channel()
+
+    # Declare the queue
+    channel.queue_declare(queue=rabbitmq_queue, durable=True, exclusive=False, auto_delete=False)
+
+    # Enabled delivery confirmations
+    channel.confirm_delivery()
+
+    channel.basic_publish(exchange='dmc',
+                          routing_key='dmc',
+                          body=message)
+
+    # print "Sent to queue {0} ".format(message)
+    connection.close()

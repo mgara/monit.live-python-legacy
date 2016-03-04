@@ -1,3 +1,4 @@
+from directory import Directory
 from file import File
 from filesystem import FileSystem, FsAndDiskUsageStats
 from net import Net, NetStats
@@ -9,18 +10,19 @@ from service import Service
 from system import System, MemoryCPUSystemStats
 from url import Host
 
-__all__ = ['File',
+__all__ = ['Directory',
+           'File',  
            'FileSystem',
+           'FsAndDiskUsageStats',
+           'Host',
+           'MemoryCPUProcessStats',
+           'MemoryCPUSystemStats',
+           'MonitEvent',
            'Net',
            'Platform',
            'Process',
            'Program',
            'Server',
            'Service',
-           'System',
-           'Host',
-           'FsAndDiskUsageStats',
-           'MemoryCPUProcessStats',
-           'MemoryCPUSystemStats',
-           'MonitEvent'
+           'System'
            ]

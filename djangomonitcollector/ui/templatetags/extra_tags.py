@@ -16,10 +16,17 @@ except:
 @register.filter
 def server_status_to_css_class(status):
     if status:
-        return " <a href=\"#\" class=\"btn btn-success btn-xs\"><span class=\"glyphicon glyphicon-upload\"></span></a>"
+        return "<a href=\"#\" class=\"btn btn-primary btn-xs\"><span class=\"glyphicon glyphicon-upload\"></span></a>"
     else:
-        return " <a href=\"#\" class=\"btn btn-danger btn-xs\"><span class=\"glyphicon glyphicon-download\"></span></a>"
+        return "<a href=\"#\" class=\"btn btn-danger btn-xs\"><span class=\"glyphicon glyphicon-download\"></span></a>"
 
+@register.filter
+def event_state_to_widget_style(state):
+    if int(state) == 0:
+        return "navy"
+    if int(state) == 1:
+        return "red"
+    return "lazur"
 
 @register.filter
 def get_server_len(server_set):
@@ -64,7 +71,12 @@ def time_class(timestamp):
         return ""
     if int(time.time()) > int(timestamp) + 3 * monit_update_period:
         return "danger"
-    return "success"
+    return "primary"
+
+
+@register.filter
+def to_path(dir_name):
+    return dir_name.replace("_","/")
 
 
 @register.filter
@@ -88,7 +100,7 @@ def time_str(uptime):
 @register.filter
 def status_alert(alert_counts):
     if not alert_counts:
-        return "success"
+        return "primary"
     if int(alert_counts) == 0:
         return "sucess"
     return "danger"
@@ -97,11 +109,11 @@ def status_alert(alert_counts):
 @register.filter
 def status_tr_class(status, monitor):
     if not monitor:
-        return 'primary'
+        return 'sucess'
     if monitor == 0:
         return 'info'
     if int(status) == 0:
-        return 'success'
+        return 'primary'
     return 'danger'
 
 
@@ -243,7 +255,7 @@ def event_status_to_string(status):
 def event_state_to_string(state):
     state_int = int(state)
     state_dic = {
-        0: 'Success',
+        0: 'Sucess',
         1: 'Error',
         2: 'Change',
         3: 'Link mode not changed',
@@ -269,7 +281,7 @@ def action_to_string(action):
 @register.filter
 def event_state_to_style(state):
     if int(state) == 0:
-        return "success"
+        return "sucess"
     if int(state) == 1:
         return "danger"
     return "info"
@@ -280,7 +292,7 @@ def flapping_status(flapping):
     if flapping:
         return '<span class="label label-danger small">Yes</span>'
     else:
-        return '<span class="label label-success small">No</span>'
+        return '<span class="label label-primary small">No</span>'
 
 
 def status_to_string_(status, type_of_service, monitor_status):
@@ -313,8 +325,8 @@ def status_to_string_(status, type_of_service, monitor_status):
 def get_progress_bar_html(value, display_txt):
     style = get_style_from_value(value)
     res = '<span class="label label-{0} small">{2}</span>' \
-          '<div class="progress">' \
-          '<div class="progress-bar progress-bar-{0}" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: {1}%">' \
+          '<div class="progress progress-mini">' \
+          '<div class="progress-bar progress-bar-{0} " role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: {1}%">' \
           '<span>{2}</span>' \
           '</div>' \
           '</div>'.format(style, value, display_txt)
@@ -323,7 +335,7 @@ def get_progress_bar_html(value, display_txt):
 
 def get_style_from_value(value, thresh1=50, thresh2=85):
     if value < thresh1:
-        return "success"
+        return "primary"
     if value >= thresh1 and value < thresh2:
         return "warning"
     return "danger"
@@ -336,5 +348,5 @@ def get_current_notification_number():
 @register.filter
 def nt_status_to_label(status):
     if status:
-        return  '<span class="label label-success small">On</span>'
+        return  '<span class="label label-primary small">On</span>'
     return '<span class="label label-danger small">Off</span>'

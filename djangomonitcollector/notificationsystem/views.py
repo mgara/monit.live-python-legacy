@@ -12,7 +12,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from djangomonitcollector.datacollector.models import Server, MonitEvent
 from forms import NotificationTypeForm, get_class_name_and_extra_params
 from models import NotificationType
-
+from django.contrib import messages
 
 def check_item(item, string_list_of_items):
     if not string_list_of_items.strip():
@@ -153,15 +153,16 @@ class NotificationTypeListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(NotificationTypeListView, self).get_context_data(**kwargs)
-        messages = dict()
-        message = dict()
-        message.tags = "info"
-        messages['test'] = message
-        context['messages'] = messages
+
+        message = "No Configured Notifications Yet :)"
+
+        messages.add_message(self.request, messages.INFO, message)
+
         return context
 
     def get_queryset(self):
         user = self.request.user
+
         return self.model.objects.filter(notification_user=user)
 
 
