@@ -1,0 +1,26 @@
+{% load extra_tags %}
+<div id="directory_table" class="table-responsive">
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>name</th>
+          <th>status</th>
+          <th>Permission</th>
+          <th>UID</th>
+          <th>GID</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for directory in directories %}
+        <tr  class="link">
+            <td>{{ directory.name|to_path }}</td>
+            <td ><span class="label label-{{ directory.status|status_tr_class:directory.monitor }}">{{ directory.status|status_to_string:directory}}</span></td>
+            <td>{{ directory.permission }}</td>
+            <td>{{ directory.uid }}</td>
+            <td>{{ directory.gid }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+</div>
+
