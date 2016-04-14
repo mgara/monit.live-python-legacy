@@ -39,7 +39,8 @@ EVENT_STATE_CHOICES = (
     (0, 'Success'),
     (1, 'Error'),
     (2, 'Change'),
-    (3, 'Link mode not changed')
+    (3, 'Link mode not changed'),
+    (4, 'Host Down')
 )
 EVENT_ACTION_CHOICES = (
     (1, 'Alert (monit alert generated)'),
@@ -56,7 +57,8 @@ Check if file is valid : is an actual file and its name doesn't match the patter
 
 
 def validate_file(classes_path, f):
-    excluded_files = ('__init__.py', 'ieventnotification.py', 'parameter.py', '.pyc')
+    excluded_files = (
+        '__init__.py', 'ieventnotification.py', 'parameter.py', '.pyc')
     if isfile(join(classes_path, f)):
         for excluded_pattern in excluded_files:
             if excluded_pattern in f:
@@ -73,7 +75,7 @@ Get the class name and the extra parameters field
 def get_class_name_and_extra_params(classname):
     # TODO: read the module from settings ?
     notification_handler_module = importlib.import_module(
-            "djangomonitcollector.notificationsystem.lib.{0}".format(classname))
+        "djangomonitcollector.notificationsystem.lib.{0}".format(classname))
     module_attrs = notification_handler_module.__dict__
     for k in module_attrs.keys():
         if k.lower() == classname:
@@ -97,17 +99,23 @@ def get_notification_plugins_classes():
 
 
 def get_notification_plugins():
-    classes_path = "{0}/djangomonitcollector/notificationsystem/lib/".format(os.getcwd())
-    classes_list = [f for f in listdir(classes_path) if validate_file(classes_path, f)]
+    classes_path = "{0}/djangomonitcollector/notificationsystem/lib/".format(
+        os.getcwd())
+    classes_list = [
+        f for f in listdir(classes_path) if validate_file(classes_path, f)]
     return classes_list
 
 
 class NotificationTypeForm(forms.ModelForm):
     notification_service = forms.CharField(required=False)
-    notification_type = forms.MultipleChoiceField(choices=EVENT_STATUS_CHOICES, required=False)
-    notification_action = forms.MultipleChoiceField(choices=EVENT_ACTION_CHOICES, required=False)
-    notification_state = forms.MultipleChoiceField(choices=EVENT_STATE_CHOICES, required=False)
-    notification_class = forms.ChoiceField(choices=get_notification_plugins_classes(), required=True)
+    notification_type = forms.MultipleChoiceField(
+        choices=EVENT_STATUS_CHOICES, required=False)
+    notification_action = forms.MultipleChoiceField(
+        choices=EVENT_ACTION_CHOICES, required=False)
+    notification_state = forms.MultipleChoiceField(
+        choices=EVENT_STATE_CHOICES, required=False)
+    notification_class = forms.ChoiceField(
+        choices=get_notification_plugins_classes(), required=True)
 
     class Meta:
         model = NotificationType
@@ -133,24 +141,26 @@ class NotificationTypeForm(forms.ModelForm):
         else:
             nt.notification_service = ""
 
-        if not 'notification_type' in data_dict:
+        if 'notification_type' not in data_dict:
             nt.notification_type = ""
 
-        if not 'notification_action' in data_dict:
+        if 'notification_action' not in data_dict:
             nt.notification_action = ""
 
-        if not 'notification_state' in data_dict:
+        if 'notification_state' not in data_dict:
             nt.notification_state = ""
 
         notification_class = self.cleaned_data['notification_class']
-        k, plugin_fields = get_class_name_and_extra_params(notification_class.lower())
+        k, plugin_fields = get_class_name_and_extra_params(
+            notification_class.lower())
         notification_extra_params_dict = dict()
         for plugin_field in plugin_fields:
-            notification_extra_params_dict[plugin_field] = self.data[plugin_field]
+            notification_extra_params_dict[
+                plugin_field] = self.data[plugin_field]
 
         nt.notification_plugin_extra_params = json.dumps(
-                notification_extra_params_dict,
-                sort_keys=True
+            notification_extra_params_dict,
+            sort_keys=True
         )
 
         if commit:

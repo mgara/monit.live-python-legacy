@@ -1,13 +1,12 @@
-__author__ = 'mehergara'
 
 from httplib import HTTPConnection
 from urlparse import urlparse
 
-from ieventnotification import IEventSettingsInterface
+from ieventnotification import EventSettingsInterface
 from parameter import Parameter
 
 
-class PostEventNotification(IEventSettingsInterface):
+class PostEventNotification(EventSettingsInterface):
     extra_params = {
         'url': Parameter('url', 'URL'),
     }

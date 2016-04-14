@@ -1,11 +1,10 @@
 from django.core.mail import send_mail
 
-from ieventnotification import IEventSettingsInterface
+from ieventnotification import EventSettingsInterface
 from parameter import Parameter
 
 
-
-class EmailEventNotification(IEventSettingsInterface):
+class EmailEventNotification(EventSettingsInterface):
     extra_params = {
         'to': Parameter('to', 'To'),
         'subjet_prefix': Parameter('subjet_prefix', 'Subject Prefix'),
@@ -21,11 +20,11 @@ class EmailEventNotification(IEventSettingsInterface):
                 subjet_prefix,
                 self.event_id,
                 self.event_service,
-                self.event.event_action,
+                self.event_action,
                 self.server
         )
 
-        send_mail(subject, "{0}".format(self.get_event_summary()), 'meher.gara@gmail.com',
+        send_mail(subject, "{0}".format(self.get_event_summary()), 'platform@vantrix.com',
                   [to], fail_silently=False)
 
     def finalize(self, event_object):

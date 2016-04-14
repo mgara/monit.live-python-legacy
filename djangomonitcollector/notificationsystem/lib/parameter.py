@@ -2,10 +2,14 @@ __author__ = 'mehergara'
 
 
 class Parameter(object):
-    def __init__(self, id, label, value=""):
+    """
+    Type can be a str / choices
+    """
+    def __init__(self, id, label, value="", _choices=None):
         self.__id = id
         self.__label = label
         self.__value = value
+        self.__choices = _choices
 
     @property
     def id(self):
@@ -14,6 +18,10 @@ class Parameter(object):
     @property
     def label(self):
         return self.__label
+
+    @property
+    def choices(self):
+        return self.__choices
 
     @property
     def value(self):

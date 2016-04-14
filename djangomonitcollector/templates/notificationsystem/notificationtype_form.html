@@ -25,6 +25,8 @@
         </div>
 
     </form>
+
+
         <script language="javascript">
             // Submit post on submit
             $('#id_notification_class').on("change", function (event) {
@@ -34,14 +36,16 @@
             $(function(){
                  get_plugin_form($('#id_notification_class').val());
             })
-            
+
         </script>
 
 {% endblock content %}
 
 {% block customjs %}
+    <script src="{% static 'js/jquery.multiselect.js' %}"></script>
+
     <script language="JavaScript">
-     
+
     $('#id_notification_service').multiSelect({});
     $('#id_notification_type').multiSelect({});
     $('#id_notification_action').multiSelect({});

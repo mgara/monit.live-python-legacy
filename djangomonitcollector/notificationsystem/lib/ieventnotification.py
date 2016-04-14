@@ -12,15 +12,16 @@ This interface is the base class for the EventSettings
 '''
 
 
-class IEventSettingsInterface(object):
+class EventSettingsInterface(object):
     __metaclass__ = ABCMeta
 
     extra_params = dict()
     event = None
     notification_type = None
+    has_extra_config = False
 
     '''
-    this function takes as a parametr the event object and will 
+    this function takes as a parametr the event object and will
     indicate how to process the event
     '''
 
