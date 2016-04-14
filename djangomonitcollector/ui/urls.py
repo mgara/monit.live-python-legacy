@@ -35,7 +35,7 @@ urlpatterns = [
             name='server_show'
     ),
     url(
-            regex=r'^server/((?P<pk>\d+))/alerts/list/$',
+            regex=r'^server/(?P<pk>\d+)/alerts/list/$',
             view=views.EventListView.as_view(),
             name='server_alerts'
     ),
@@ -49,12 +49,6 @@ urlpatterns = [
             view=views.process,
             name='process'
     ),
-    # actions
-    url(
-            regex=r'^process_action/(?P<server_id>\d+)/$',
-            view=views.process_action,
-            name='process_action'
-    ),
     url(
             regex=r'^confirm_delete/(?P<server_id>\d+)/$',
             view=views.confirm_delete,
@@ -66,7 +60,6 @@ urlpatterns = [
             name='delete_server'
     ),
 
-    # json interfaces
     url(
             regex=r'^load_system_data/(?P<server_id>\d+)/$',
             view=views.load_system_data,
@@ -96,5 +89,16 @@ urlpatterns = [
             regex=r'ackevent/$',
             view=views.ack_event,
             name='ack_event'
+    ),
+
+    url(
+            regex=r'settings/(?P<pk>.*)/$$',
+            view=views.SettingsUpdateView.as_view(),
+            name='settings_update'
+    ),
+    url(
+            regex=r'intellievent/$',
+            view=views.IntelliEvent.as_view(),
+            name='intellievent'
     ),
 ]

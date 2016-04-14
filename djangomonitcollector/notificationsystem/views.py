@@ -14,6 +14,7 @@ from forms import NotificationTypeForm, get_class_name_and_extra_params
 from models import NotificationType
 from django.contrib import messages
 
+
 def check_item(item, string_list_of_items):
     if not string_list_of_items.strip():
         return True
@@ -45,6 +46,7 @@ def notificationtypeactivation(request, pk):
 def notificationtype_mute_all(request, pk):
     nt = NotificationType.objects.get(id=pk)
 
+    #  TODO: im muting everything almost ....
     for event_object in MonitEvent.objects.filter(is_ack=False):
         if nt.notification_enabled:
             name_matches = check_item(
@@ -64,11 +66,12 @@ def notificationtype_mute_all(request, pk):
     return redirect('n:notificationtype_view', pk=pk)
 
 
-def get_user_services(user):
+def get_user_services(org):
     '''
     This function returns the list of the services assigned to the current user
     '''
-    user_servers = Server.objects.filter(user_id=user)
+
+    user_servers = Server.objects.filter(organisation=org)
     service_list = tuple()
 
     items = list()
@@ -108,6 +111,11 @@ class NotificationTypeCreate(LoginRequiredMixin, CreateView):
     form_class = NotificationTypeForm
     model = NotificationType
 
+    def form_valid(self, form):
+        form.instance.organisation = self.request.user.organisation
+
+        return super(NotificationTypeCreate, self).form_valid(form)
+
     def get_context_data(self, **kwargs):
         context = super(
                 NotificationTypeCreate, self).get_context_data(**kwargs)
@@ -116,7 +124,7 @@ class NotificationTypeCreate(LoginRequiredMixin, CreateView):
                                                                       )
         context['form'].fields['notification_service'] = forms.MultipleChoiceField(widget=forms.SelectMultiple(),
                                                                                    choices=get_user_services(
-                                                                                           self.request.user),
+                                                                                           self.request.user.organisation),
                                                                                    required=False
                                                                                    )
         return context
@@ -125,6 +133,7 @@ class NotificationTypeCreate(LoginRequiredMixin, CreateView):
 class NotificationTypeUpdate(LoginRequiredMixin, UpdateView):
     model = NotificationType
     form_class = NotificationTypeForm
+
 
     def get_context_data(self, **kwargs):
         context = super(
@@ -137,7 +146,7 @@ class NotificationTypeUpdate(LoginRequiredMixin, UpdateView):
                                                               )
         context['form'].fields['notification_service'] = forms.MultipleChoiceField(widget=forms.SelectMultiple(),
                                                                                    choices=get_user_services(
-                                                                                           self.request.user)
+                                                                                           self.request.user.organisation)
                                                                                    )
         return context
 
@@ -154,16 +163,16 @@ class NotificationTypeListView(LoginRequiredMixin, ListView):
         # Call the base implementation first to get a context
         context = super(NotificationTypeListView, self).get_context_data(**kwargs)
 
-        message = "No Configured Notifications Yet :)"
-
-        messages.add_message(self.request, messages.INFO, message)
+        if len(NotificationType.objects.all())==0:  # double check this filter.
+            message = "No Configured Notifications Yet :)"
+            messages.add_message(self.request, messages.INFO, message)
 
         return context
 
     def get_queryset(self):
-        user = self.request.user
+        org = self.request.user.organisation
 
-        return self.model.objects.filter(notification_user=user)
+        return self.model.objects.filter(organisation=org)
 
 
 def get_notification_plugin_form(request):
@@ -185,16 +194,20 @@ def get_notification_plugin_form(request):
                 field_value = extra_params_values[extra_params[field].id] if extra_params[
                                                                                  field].id in extra_params_values else ""
                 field_label = extra_params[field].label
+                field_choices = extra_params[field].choices
                 output += get_component(
                         field_id,
                         field_label,
-                        field_value
+                        field_value,
+                        field_choices
                 )
         else:
             for field in extra_params.keys():
                 output += get_component(
                         extra_params[field].id,
-                        extra_params[field].label
+                        extra_params[field].label,
+                        '',
+                        extra_params[field].choices
                 )
 
         res = {
@@ -204,6 +217,7 @@ def get_notification_plugin_form(request):
         }
 
     except StandardError as e:
+        raise e
         res = {
             'code': 500,
             'error': e.message,
@@ -213,9 +227,39 @@ def get_notification_plugin_form(request):
     return JsonResponse(res, status=res['code'])
 
 
-def get_component(_id, _label, _value=''):
-    return '<div id="div_id_{0}" class="form-group has-warning">' \
+def get_component(_id, _label, _value='', _choices=None):
+    prefix = '<div id="div_id_{0}" class="form-group has-warning">' \
            '<label for="id_{0}" class="control-label  requiredField">{1}</label>' \
-           '<div class="controls ">' \
-           '<input class="textinput textInput form-control" id="id_{0}" maxlength="100" name="{0}" type="text" value="{2}"> </div>' \
-           '</div> '.format(_id, _label, _value)
+           '<div class="controls ">'.format(_id, _label)
+
+    suffix = '</div></div> '
+
+    if _choices:
+        select_control = build_select_choices(_choices, _id, _value)
+        return '{0}{1}{2}'.format(prefix, select_control, suffix)
+    else:
+        return '{2}<input class="textinput textInput form-control" id="id_{0}"\
+         maxlength="100" name="{0}" type="text" value="{1}">{3}'.format(
+            _id,
+            _value,
+            prefix,
+            suffix
+            )
+
+
+def build_select_choices(choices, _id, selected_value):
+    prefix = '<select class="form-control input-sm" id="id_{0}" name="{0}">'.format(_id)
+    suffix = '</select>'
+
+    items = ''
+    select_items = len(choices)
+    items = choices[0:select_items]
+    for i in items:
+        val, display = i
+
+        if val == selected_value:
+            items = '{0}<option value="{1}" selected="selected">{2}</option>'.format(items,val, display)
+        else:
+            items = '{0}<option value="{1}">{2}</option>'.format(items,val, display)
+
+    return "{0}{1}{2}".format(prefix, items, suffix)

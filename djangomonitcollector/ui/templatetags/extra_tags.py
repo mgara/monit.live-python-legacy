@@ -14,11 +14,29 @@ except:
 
 
 @register.filter
+def get_title(url_name):
+    if url_name == "server":
+        return "Server"
+    if url_name == "dashboard":
+        return "Home"
+    url_name = url_name.replace('_', ' ')
+    return url_name.title()
+
+
+@register.filter
 def server_status_to_css_class(status):
     if status:
         return "<a href=\"#\" class=\"btn btn-primary btn-xs\"><span class=\"glyphicon glyphicon-upload\"></span></a>"
     else:
         return "<a href=\"#\" class=\"btn btn-danger btn-xs\"><span class=\"glyphicon glyphicon-download\"></span></a>"
+
+
+@register.filter
+def boolean_widget(boolean_value):
+    if boolean_value:
+        return "<a href=\"#\" class=\"btn btn-primary btn-xs\"><span class=\"fa fa-check-square\"></span></a>"
+    else:
+        return "<a href=\"#\" class=\"btn btn-danger btn-xs\"><span class=\"fa fa-times\"></span></a>"
 
 @register.filter
 def event_state_to_widget_style(state):
@@ -27,6 +45,7 @@ def event_state_to_widget_style(state):
     if int(state) == 1:
         return "red"
     return "lazur"
+
 
 @register.filter
 def get_server_len(server_set):
@@ -76,7 +95,7 @@ def time_class(timestamp):
 
 @register.filter
 def to_path(dir_name):
-    return dir_name.replace("_","/")
+    return dir_name.replace("_", "/")
 
 
 @register.filter
@@ -152,6 +171,29 @@ def get_int(value):
         return int(value)
     return "-"
 
+@register.filter
+def to_btn(value):
+    var = '{}'
+    if value:
+        return "<button onclick=\"$('#event-{0}').effect('highlight', {1}, 1500);\" class=\"btn btn-reverse btn-xs\" type=\"button\" id=\"highlight-{0}\" data-id=\"{0}\">{0}</button>".format(value,var)
+
+@register.filter
+def to_btns(value):
+    out = ""
+    if value:
+        table = ast.literal_eval(value)
+
+        for event_id in table:
+            out += to_btn(event_id)
+    return out
+
+
+@register.filter
+def to_icon(value):
+    if value:
+        return "<i class=\"fa fa-exclamation-triangle\"></i>"
+    return ""
+
 
 def sizeof_fmt(num, suffix='B'):
     for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
@@ -176,7 +218,7 @@ def fs_percent_bar(fs):
     value = fs.blocks_percent_last if fs.blocks_percent_last else 0.0
     percent_value = round(value, 1)
     progress_bar_txt = "{0}% [{1}/{2}]".format(percent_value, disk_size_formatting(
-            fs.blocks_usage_last), disk_size_formatting(fs.blocks_total))
+        fs.blocks_usage_last), disk_size_formatting(fs.blocks_total))
     return get_progress_bar_html(percent_value, progress_bar_txt)
 
 
@@ -185,7 +227,7 @@ def fs_percent_bar_inode(fs):
     value = fs.inode_percent_last if fs.inode_percent_last else 0.0
     percent_value = round(value, 1)
     progress_bar_txt = "{0}% [{1}/{2}]".format(
-            percent_value, get_int(fs.inode_usage_last), get_int(fs.inode_total))
+        percent_value, get_int(fs.inode_usage_last), get_int(fs.inode_total))
     return get_progress_bar_html(percent_value, progress_bar_txt)
 
 
@@ -242,7 +284,8 @@ def event_status_to_string(status):
         1048576: 'heartbeat',
         16777216: 'link mode/speed',
         2097152: 'status',
-        4194304: 'uptime'
+        4194304: 'uptime',
+        8388608: 'linkstatus'
     }
 
     try:
@@ -255,11 +298,12 @@ def event_status_to_string(status):
 def event_state_to_string(state):
     state_int = int(state)
     state_dic = {
-        0: 'Sucess',
+        0: 'Success',
         1: 'Error',
         2: 'Change',
         3: 'Link mode not changed',
         4: 'Host Down',
+        10: 'Critical',
     }
     return state_dic[state_int]
 
@@ -268,12 +312,12 @@ def event_state_to_string(state):
 def action_to_string(action):
     action_int = int(action)
     action_dict = {
-        1: '1:ALERT (monit alert generated)',
-        2: '2:RESTART (trying to restart)',
-        3: '3:STOP',
-        4: '4:EXEC',
-        5: '5:UNMONITOR',
-        6: '6:RELOAD',
+        1: 'Alert',
+        2: 'Restart',
+        3: 'Stop',
+        4: 'Exec',
+        5: 'Unmonitor',
+        6: 'Reload',
     }
     return action_dict[action_int]
 
@@ -281,10 +325,10 @@ def action_to_string(action):
 @register.filter
 def event_state_to_style(state):
     if int(state) == 0:
-        return "sucess"
+        return "primary"
     if int(state) == 1:
         return "danger"
-    return "info"
+    return "success"
 
 
 @register.filter
@@ -340,13 +384,27 @@ def get_style_from_value(value, thresh1=50, thresh2=85):
         return "warning"
     return "danger"
 
+
 @register.simple_tag
 def get_current_notification_number():
     return 999
     pass
 
+
 @register.filter
 def nt_status_to_label(status):
     if status:
-        return  '<span class="label label-primary small">On</span>'
+        return '<span class="label label-primary small">On</span>'
     return '<span class="label label-danger small">Off</span>'
+
+
+@register.filter
+def get_skin_name(value):
+    skin_dic = dict()
+    skin_dic["default"] = "Default Skin"
+    skin_dic["-"] = "Default Skin"
+    skin_dic["skin-1"] = "Azure"
+    skin_dic["skin-2"] = "Navy Blue"
+    skin_dic["skin-3"] = "Sahara"
+
+    return skin_dic[value]

@@ -22,7 +22,8 @@ def parse_service_list(data):
     service_list = ast.literal_eval(data)
     output = '<ul style="list-style: none; ">'
     for service in service_list:
-        output = '{0}<li > <h5> <span class="label label-info" >{1}</span></h5> </li>'.format(output, service)
+        output = '{0}<li > <h5> <span class="label label-info" >{1}</span></h5> </li>'.format(
+            output, service)
     return "{0}</ul>".format(output)
 
 
@@ -52,6 +53,6 @@ def to_string(data, lookup_tuple):
 
 
 def from_value(value, list_of_items):
-    for type in list_of_items:
-        if type[0] == value:
-            return type[1]
+    for _type in list_of_items:
+        if _type[0] == value:
+            return _type[1]

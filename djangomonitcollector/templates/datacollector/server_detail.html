@@ -10,6 +10,51 @@
             <h1>Server <small>{{ object.localhostname }}</small>
             </h1>
         </div>
+          <div class="row">
+      <div class="col-lg-6">
+        <div class="widget style1 navy-bg">
+          <div class="">
+            <p> Running on server <br/> <h2>{{ object.localhostname }}</h2> </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="widget style1 navy-bg text-right">
+          <div class="">
+            <p> Monit  <br> <h2>{{ object.monit_version }}</h2> </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="widget style1 navy-bg">
+          <p> IP Address<br/> <h2>{{ object.external_ip }}</h2></p>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="widget style1 navy-bg">
+          <p> Server Uptime <br/> <h2>{{ object.uptime|time_str }}</h2></p>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="widget style1 navy-bg">
+          <p> Memory <br/> <h2>{{ object.platform.memory|kb_formatting }}</h2> <br/>
+            Swap <br/> <h2>{{ object.platform.swap|kb_formatting }}</h2>
+          </p>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="widget style1 navy-bg">
+          <p> CPUs <br/> <h2>{{ object.platform.cpu }}</h2> <br/>
+          </p>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="widget style1 navy-bg">
+          <p>Platform: <b> {{ object.platform.name }} </b>, release: <b>{{ object.platform.release }} </b>
+          version: <b>{{ object.platform.version }}, {{ object.platform.machine }} </b></p>
+        </div>
+      </div>
+    </div>
         <div class="row">
             <div class="col-sm-12">
                 {% if object.external_ip %}

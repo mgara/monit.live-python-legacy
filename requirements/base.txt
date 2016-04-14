@@ -43,3 +43,12 @@ celery==3.1.19
 # Add your custom stuff here.
 
 pika
+
+elasticsearch>=2.0.0,<3.0.0
+
+django-filter
+django-pagination
+django-widget-tweaks
+
+# requirements for monit host heartbeat
+mako

@@ -5,13 +5,13 @@ from net import Net, NetStats
 from platform import Platform
 from process import Process, MemoryCPUProcessStats
 from program import Program
-from server import Server, MonitEvent
+from server import Server, MonitEvent, ServiceGroup
 from service import Service
 from system import System, MemoryCPUSystemStats
 from url import Host
 
 __all__ = ['Directory',
-           'File',  
+           'File',
            'FileSystem',
            'FsAndDiskUsageStats',
            'Host',
@@ -24,5 +24,6 @@ __all__ = ['Directory',
            'Program',
            'Server',
            'Service',
-           'System'
+           'System',
+           'ServiceGroup'
            ]

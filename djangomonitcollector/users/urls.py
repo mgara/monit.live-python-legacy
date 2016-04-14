@@ -6,6 +6,11 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
+    url(
+            r'^create/$',
+            views.UserCreate.as_view(),
+            name='create'
+    ),
 
     url(
             regex=r'newck/$',
@@ -17,7 +22,7 @@ urlpatterns = [
     url(
             regex=r'^$',
             view=views.UserListView.as_view(),
-            name='list'
+            name='index'
     ),
 
     # URL pattern for the UserRedirectView
@@ -36,9 +41,15 @@ urlpatterns = [
 
     # URL pattern for the UserUpdateView
     url(
-            regex=r'^~update/$',
+            regex=r'^update/(?P<pk>\w+)/$',
             view=views.UserUpdateView.as_view(),
             name='update'
     ),
+
+    url(r'^delete/(?P<username>[\w.@+-]+)/$', views.UserDeleteView.as_view(), name='delete'),
+    url(r'^update_password/(?P<pk>\w+)/$', views.UpdatePasswordForUser, name='update_password'),
+    url(r'^update_password/$', views.UpdatePassword, name='update_password_cu'),
+
+
 
 ]

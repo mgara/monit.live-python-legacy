@@ -1,8 +1,9 @@
 import datetime
 import time
+from pytz import timezone
 
-import requests
 from braces.views import LoginRequiredMixin
+
 from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.core.urlresolvers import reverse
@@ -12,48 +13,56 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.views.generic import DetailView, ListView, UpdateView, DeleteView
-from pytz import timezone
+from django_filters.views import FilterView
 
-from djangomonitcollector.datacollector.models import MemoryCPUSystemStats,MemoryCPUProcessStats
+from djangomonitcollector.datacollector.models import MemoryCPUSystemStats, MemoryCPUProcessStats
 from djangomonitcollector.datacollector.models import Server, MonitEvent
-from djangomonitcollector.users.models import validate_user
+from djangomonitcollector.users.models import validate_user, Settings
+from djangomonitcollector.ui.models import HostGroup
+
+from djangomonitcollector.ui.forms import SettingsForm
+from filters import IntelliEventsFilter
 
 # import the logging library
 import logging
 
+
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-default_display_period = int(getattr(settings, 'DISPLAY_PERIOD', 1))  # four_hours
+default_display_period = int(
+    getattr(settings, 'DISPLAY_PERIOD', 1))  # four_hours
 
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def dashboard(request):
-    print "Im here"
-    servers = Server.objects.filter(user_id=request.user).order_by('localhostname')
-    if request.user.server_set.all().count() > 0:
+    org = request.user.organisation
+
+    servers = Server.objects.filter(
+        organisation=org).order_by('host_group')
+    host_groups = HostGroup.objects.filter(owned_by=org)
+    if org.server_set.all().count() > 0:
         for server in servers:
-            server.alerts = server.monitevent_set.filter(is_ack=False).count()
-        return render(request, 'ui/dashboard.html', {'servers': servers, 'server_found': True})
+            server.alerts = server.monitevent_set.filter(is_active=True).count()
+            server.processes = len(set(server.process_set.all()))
+        return render(request, 'ui/dashboard.html', {'servers': servers, 'host_groups':host_groups, 'server_found': True})
     else:
         return render(request, 'ui/dashboard.html', {'server_found': False})
 
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def server(request, server_id):
-    tz = timezone('UTC')
+    server = Server.objects.get(id=server_id)
+    tz = timezone(server.data_timezone)
     now = datetime.datetime.now().replace(tzinfo=tz)
     display_time = datetime.timedelta(hours=default_display_period)
     min_display = now - display_time
     min_display = min_display.replace(tzinfo=tz)
-
-    server = Server.objects.get(id=server_id)
     system = server.system
     system_resources = MemoryCPUSystemStats.objects.filter(
-            date_last__gt=min_display,
-            date_last__lt=now,
-            system_id=system
-    )
+        date_last__gt=min_display,
+        system_id=system
+    ).order_by('-id').reverse()
     system_resources_list = list(system_resources)
 
     date_last = []
@@ -69,7 +78,8 @@ def server(request, server_id):
     swap_kilobyte = []
 
     for resources_at_some_time in system_resources_list:
-        date_last.append(str(time.mktime(resources_at_some_time.date_last.replace(tzinfo=None).timetuple())))
+        date_last.append(str(
+            time.mktime(resources_at_some_time.date_last.timetuple())))
         load_avg01.append(resources_at_some_time.load_avg01)
         load_avg05.append(resources_at_some_time.load_avg05)
         load_avg15.append(resources_at_some_time.load_avg15)
@@ -90,7 +100,7 @@ def server(request, server_id):
     nets = server.net_set.all().order_by('name')
     filesystems = server.filesystem_set.all().order_by('name')
     hosts = server.host_set.all().order_by('name')
-    alerts_count = server.monitevent_set.filter(is_ack=False).count()
+    alerts_count = server.monitevent_set.filter(is_active=True).count()
 
     return render(request, 'ui/server.html', {
         'server_found': True,
@@ -116,11 +126,13 @@ def server(request, server_id):
         'hosts': hosts,
         'alerts_count': alerts_count,
         'monit_update_period': server.monit_update_period,
+        'monitoring_enabled': (server.disable_monitoring or server.user.settings.general_auto_add_unknown_servers)
     })
 
     # except Exception  as e:
     #     error_details = e.message
-    #     return render(request, 'ui/dashboard.html', {'server_found': False, 'error': error_details})
+    # return render(request, 'ui/dashboard.html', {'server_found': False,
+    # 'error': error_details})
 
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
@@ -133,17 +145,11 @@ def process(request, server_id, process_name):
 
     server = Server.objects.get(id=server_id)
     process = server.process_set.get(name=process_name)
-    '''
-    process_id = models.ForeignKey('Process')
-    date_last = models.DateTimeField()
-    cpu_percent = models.FloatField(null=True)
-    memory_percent = models.FloatField(null=True)
-    memory_kilobyte = models.PositiveIntegerField(null=True)
-    '''
+
     process_resources = MemoryCPUProcessStats.objects.filter(
-            date_last__gt=min_display,
-            date_last__lt=now,
-            process_id=process
+        date_last__gt=min_display,
+        date_last__lt=now,
+        process_id=process
     )
     process_resources_list = list(process_resources)
 
@@ -153,7 +159,8 @@ def process(request, server_id, process_name):
     memory_kilobyte = []
 
     for resources_at_some_time in process_resources_list:
-        date_last.append(str(time.mktime(resources_at_some_time.date_last.replace(tzinfo=None).timetuple())))
+        date_last.append(str(
+            time.mktime(resources_at_some_time.date_last.replace(tzinfo=None).timetuple())))
         cpu_percent.append(resources_at_some_time.cpu_percent)
         memory_percent.append(resources_at_some_time.memory_percent)
         memory_kilobyte.append(resources_at_some_time.memory_kilobyte)
@@ -176,39 +183,6 @@ def process(request, server_id, process_name):
 
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
-def process_action(request, server_id):
-    if not request.POST:
-        return HttpResponseNotAllowed(['POST'])
-    action = request.POST['action']
-    process_name = request.POST['process']
-    server = Server.objects.get(id=server_id)
-    process = server.process_set.get(name=process_name)
-    ip_address = server.address
-    time_out = 15
-    try:
-        # would only work for this server
-        # subprocess.call(["monit", action, process_name])
-
-        monit_url = 'http://%s:%s@%s:%s/%s' % (monit_user, monit_password, ip_address, monit_port, process_name)
-        requests.post(monit_url, {'action': action}, timeout=time_out)
-        action_labels = {'start': 'starting...', 'stop': 'stopping...', 'restart': 'restarting...',
-                         'unmonitor': 'disable monitoring...', 'monitor': 'enable monitoring...'}
-        if action in action_labels:
-            process.status = action_labels.get(action)
-            if action == 'unmonitor':
-                process.monitor = 0
-            elif action == 'monitor':
-                process.monitor = 2
-            process.save()
-        return redirect(
-                reverse('ui.views.process', kwargs={'server_id': server.id, 'process_name': process_name}))
-    except:
-        return render(request, 'ui/error.html',
-                      {'time_out': time_out, 'monit_user': monit_user, 'ip_address': ip_address,
-                       'monit_port': monit_port, 'process_name': process_name})
-
-
-@user_passes_test(validate_user, login_url='/accounts/login/')
 def confirm_delete(request, server_id):
     server = Server.objects.get(id=server_id)
     return render(request, "ui/confirm_delete.html", {"server": server})
@@ -225,10 +199,16 @@ def delete_server(request, server_id):
 
 # Ajax Views
 def load_dashboard_table(request):
-    servers = Server.objects.filter(user_id=request.user).order_by('localhostname')
+    org = request.user.organisation
+    host_groups = HostGroup.objects.filter(owned_by=org)
+    servers = Server.objects.filter(
+        organisation=org).order_by('host_group')
+
     for server in servers:
-        server.alerts = server.monitevent_set.filter(is_ack=False).count()
-    table_html = render_to_string('ui/includes/dashboard_table.html', {'servers': servers})
+        server.alerts = server.monitevent_set.filter(is_active=True).count()
+        server.processes = len(set(server.process_set.all()))
+    table_html = render_to_string(
+        'ui/includes/dashboard_table.html', {'servers': servers, 'host_groups':host_groups})
     return JsonResponse({'table_html': table_html})
 
 
@@ -264,14 +244,18 @@ def load_system_data(request, server_id):
 def load_process_table(request, server_id, process_name):
     server = Server.objects.get(id=server_id)
     process = server.process_set.get(name=process_name)
-    table_html = render_to_string('ui/includes/process_table.html', {'process': process})
+    table_html = render_to_string(
+        'ui/includes/process_table.html', {'process': process})
     return JsonResponse({'table_html': table_html})
 
 
 def load_process_data(request, server_id, process_name):
     server = Server.objects.get(id=server_id)
     process = server.process_set.get(name=process_name)
-    table_html = render_to_string('ui/includes/process_table.html', {'process': process})
+    table_html = render_to_string(
+        'ui/includes/process_table.html', {'process': process})
+    # TODO: when the service is not monitored none of this fields is filled.
+    # (we dont have any data)
     data = {'date': process.date_last,
             'cpu_percenttotal': process.cpu_percenttotal_last,
             'memory_percenttotal': process.memory_percenttotal_last,
@@ -279,6 +263,8 @@ def load_process_data(request, server_id, process_name):
             'table_html': table_html
             }
     return JsonResponse(data)
+
+# Server
 
 
 class ServerShowView(LoginRequiredMixin, DetailView):
@@ -306,21 +292,42 @@ class ServerUpdateView(LoginRequiredMixin, UpdateView):
                        kwargs={"pk": server_id})
 
 
+class SettingsUpdateView(LoginRequiredMixin, UpdateView):
+    model = Settings
+    form_class = SettingsForm
+
+    def get_success_url(self):
+        settings_id = self.request.user.organisation.settings.id
+        return reverse(
+            "ui:settings_update",
+            kwargs={
+                "pk": settings_id
+                }
+                )
+
+
 class EventListView(LoginRequiredMixin, ListView):
     model = MonitEvent
 
     def get_queryset(self):
         server_id = self.kwargs['pk']
-        return self.model.objects.filter(server=server_id, is_ack=False).order_by('-event_time')
+        return self.model.objects.filter(server=server_id, is_active=True).order_by('-event_time')
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(EventListView, self).get_context_data(**kwargs)
+
         server_id = self.kwargs['pk']
         server = Server.objects.get(id=int(server_id))
         context['server'] = server
-        context['alerts_count'] = server.monitevent_set.filter(is_ack=False).count()
+        context['alerts_count'] = server.monitevent_set.filter(
+            is_active=True).count()
         return context
+
+
+@user_passes_test(validate_user, login_url='/accounts/login/')
+def configuration(request):
+    return render(request, 'ui/settings.html')
 
 
 def ack_event(request):
@@ -343,4 +350,9 @@ def ack_event(request):
 
 
 def notifications(request):
-    return "HELLo"
+    pass
+
+
+class IntelliEvent(LoginRequiredMixin, FilterView):
+    filterset_class = IntelliEventsFilter
+

@@ -1,327 +1,386 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load extra_tags %}
+{% block head %}
+    <link href="{% static 'css/plugins/c3/c3.min.css' %}" rel="stylesheet">
 
+{% endblock %}
 {% block submenu %}
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'ui:server_alerts' server.id %}">Alerts <span
-                class="label label-{{ alerts_count|status_alert }} pull-right">{{ alerts_count }}</span></a>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'ui:server_alerts' server.id %}"><i class="fa fa-bell"></i>Active Alerts <span
+    class="label label-{{ alerts_count|status_alert }} pull-right">{{ alerts_count }}</span></a>
+  </li>
+  <li class="nav-item">
+        <a class="nav-link scroll" href="#processes"><i class="fa fa-bullseye"></i> Processes</a>
+    </li>
+          <li class="nav-item">
+        <a class="nav-link scroll" href="#programs"><i class="fa fa-bullseye"></i> Programs</a>
+    </li>
+      <li class="nav-item">
+        <a class="nav-link scroll" href="#filesystems"><i class="fa fa-bullseye"></i> FileSystems</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'ui:server_show' server.id %}">Server Settings</a>
+        <a class="nav-link scroll" href="#directory"><i class="fa fa-bullseye"></i> Directories </a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link scroll" href="#files" ><i class="fa fa-bullseye"></i> Files</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link scroll" href="#network"><i class="fa fa-bullseye"></i> Network</a>
+    </li>
+        <li class="nav-item">
+        <a class="nav-link scroll" href="#host"><i class="fa fa-bullseye"></i> Host</a>
+    </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'ui:server_show' server.id %}"><i class="fa fa-wrench"></i> Server Settings</a>
+  </li>
 {% endblock %}
-
 {% block content %}
-
-
-    <div class="row clearfix">
-
-        <div class="page-header">
-            <h1>Server <small>{{ server.localhostname }}</small>
-            </h1>
-        </div>
-        <div class="row">
-            <p> Monit <b>{{ server.monit_version }}</b> is running on server <b>{{ server.localhostname }}</b> (IP:
-                <b>{{ server.address }}</b>) with uptime <b>{{ server.uptime|time_str }}</b></p>
-            <small><cite><p>Platform: {{ server.platform.name }}, release: {{ server.platform.release }},
-                version: {{ server.platform.version }}, machine: {{ server.platform.machine }},
-                CPU: {{ server.platform.cpu }}, {{ server.platform.memory|kb_formatting }}
-                memory, {{ server.platform.swap|kb_formatting }} swap</p></cite></small>
-
-        </div>
-        <div class="col-md-12 column">
-
-            <div class="col-lg-4 col-md-6 column">
-                <div id="cpu-chart" class="graph" style="width:100%;"></div>
-            </div>
-            <div class="col-lg-4 col-md-6 column">
-                <div id="memory-chart" class="graph" style="width:100%;"></div>
-            </div>
-            <div class="col-lg-4 col-md-6 column">
-                <div id="disk-chart" class="graph" style="width:100%;"></div>
-            </div>
-        </div>
-                <hr class="divider">
-
-        <div class="col-md-12 column">
-
-            <div class="col-lg-4 col-md-6 column">
-                <div id="graph_load" class="graph" style="width:100%;"></div>
-            </div>
-            <div class="col-lg-4 col-md-6 column">
-                <div id="graph_cpu" class="graph" style="width:100%;"></div>
-            </div>
-            <div class="col-lg-4 col-md-6 column">
-                <div id="graph_mem" class="graph" style="width:100%;"></div>
-            </div>
-            <small>Zoom: click-drag --- Pan: shift-click-drag --- Restore zoom level: double-click</small>
-        </div>
+  <div class="row clearfix">
+    <div class="page-header">
+      <h1>Server <small>{{ server.localhostname }}</small> <br/> IP : <small>{{ server.external_ip }}</small>
+      </h1>
     </div>
-
-    <div class="row clearfix marginTop">
-      {% if processes %}
-        <div class="col-md-12 column">
-            <h5>Processes</h5>
-
-            <div id="server_table" class="table-responsive">
-                {% include "ui/includes/server_table.html" %}
-            </div>
-        </div>
-    {%  endif %}
-        {% if programs %}
-        <div class="col-md-12 column">
-            <h5>Programs</h5>
-
-            <div id="server_table" class="table-responsive">
-                {% include "ui/includes/program_table.html" %}
-            </div>
-        </div>
-        {% endif %}
-    {% if filesystems %}
-        <div class="col-md-12 column">
-            <h5>FileSystem</h5>
-
-            <div id="server_table" class="table-responsive">
-                {% include "ui/includes/filesystem_table.html" %}
-            </div>
-        </div>
-    {% endif %}
-    {% if directories %}
-        <div class="col-md-12 column">
-            <h5>Directories</h5>
-
-            <div id="server_table" class="table-responsive">
-                {% include "ui/includes/directory_table.html" %}
-            </div>
-        </div>
-    {% endif %}
-    {% if files %}
-        <div class="col-md-12 column">
-            <h5>Files</h5>
-
-            <div id="server_table" class="table-responsive">
-                {% include "ui/includes/file_table.html" %}
-            </div>
-        </div>
-    {% endif %}
-    {% if nets %}
-        <div class="col-md-12 column">
-            <h5>Network</h5>
-
-            <div id="server_table" class="table-responsive">
-                {% include "ui/includes/net_table.html" %}
-            </div>
-        </div>
-    {% endif %}
-    {% if hosts %}
-        <div class="col-md-12 column">
-            <h5>Hosts</h5>
-
-            <div id="server_table" class="table-responsive">
-                {% include "ui/includes/host_table.html" %}
-            </div>
-        </div>
-    {% endif %}
+    <div class="col-md-12 column2">
+      <div class="col-lg-4 col-md-6 column">
+        <div id="cpu-chart" class="graph" style="width:100%;"></div>
+      </div>
+      <div class="col-lg-4 col-md-6 column">
+        <div id="memory-chart" class="graph" style="width:100%;"></div>
+      </div>
+      <div class="col-lg-4 col-md-6 column">
+        <div id="disk-chart" class="graph" style="width:100%;"></div>
+      </div>
     </div>
+    <hr class="divider">
+    <div class="col-md-12 column2">
+      <div class="col-lg-4 col-md-6 column">
+        <div id="graph_load" class="graph" style="width:100%;"></div>
+      </div>
 
-{% csrf_token %}
-
-{% endblock %}
-{% block customjs %}
-
-<script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
-<script src="{% static 'js/dygraph-combined.js' %}"></script>
-<script src="{% static 'js/csrf.js' %}"></script>
-<script src="http://code.highcharts.com/highcharts.js"></script>
-
-<script>
-
-
-
-  $(function () {
+      <div class="col-lg-4 col-md-6 column">
+        <div id="graph_cpu" class="graph" style="width:100%;"></div>
+      </div>
+      <div class="col-lg-4 col-md-6 column">
+        <div id="graph_mem" class="graph" style="width:100%;"></div>
+      </div>
+      <small>Zoom: click-drag --- Pan: shift-click-drag --- Restore zoom level: double-click</small>
+    </div>
+  </div>
+  <div class="row clearfix marginTop">
+    {% if processes %}
+      <div id="processes" class="col-md-12 column">
+        <div class="ibox">
+            <div class="ibox-title">
+                    <h5>Processes </h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                <div class="row">
+          {% include "ui/includes/server_table.html" %}
+                </div>
+                </div>
+                </div>
+      </div>
+      {%  endif %}
+      {% if programs %}
+        <div id="programs" class="col-md-12 column">
+         <div class="ibox">
+            <div class="ibox-title">
+                    <h5>Programs </h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                <div class="row">
+            {% include "ui/includes/program_table.html" %}
+            </div>
+            </div>
+        </div>
+      {% endif %}
+      {% if filesystems %}
+        <div id="filesystems" class="col-md-12 column">
+         <div class="ibox">
+            <div class="ibox-title">
+                    <h5>Filesystems </h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                <div class="row">
+            {% include "ui/includes/filesystem_table.html" %}
+          </div>
+          </div>
+          </div>
+        </div>
+      {% endif %}
+      {% if directories %}
+        <div  id="directory" class="col-md-12 column">
+                <div class="ibox">
+            <div class="ibox-title">
+                    <h5>Directories </h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                <div class="row">
+            {% include "ui/includes/directory_table.html" %}
+            </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+      {% if files %}
+        <div id="files" class="col-md-12 column">
+               <div class="ibox">
+            <div class="ibox-title">
+                    <h5>Files </h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                <div class="row">
+            {% include "ui/includes/file_table.html" %}
+            </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+      {% if nets %}
+        <div id="network" class="col-md-12 column">
+         <div class="ibox">
+            <div class="ibox-title">
+                    <h5>Network </h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                <div class="row">
+            {% include "ui/includes/net_table.html" %}
+            </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+      {% if hosts %}
+        <div id="host" class="col-md-12 column">
+            <div class="ibox">
+            <div class="ibox-title">
+                    <h5>Hosts </h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                <div class="row">
+            {% include "ui/includes/host_table.html" %}
+            </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+    {% csrf_token %}
+  {% endblock %}
+  {% block customjs %}
+    <script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
+    <script src="{% static 'js/dygraph-combined.js' %}"></script>
+    <script src="{% static 'js/csrf.js' %}"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script>
+$(function() {
     Highcharts.setOptions({
-       colors: [
-       '#1ab394',
-       '#79d2c0',
-       '#f8ac59',
-       '#1c84c6',
-       '#a3e1d4',
-       '#ed5565',
-       '#1ab394',
-       '#d1dade',
-       ]
-      });
+        colors: [
+            '#1ab394',
+            '#79d2c0',
+            '#f8ac59',
+            '#1c84c6',
+            '#a3e1d4',
+            '#ed5565',
+            '#1ab394',
+            '#d1dade',
+        ]
+    });
+    // init parameters
+    var point_size = 1;
+    var stroke_width = 1;
+    var rollperiod = 10;
+    var draw_point = false;
+    var isStacked = false;
+    var errorbars = false;
+    var graph_colors = ["#1ab394", "#ed5565", "#f8ac59", "#1c84c6"];
+    var update_period = 1000 * {{monit_update_period}};
+    // Init data
+    // Load Data
+    var data_load = [];
+    var data1 = ['load1']
+    var data2 = ['load5']
+    var data3 = ['load15']
+    var dates_ = ['x']
+    var dates = {{date_last}};
+    var y1 = {{load_avg01}};
+    var y2 = {{load_avg05}};
+    var y3 = {{load_avg15}};
+    for (i = 0; i < dates.length; i++)
+    {
+        data_load.push([new Date(dates[i] * 1000.), y1[i], y2[i], y3[i]]);
+    }
+    // CPU Data
+    var data_cpu = [];
+    y1 = {{cpu_user}};
+    y2 = {{cpu_system}};
+    y3 = {{cpu_wait}};
+    for (i = 0; i < dates.length; i++)
+        data_cpu.push([new Date(dates[i] * 1000.), y1[i], y2[i], y3[i]]);
+    // Mem Data
+    var data_mem = [];
+    y1 = {{memory_percent}};
+    y2 = {{memory_kilobyte}};
+    y3 = {{swap_percent}};
+    var y4 = {{swap_kilobyte}};
+    for (i = 0; i < dates.length; i++)
+        data_mem.push([new Date(dates[i] * 1000.), y1[i], y2[i] / 1.e6, y3[i], y4[i] / 1.e6]);
+    // smaller points if the data array is too big
+    function set_linewidth(graph, data) {
+        var range = graph.xAxisRange();
+        var data_points = 0;
+        for (var i = 0; i < data.length; i++) {
+            var x = data[i][0];
+            //if (x > minDate && x < maxDate)
+            if (x > range[0] && x < range[1])
+                data_points++;
+        }
+        var new_opts = {};
+        if (data_points > 2000) {
+            new_opts.pointSize = 0.5;
+            new_opts.strokeWidth = 0.33;
+        } else if (data_points > 900) {
+            new_opts.pointSize = 1;
+            new_opts.strokeWidth = 0.5;
+        } else {
+            new_opts.pointSize = 1.5;
+            new_opts.strokeWidth = 1.;
+        }
+        graph.updateOptions(new_opts);
+    }
 
-      // init parameters
-      var point_size = 1;
-      var stroke_width = 1;
-      var rollperiod=10;
-      var draw_point = false;
-      var isStacked= false;
-      var errorbars=false;
-      var graph_colors = ["#1ab394", "#ed5565", "#f8ac59", "#1c84c6"];
-      var update_period = 1000*{{monit_update_period}};
+    var graph_load = new Dygraph(document.getElementById("graph_load"), data_load, {
+        rollPeriod: rollperiod,
+        legend: 'always', // show always
+        labelsDivWidth: '140', // default 250
+        labelsSeparateLines: true,
+        ylabel: 'Load average',
+        xlabel: 'Time',
+        drawPoints: draw_point,
+        errorBars: errorbars,
+        pointSize: point_size,
+        strokeWidth: stroke_width,
+        stackedGraph: isStacked,
+        //showRoller: true,  // for a rolling average over values
+        labels: ['Time', 'load 1 min', 'load 5 min', 'load 15 min'],
+        axisLabelColor: '#BBB',
+        axisLineColor: '#BBB',
+        colors: graph_colors,
 
-      // Init data
-
-      // Load Data
-      var data_load = [];
-      var dates = {{date_last}};
-      var y1 = {{load_avg01}};
-      var y2 = {{load_avg05}};
-      var y3 = {{load_avg15}};
-      for (i = 0; i < dates.length; i++)
-        data_load.push([new Date(dates[i]*1000.), y1[i], y2[i], y3[i]]);
-
-      // CPU Data
-      var data_cpu = [];
-      y1 = {{cpu_user}};
-      y2 = {{cpu_system}};
-      y3 = {{cpu_wait}};
-      for (i = 0; i < dates.length; i++)
-        data_cpu.push([new Date(dates[i]*1000.), y1[i], y2[i], y3[i]]);
-
-      // Mem Data
-      var data_mem = [];
-      y1 = {{memory_percent}};
-      y2 = {{memory_kilobyte}};
-      y3 = {{swap_percent}};
-      var y4 = {{swap_kilobyte}};
-      for (i = 0; i < dates.length; i++)
-        data_mem.push([new Date(dates[i]*1000.), y1[i], y2[i]/1.e6, y3[i], y4[i]/1.e6]);
-
-
-      // smaller points if the data array is too big
-      function set_linewidth(graph, data) {
-          var range = graph.xAxisRange();
-          var data_points = 0;
-          for (var i = 0; i < data.length; i++) {
-              var x = data[i][0];
-              //if (x > minDate && x < maxDate)
-              if (x > range[0] && x < range[1])
-                  data_points++;
-          }
-          var new_opts = {};
-          if (data_points > 2000) {
-              new_opts.pointSize = 0.5;
-              new_opts.strokeWidth = 0.33;
-          } else if (data_points > 900) {
-              new_opts.pointSize = 1;
-              new_opts.strokeWidth = 0.5;
-          } else {
-              new_opts.pointSize = 1.5;
-              new_opts.strokeWidth = 1.;
-          }
-          graph.updateOptions(new_opts);
-      }
-      var graph_load = new Dygraph(document.getElementById("graph_load"), data_load, {
-
-          rollPeriod: rollperiod,
-          legend: 'always', // show always
-          labelsDivWidth: '140', // default 250
-          labelsSeparateLines: true,
-          ylabel: 'Load average',
-          xlabel: 'Time',
-          drawPoints: draw_point,
-          errorBars: errorbars,
-          pointSize: point_size,
-          strokeWidth: stroke_width,
-          stackedGraph: isStacked,
-          //showRoller: true,  // for a rolling average over values
-          labels: ['Time', 'load 1 min', 'load 5 min', 'load 15 min'],
-          axisLabelColor: '#BBB',
-          axisLineColor: '#BBB',
-          colors: graph_colors,
-          zoomCallback: function() { // (minDate, maxDate)
-              //          set_linewidth(graph_load, data_load);
-          },
-      });
-
-      var graph_cpu = new Dygraph(document.getElementById("graph_cpu"), data_cpu, {
-          rollPeriod: rollperiod,
-          legend: 'always', // show always
-          labelsDivWidth: '140', // default 250
-          labelsSeparateLines: true,
-          ylabel: 'CPU usage (in %)',
-          xlabel: 'Time',
-          drawPoints: draw_point,
-          errorBars: errorbars,
-          pointSize: point_size,
-          strokeWidth: stroke_width,
-          stackedGraph: isStacked,
-          labels: ['Time', 'user', 'system', 'wait'],
-          axisLabelColor: '#CCC',
-          axisLineColor: '#CCC',
-          colors: graph_colors,
-          zoomCallback: function() { // (minDate, maxDate)
-              //      set_linewidth(graph_cpu, data_cpu);
-          },
-      });
-      // set_linewidth(graph_cpu, data_cpu);
-
-      var graph_mem = new Dygraph(document.getElementById("graph_mem"), data_mem, {
-          rollPeriod: rollperiod,
-          legend: 'always', // show always
-          labelsDivWidth: '140', // default 250
-          labelsSeparateLines: true,
-          ylabel: 'Memonry usage (in % or GB)',
-          xlabel: 'Time',
-          errorBars: errorbars,
-          drawPoints: draw_point,
-          pointSize: point_size,
-          strokeWidth: stroke_width,
-          stackedGraph: isStacked,
-          //showRoller: true,  // to average over values (?)
-          //valueRange: [0.0, ymax],
-          labels: ['Time', 'memory in %', 'memory in GB', 'swap in %', 'swap in GB'],
-          axisLabelColor: '#CCC',
-          axisLineColor: '#CCC',
-          colors: graph_colors,
-          zoomCallback: function() { // (minDate, maxDate)
-              //   set_linewidth(graph_mem, data_mem);
-          },
-      });
-      //set_linewidth(graph_mem, data_mem);
-      window.intervalId = setInterval(function() {
-          $.post("{% url 'ui:load_system_data' server.id %}", function(data) {
-
-              if (data_cpu.length > 0) {
-                  var date_of_last_data_received = data_cpu[data_cpu.length - 1][0]
-                  var date_of_just_received_data = new Date(JSON.parse(data.date) * 1000);
-
-                  if (date_of_just_received_data > date_of_last_data_received) {
-
-                      data_load.push([date_of_just_received_data, JSON.parse(data.load_avg01), JSON.parse(data.load_avg05), JSON.parse(data.load_avg15)]);
-                      graph_load.updateOptions({
-                          'file': data_load
-                      });
-
-                      data_cpu.push([date_of_just_received_data, JSON.parse(data.cpu_user), JSON.parse(data.cpu_system), JSON.parse(data.cpu_wait)]);
-                      graph_cpu.updateOptions({
-                          'file': data_cpu
-                      });
-
-                      data_mem.push([date_of_just_received_data, JSON.parse(data.memory_percent), JSON.parse(data.memory_kilobyte) / 1.e6, JSON.parse(data.swap_percent), JSON.parse(data.swap_kilobyte) / 1.e6]);
-                      graph_mem.updateOptions({
-                          'file': data_mem
-                      });
-
-                      $("#server_table").replaceWith(data.table_html);
-                  }
-              }
-
-          });
-      }, update_period);
-
-      window.intervalId = setInterval(function() {
-          $.post("{% url 'ui:load_system_table' server.id %}", function(data) {
-              $("#server_table").replaceWith(data.table_html);
-          });
-      }, update_period);
+        zoomCallback: function() { // (minDate, maxDate)
+            //          set_linewidth(graph_load, data_load);
+        },
+    });
+    var graph_cpu = new Dygraph(document.getElementById("graph_cpu"), data_cpu, {
+        rollPeriod: rollperiod,
+        legend: 'always', // show always
+        labelsDivWidth: '140', // default 250
+        labelsSeparateLines: true,
+        ylabel: 'CPU usage (in %)',
+        xlabel: 'Time',
+        drawPoints: draw_point,
+        errorBars: errorbars,
+        pointSize: point_size,
+        strokeWidth: stroke_width,
+        stackedGraph: isStacked,
+        labels: ['Time', 'user', 'system', 'wait'],
+        axisLabelColor: '#CCC',
+        axisLineColor: '#CCC',
+        colors: graph_colors,
+        zoomCallback: function() { // (minDate, maxDate)
+            //      set_linewidth(graph_cpu, data_cpu);
+        },
+    });
+    // set_linewidth(graph_cpu, data_cpu);
+    var graph_mem = new Dygraph(document.getElementById("graph_mem"), data_mem, {
+        rollPeriod: rollperiod,
+        legend: 'always', // show always
+        labelsDivWidth: '140', // default 250
+        labelsSeparateLines: true,
+        ylabel: 'Memonry usage (in % or GB)',
+        xlabel: 'Time',
+        errorBars: errorbars,
+        drawPoints: draw_point,
+        pointSize: point_size,
+        strokeWidth: stroke_width,
+        stackedGraph: isStacked,
+        //showRoller: true,  // to average over values (?)
+        //valueRange: [0.0, ymax],
+        labels: ['Time', 'memory in %', 'memory in GB', 'swap in %', 'swap in GB'],
+        axisLabelColor: '#CCC',
+        axisLineColor: '#CCC',
+        colors: graph_colors,
+        zoomCallback: function() { // (minDate, maxDate)
+            //   set_linewidth(graph_mem, data_mem);
+        },
+    });
 
 
-     chart_cpu = new Highcharts.Chart({
+    //set_linewidth(graph_mem, data_mem);
+    window.intervalId = setInterval(function() {
+        $.post("{% url 'ui:load_system_data' server.id %}", function(data) {
+            if (data_cpu.length > 0) {
+                var date_of_last_data_received = data_cpu[data_cpu.length - 1][0]
+                var date_of_just_received_data = new Date(JSON.parse(data.date) * 1000);
+                if (date_of_just_received_data > date_of_last_data_received) {
+                    data_load.push([date_of_just_received_data, JSON.parse(data.load_avg01), JSON.parse(data.load_avg05), JSON.parse(data.load_avg15)]);
+                    graph_load.updateOptions({
+                        'file': data_load
+                    });
+                    data_cpu.push([date_of_just_received_data, JSON.parse(data.cpu_user), JSON.parse(data.cpu_system), JSON.parse(data.cpu_wait)]);
+                    graph_cpu.updateOptions({
+                        'file': data_cpu
+                    });
+                    data_mem.push([date_of_just_received_data, JSON.parse(data.memory_percent), JSON.parse(data.memory_kilobyte) / 1.e6, JSON.parse(data.swap_percent), JSON.parse(data.swap_kilobyte) / 1.e6]);
+                    graph_mem.updateOptions({
+                        'file': data_mem
+                    });
+                    $("#server_table").replaceWith(data.table_html);
+                }}
+        });
+    }, update_period);
+    window.intervalId = setInterval(function() {
+        $.post("{% url 'ui:load_system_table' server.id %}", function(data) {
+            $("#server_table").replaceWith(data.table_html);
+        });
+    }, update_period);
+    chart_cpu = new Highcharts.Chart({
         chart: {
             renderTo: 'cpu-chart',
             plotBackgroundColor: null,
@@ -329,14 +388,14 @@
             plotShadow: false
         },
         title: {
-              text: 'CPU<br>Usage',
-              align: 'center',
-              verticalAlign: 'middle',
-              y: 40
+            text: 'CPU<br>Usage',
+            align: 'center',
+            verticalAlign: 'middle',
+            y: 40
         },
         tooltip: {
-              pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-          },
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
         plotOptions: {
             pie: {
                 dataLabels: {
@@ -346,14 +405,11 @@
                         fontWeight: 'bold',
                         color: 'white',
                         textShadow: '0px 1px 2px black'
-                    }
-                },
+                    }},
                 startAngle: -90,
                 endAngle: 90,
                 center: ['50%', '75%']
-            }
-        },
-
+            }},
         series: [{
             type: 'pie',
             name: 'cpu',
@@ -361,12 +417,11 @@
             data: [
                 ['Wait', {{server.system.cpu_wait_last}}],
                 ['User', {{server.system.cpu_user_last}}],
-                ['Idle', 100 - {{server.system.cpu_wait_last}}-{{server.system.cpu_user_last}}]
+                ['Idle', 100 - {{server.system.cpu_wait_last}} - {{server.system.cpu_user_last}}]
             ]
         }]
     });
-
-     chart_memory = new Highcharts.Chart({
+    chart_memory = new Highcharts.Chart({
         chart: {
             renderTo: 'memory-chart',
             plotBackgroundColor: null,
@@ -374,66 +429,124 @@
             plotShadow: false
         },
         title: {
-              text: 'Memory<br>Usage',
-              align: 'center',
-              verticalAlign: 'middle',
-              y: 40
+            text: 'Memory<br>Usage',
+            align: 'center',
+            verticalAlign: 'middle',
+            y: 40
         },
         tooltip: {
-              pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-          },
-          plotOptions: {
-              pie: {
-                  dataLabels: {
-                      enabled: true,
-                      distance: -50,
-                      style: {
-                          fontWeight: 'bold',
-                          color: 'white',
-                          textShadow: '0px 1px 2px black'
-                      }
-                  },
-                  startAngle: -90,
-                  endAngle: 90,
-                  center: ['50%', '75%']
-              }
-          },
-          series: [{
-              type: 'pie',
-              name: 'Memory',
-              innerSize: '50%',
-              data: [
-                  ['Used',   {{server.system.memory_percent_last}}],
-                  ['Free',   100-{{server.system.memory_percent_last}}],
-              ]
-          }]
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        plotOptions: {
+            pie: {
+                dataLabels: {
+                    enabled: true,
+                    distance: -50,
+                    style: {
+                        fontWeight: 'bold',
+                        color: 'white',
+                        textShadow: '0px 1px 2px black'
+                    }},
+                startAngle: -90,
+                endAngle: 90,
+                center: ['50%', '75%']
+            }},
+        series: [{
+            type: 'pie',
+            name: 'Memory',
+            innerSize: '50%',
+            data: [
+                ['Used', {{server.system.memory_percent_last}}],
+                ['Free', 100 - {{server.system.memory_percent_last}}],
+            ]
+        }]
     });
-
-    var socket = io('http://172.16.5.83:8000/server_dashboard_{{ server.id }}');
-      socket.on('connect', function(socket){
-          console.log("Socket io Connected")
-      });
-
-      socket.on('dmc', function(msg) {
-            var data = msg.data;
-           // var cpu_system_last=['System', data.cpu_system_last];
-            var cpu_wait_last = ['Wait',data.cpu_wait_last];
+    chart_disk = new Highcharts.Chart({
+        chart: {
+            renderTo: 'disk-chart',
+            plotBackgroundColor: null,
+            plotBorderWidth: 0,
+            plotShadow: false
+        },
+        title: {
+            text: 'Disk<br>Usage',
+            align: 'center',
+            verticalAlign: 'middle',
+            y: 40
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        plotOptions: {
+            pie: {
+                dataLabels: {
+                    enabled: true,
+                    distance: -50,
+                    style: {
+                        fontWeight: 'bold',
+                        color: 'white',
+                        textShadow: '0px 1px 2px black'
+                    }},
+                startAngle: -90,
+                endAngle: 90,
+                center: ['50%', '75%']
+            }},
+        series: [{
+            type: 'pie',
+            name: 'Disk',
+            innerSize: '50%',
+            data: [
+                ['Used', {{server.system.memory_percent_last}}],
+                ['Free', 100 - {{server.system.memory_percent_last}}],
+            ]
+        }]
+    });
+    var socket = io('http://10.209.105.12:8000/server_dashboard_{{ server.id }}');
+    socket.on('dmc', function(msg) {
+        var data = msg.data;
+        // var cpu_system_last=['System', data.cpu_system_last];
+        console.log(data);
+        if (null != data.cpu_wait_last) {
+            var cpu_wait_last = ['Wait', data.cpu_wait_last];
             var cpu_user_last = ['User', data.cpu_user_last];
-            var cpu_idle_last = ['Idle', 100-(data.cpu_user_last+data.cpu_wait_last)];
-            var graph_data = [cpu_wait_last,cpu_user_last,cpu_idle_last];
-
-            var memory_percent_last=['Used', data.memory_percent_last];
-            var free_memory_percent_last = ['Free',100-data.memory_percent_last];
-            var memory_data = [memory_percent_last,free_memory_percent_last]
-
+            var cpu_idle_last = ['Idle', 100 - (data.cpu_user_last + data.cpu_wait_last)];
+            var graph_data = [cpu_wait_last, cpu_user_last, cpu_idle_last];
+            var memory_percent_last = ['Used', data.memory_percent_last];
+            var free_memory_percent_last = ['Free', 100 - data.memory_percent_last];
+            var memory_data = [memory_percent_last, free_memory_percent_last]
             chart_cpu.series[0].setData(graph_data, true);
             chart_memory.series[0].setData(memory_data, true);
             chart_cpu.redraw();
             chart_memory.redraw();
+        }
+        if (null != data.fs_blocks_percent_last) {
+            var used_disk = ['Used' , data.fs_blocks_percent_last];
+            var free_disk = ['Free', 100 - data.fs_blocks_percent_last];
+            var graph_data = [used_disk, free_disk]
+            chart_disk.series[0].setData(graph_data, true);
+            chart_disk.redraw();
+        }});
+});
 
+  var hashTagActive = "";
+    $(".scroll").click(function (event) {
+        if(hashTagActive != this.hash) { //this will prevent if the user click several times the same link to freeze the scroll.
+            event.preventDefault();
+            //calculate destination place
+            var dest = 0;
+            if ($(this.hash).offset().top > $(document).height() - $(window).height()) {
+                dest = $(document).height() - $(window).height();
+            } else {
+                dest = $(this.hash).offset().top - 65;
+            }
+            //go to destination
+            $('html,body').animate({
+                scrollTop: dest
+            }, 200, 'swing');
+            hashTagActive = this.hash;
+        }
+    });
 
-      });
-  });
-</script>
-<script src="{% static 'js/server.js' %}"></script>
-{% endblock customjs %}
+    </script>
+    <script src="{% static 'js/server.js' %}"></script>
+  {% endblock customjs %}
