@@ -1,5 +1,5 @@
 import datetime
-import time
+from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
 
 from django.db import models
 from pytz import timezone
@@ -28,6 +28,8 @@ class System(Service):
 
     @classmethod
     def update(cls, xmldoc, server, service):
+        data_timestamp = int(get_value(service, "collected_sec", ""))
+
         system, created = cls.objects.get_or_create(server=server)
         system.service_type = get_value(service, "type", "")
         system.name = get_value(service, "", "", "name")
@@ -36,8 +38,11 @@ class System(Service):
         system.monitor = get_value(service, "monitor", "")
         system.monitor_mode = get_value(service, "monitormode", "")
         system.pending_action = get_value(service, "pendingaction", "")
+
+        tz = timezone(system.server.data_timezone)
+
         if get_value(service, "load", "avg01") != "none":
-            system.date_last = int(time.time())
+            system.date_last = data_timestamp
             system.date = json_list_append(system.date, system.date_last)
             system.load_avg01_last = float(get_value(service, "load", "avg01"))
             system.load_avg05_last = float(get_value(service, "load", "avg05"))
@@ -45,30 +50,37 @@ class System(Service):
             system.cpu_user_last = float(get_value(service, "cpu", "user"))
             system.cpu_system_last = float(get_value(service, "cpu", "system"))
             system.cpu_wait_last = float(get_value(service, "cpu", "wait"))
-            system.memory_percent_last = float(get_value(service, "memory", "percent"))
-            system.memory_kilobyte_last = int(get_value(service, "memory", "kilobyte"))
-            system.swap_percent_last = float(get_value(service, "swap", "percent"))
-            system.swap_kilobyte_last = int(get_value(service, "swap", "kilobyte"))
+            system.memory_percent_last = float(
+                get_value(service, "memory", "percent"))
+            system.memory_kilobyte_last = int(
+                get_value(service, "memory", "kilobyte"))
+            system.swap_percent_last = float(
+                get_value(service, "swap", "percent"))
+            system.swap_kilobyte_last = int(
+                get_value(service, "swap", "kilobyte"))
         system.save()
-        broadcast_to_websocket_channel(server,system)
+        broadcast_to_websocket_channel(server, system)
 
         if get_value(service, "load", "avg01") != "none":
-            colect_timestamp = int(get_value(service, "collected_sec", ""))
-            MemoryCPUSystemStats.create(
-                    system,
-                    system.server.data_timezone,
-                    colect_timestamp,
-                    system.load_avg01_last,
-                    system.load_avg05_last,
-                    system.load_avg15_last,
-                    system.cpu_user_last,
-                    system.cpu_system_last,
-                    system.cpu_wait_last,
-                    system.memory_percent_last,
-                    system.memory_kilobyte_last,
-                    system.swap_percent_last,
-                    system.swap_kilobyte_last
+            entity = MemoryCPUSystemStats.create(
+                system,
+                system.server.data_timezone,
+                data_timestamp,
+                system.load_avg01_last,
+                system.load_avg05_last,
+                system.load_avg15_last,
+                system.cpu_user_last,
+                system.cpu_system_last,
+                system.cpu_wait_last,
+                system.memory_percent_last,
+                system.memory_kilobyte_last,
+                system.swap_percent_last,
+                system.swap_kilobyte_last
             )
+            MemoryCPUSystemStats.to_elasticsearch(
+                entity,
+                system.server.localhostname.replace('.','_')
+                )
         return system
 
     @classmethod
@@ -95,7 +107,7 @@ class MemoryCPUSystemStats(models.Model):
     def create(cls,
                system,
                tz_str,
-               unixtimestamp,
+               data_timestamp,
                load_avg01,
                load_avg05,
                load_avg15,
@@ -109,7 +121,7 @@ class MemoryCPUSystemStats(models.Model):
                ):
         entry = cls(system_id=system)
         tz = timezone(tz_str)
-        entry.date_last = datetime.datetime.fromtimestamp(unixtimestamp).replace(tzinfo=tz)
+        entry.date_last = datetime.datetime.fromtimestamp(data_timestamp,tz)
         entry.load_avg01 = load_avg01
         entry.load_avg05 = load_avg05
         entry.load_avg15 = load_avg15
@@ -123,8 +135,29 @@ class MemoryCPUSystemStats(models.Model):
         entry.save()
         return entry
 
+    @classmethod
+    def to_elasticsearch(cls, entry, server_name):
+        _doc = dict()
+        _doc['timestamp'] = entry.date_last
+        _doc['{}_system_load_avg01'.format(server_name)] = entry.load_avg01
+        _doc['{}_system_load_avg05'.format(server_name)] = entry.load_avg05
+        _doc['{}_system_load_avg15'.format(server_name)] = entry.load_avg15
+        _doc['{}_system_cpu_user'.format(server_name)] = entry.cpu_user
+        _doc['{}_system_cpu_system'.format(server_name)] = entry.cpu_system
+        _doc['{}_system_cpu_wait'.format(server_name)] = entry.cpu_wait
+        _doc['{}_system_memory_percent'.format(server_name)] = entry.memory_percent
+        _doc['{}_system_memory_kilobyte'.format(server_name)] = entry.memory_kilobyte
+        _doc['{}_system_swap_percent'.format(server_name)] = entry.swap_percent
+        _doc['{}_system_swap_kilobyte'.format(server_name)] = entry.swap_kilobyte
 
-def broadcast_to_websocket_channel(server,system):
+        publish_to_elasticsearch(
+            "monit",
+            "system-stats",
+            _doc
+            )
+
+
+def broadcast_to_websocket_channel(server, system):
     response = dict()
     response['channel'] = "server_dashboard_{0}".format(server.id)
     response['cpu_user_last'] = system.cpu_user_last
@@ -138,23 +171,29 @@ def broadcast_to_websocket_channel(server,system):
 
 def to_queue(message):
 
-    rabbitmq_resource = getattr(settings, 'BROKER_URL', 'amqp://dmc:va2root@172.16.5.82:5672/%2f')
+    rabbitmq_resource = getattr(
+        settings, 'BROKER_URL', 'amqp://dmc:va2root@172.16.5.82:5672/%2f')
     rabbitmq_queue = getattr(settings, 'RABBITMQ_QUEUE', 'dmc')
 
     parameters = pika.URLParameters(rabbitmq_resource)
-    connection = pika.BlockingConnection(parameters)
 
-    channel = connection.channel()
+    try:
+        connection = pika.BlockingConnection(parameters)
 
-    # Declare the queue
-    channel.queue_declare(queue=rabbitmq_queue, durable=True, exclusive=False, auto_delete=False)
+        channel = connection.channel()
 
-    # Enabled delivery confirmations
-    channel.confirm_delivery()
+        # Declare the queue
+        channel.queue_declare(
+            queue=rabbitmq_queue, durable=True, exclusive=False, auto_delete=False)
 
-    channel.basic_publish(exchange='dmc',
-                          routing_key='dmc',
-                          body=message)
+        # Enabled delivery confirmations
+        channel.confirm_delivery()
 
-    # print "Sent to queue {0} ".format(message)
-    connection.close()
+        channel.basic_publish(exchange='dmc',
+                              routing_key='dmc',
+                              body=message)
+
+        connection.close()
+    except:
+        print "Error sending to Rabbit MQ"
+        pass
