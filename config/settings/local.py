@@ -75,10 +75,15 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
         },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/vantrix/monit-collector/monit_collector.log',
+        },
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console','file'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
         },
     },
