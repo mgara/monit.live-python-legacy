@@ -1,10 +1,14 @@
 import datetime
+import json
+import calendar
 
 from django.db import models
 from pytz import timezone
 
 from service import Service
 from utils import get_value, get_float
+from system import to_queue
+from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
 
 
 class FileSystem(Service):
@@ -24,7 +28,8 @@ class FileSystem(Service):
     def update(cls, xmldoc, server, service):
         fs_name = get_value(service, "", "", "name")
         fs_name.replace('_', '')
-        filesystem, created = cls.objects.get_or_create(server=server, name=fs_name)
+        filesystem, created = cls.objects.get_or_create(
+            server=server, name=fs_name)
         filesystem.service_type = get_value(service, "type", "")
         filesystem.name = fs_name
         filesystem.status = get_value(service, "status", "")
@@ -45,15 +50,24 @@ class FileSystem(Service):
 
         if percent_last:
             colect_timestamp = int(get_value(service, "collected_sec", ""))
-            FsAndDiskUsageStats.create(
-                    filesystem,
-                    filesystem.server.data_timezone,
-                    colect_timestamp,
-                    filesystem.blocks_percent_last,
-                    filesystem.blocks_usage_last,
-                    filesystem.inode_percent_last,
-                    filesystem.inode_usage_last
+            entry = FsAndDiskUsageStats.create(
+                filesystem,
+                filesystem.server.data_timezone,
+                colect_timestamp,
+                filesystem.blocks_percent_last,
+                filesystem.blocks_usage_last,
+                filesystem.inode_percent_last,
+                filesystem.inode_usage_last
             )
+            fs_name = filesystem.name.replace('___', '/').replace('_', '/')
+            FsAndDiskUsageStats.to_elasticsearch(
+                entry,
+                filesystem.server.localhostname.replace('.', '_'),
+                fs_name
+            )
+
+        if filesystem.name == '___':
+            broadcast_to_websocket_channel(server, filesystem)
         return filesystem
 
     @classmethod
@@ -71,13 +85,51 @@ class FsAndDiskUsageStats(models.Model):
     inode_usage = models.FloatField(null=True)
 
     @classmethod
-    def create(cls, fs, tz_str, unixtimestamp, blocks_percent, blocks_usage, inode_percent, inode_usage):
+    def create(
+        cls,
+        fs,
+        tz_str,
+        unixtimestamp,
+        blocks_percent,
+        blocks_usage,
+        inode_percent,
+        inode_usage
+    ):
+
         entry = cls(fs_id=fs)
         tz = timezone(tz_str)
-        entry.date_last = datetime.datetime.fromtimestamp(unixtimestamp).replace(tzinfo=tz)
+        entry.date_last = datetime.datetime.fromtimestamp(unixtimestamp, tz)
         entry.blocks_percent = blocks_percent
         entry.blocks_usage = blocks_usage
         entry.inode_percent = inode_percent
         entry.inode_usage = inode_usage
         entry.save()
         return entry
+
+    @classmethod
+    def to_elasticsearch(cls, entry, server_name, fs_name):
+        _doc = dict()
+        _doc['timestamp'] = entry.date_last
+        _doc['{}_fs_{}_blocks_percent'.format(
+            server_name, fs_name)] = entry.blocks_percent
+        _doc['{}_fs_{}_blocks_usage'.format(
+            server_name, fs_name)] = entry.blocks_usage
+        _doc['{}_fs_{}_inode_percent'.format(
+            server_name, fs_name)] = entry.inode_percent
+        _doc['{}_fs_{}_inode_usage'.format(
+            server_name, fs_name)] = entry.inode_usage
+
+        publish_to_elasticsearch(
+            "monit",
+            "filesystem-stats",
+            _doc
+        )
+
+
+def broadcast_to_websocket_channel(server, fs):
+    response = dict()
+    response['channel'] = "server_dashboard_{0}".format(server.id)
+    response['fs_blocks_percent_last'] = fs.blocks_percent_last
+    response['fs_blocks_total'] = fs.blocks_total
+    response_str = json.dumps(response)
+    to_queue(response_str)
