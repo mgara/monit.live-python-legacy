@@ -1,8 +1,11 @@
+from __future__ import unicode_literals, absolute_import
+
 from django.db import models
 
 
 class Service(models.Model):
     name = models.TextField()
+    service_group = models.IntegerField(null=True)
     service_type = models.PositiveIntegerField(null=True)
     status = models.TextField(null=True)
     status_hint = models.IntegerField(null=True)
