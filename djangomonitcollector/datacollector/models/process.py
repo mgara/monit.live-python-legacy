@@ -1,10 +1,10 @@
 import datetime
-
 from django.db import models
 from pytz import timezone
 
 from service import Service
 from utils import get_value
+from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
 
 
 class Process(Service):
@@ -38,7 +38,7 @@ class Process(Service):
         process.save()
         if get_value(service, "cpu", "percent") != "none":
             colect_timestamp = int(get_value(service, "collected_sec", ""))
-            MemoryCPUProcessStats.create(
+            entry = MemoryCPUProcessStats.create(
                     process,
                     process.server.data_timezone,
                     colect_timestamp,
@@ -46,6 +46,11 @@ class Process(Service):
                     process.memory_percent_last,
                     process.memory_kilobyte_last
             )
+            MemoryCPUProcessStats.to_elasticsearch(
+                entry,
+                process.server.localhostname.replace('.','_'),
+                process.name
+                )
         return process
 
     @classmethod
@@ -73,10 +78,24 @@ class MemoryCPUProcessStats(models.Model):
     ):
         entry = cls()
         tz = timezone(tz_str)
-        entry.date_last = datetime.datetime.fromtimestamp(unixtimestamp).replace(tzinfo=tz)
+        entry.date_last = datetime.datetime.fromtimestamp(unixtimestamp, tz)
         entry.process_id = process
         entry.cpu_percent = cpu_percent
         entry.memory_kilobyte = memory_kilobyte
         entry.memory_percent = memory_percent
         entry.save()
         return entry
+
+    @classmethod
+    def to_elasticsearch(cls, entry, server_name, processname):
+        _doc = dict()
+        _doc['timestamp'] = entry.date_last
+        _doc['{}_process_{}_cpu_percent'.format(server_name, processname)] = entry.cpu_percent
+        _doc['{}_process_{}_memory_percent'.format(server_name, processname)] = entry.memory_percent
+        _doc['{}_process_{}_memory_kilobyte'.format(server_name, processname)] = entry.memory_kilobyte
+
+        publish_to_elasticsearch(
+            "monit",
+            "process-stats",
+            _doc
+            )
