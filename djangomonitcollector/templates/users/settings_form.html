@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{%  load i18n %}
+{% load widget_tweaks %}
+{% load staticfiles %}
+{% load extra_tags %}
+{% block submenu %}
+    <li class="nav-item">
+        <a class="nav-link" href="#general"><i class="fa fa-bullseye"></i> General</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#flapping"><i class="fa fa-bullseye"></i> Service Flapping Config </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#email"><i class="fa fa-bullseye"></i> Email Configuration</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#snmp"><i class="fa fa-bullseye"></i> SNMP Configuration</a>
+    </li>
+{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css">
+{% endblock %}
+{% block content %}
+    <h1>Settings </h1>
+    <form class="form-horizontal" method="post">
+        {% csrf_token %}
+
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>General</h5>
+            </div>
+            <div class="ibox-content">
+                <div class="form-group {% if form.general_auto_add_unknown_servers.errors %} has-error{% endif %}">
+                    <div class="row ">
+                        <div class="col-md-2 control-label">
+                            {{ form.general_auto_add_unknown_servers.label_tag }}
+                        </div>
+                        <div class="col-md-5 ">
+                            {{ form.general_auto_add_unknown_servers}}
+                        </div>
+                        {% if form.name.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.general_auto_add_unknown_servers.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group {% if form.general_default_timezone_for_servers.errors %} has-error{% endif %}">
+                    <div class="row">
+                        <div class="col-md-2 control-label">
+                            {{ form.general_default_timezone_for_servers.label_tag }}
+                        </div>
+                        <div class="col-md-5">
+                            {{ form.general_default_timezone_for_servers|add_class:"form-control" }}
+                        </div>
+                        {% if form.name.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.general_default_timezone_for_servers.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>Flapping Configuration</h5>
+            </div>
+            <div class="ibox-content">
+                <div class="form-group {% if form.flapping_threshold.errors %} has-error{% endif %}">
+                    <div class="row">
+                        <div class="col-md-2 control-label">
+                            {{ form.flapping_threshold.label_tag }}
+                        </div>
+                        <div class="col-md-5">
+                            {{ form.flapping_threshold|add_class:"form-control" }}
+                        </div>
+                        {% if form.name.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.flapping_threshold.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group {% if form.flapping_time_window.errors %} has-error{% endif %}">
+                    <div class="row">
+                        <div class="col-md-2 control-label">
+                            {{ form.flapping_time_window.label_tag }}
+                        </div>
+                        <div class="col-md-5">
+                            {{ form.flapping_time_window|add_class:"form-control" }}
+                        </div>
+                        {% if form.flapping_time_window.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.flapping_time_window.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>SNMP Configuration</h5>
+            </div>
+            <div class="ibox-content">
+                <div class="form-group {% if form.snmp_version.errors %} has-error{% endif %}">
+                    <div class="row">
+                        <div class="col-md-2 control-label">
+                            {{ form.snmp_version.label_tag }}
+                        </div>
+                        <div class="col-md-5">
+                            {{ form.snmp_version|add_class:"form-control" }}
+                        </div>
+                        {% if form.snmp_version.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.snmp_version.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group {% if form.snmp_managers.errors %} has-error{% endif %}">
+                    <div class="row">
+                        <div class="col-md-2 control-label">
+                            {{ form.snmp_managers.label_tag }}
+                        </div>
+                        <div class="col-md-5">
+                            {{ form.snmp_managers|add_class:"form-control" }}
+                        </div>
+                        {% if form.snmp_managers.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.snmp_managers.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>RabbitMQ/SocketIO Configuration</h5>
+            </div>
+            <div class="ibox-content">
+                <div class="form-group {% if form.rabbit_mq_enable_socket_io.errors %} has-error{% endif %}">
+                    <div class="row">
+                        <div class="col-md-2 control-label">
+                            {{ form.rabbit_mq_enable_socket_io.label_tag }}
+                        </div>
+                        <div class="col-md-5">
+                            {{ form.rabbit_mq_enable_socket_io}}
+                        </div>
+                        {% if form.rabbit_mq_enable_socket_io.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.rabbit_mq_enable_socket_io.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group {% if form.rabbit_mq_broker_url.errors %} has-error{% endif %}">
+                    <div class="row">
+                        <div class="col-md-2 control-label">
+                            {{ form.rabbit_mq_broker_url.label_tag }}
+                        </div>
+                        <div class="col-md-5">
+                            {{ form.rabbit_mq_broker_url|add_class:"form-control" }}
+                        </div>
+                        {% if form.rabbit_mq_broker_url.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.rabbit_mq_broker_url.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>Logging Configuration</h5>
+            </div>
+            <div class="ibox-content">
+                <div class="form-group {% if form.loggin_level.errors %} has-error{% endif %}">
+                    <div class="row">
+                        <div class="col-md-2 control-label">
+                            {{ form.loggin_level.label_tag }}
+                        </div>
+                        <div class="col-md-5">
+                            {{ form.loggin_level|add_class:"form-control" }}
+                        </div>
+                        {% if form.loggin_level.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.loggin_level.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group {% if form.logging_logging_file.errors %} has-error{% endif %}">
+                    <div class="row">
+                        <div class="col-md-2 control-label">
+                            {{ form.logging_logging_file.label_tag }}
+                        </div>
+                        <div class="col-md-5">
+                            {{ form.logging_logging_file|add_class:"form-control" }}
+                        </div>
+                        {% if form.logging_logging_file.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.logging_logging_file.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group {% if form.logging_enable_rsyslog.errors %} has-error{% endif %}">
+                    <div class="row">
+                        <div class="col-md-2 control-label">
+                            {{ form.logging_enable_rsyslog.label_tag }}
+                        </div>
+                        <div class="col-md-5">
+                            {{ form.logging_enable_rsyslog|add_class:"disabled" }}
+                        </div>
+                        {% if form.logging_enable_rsyslog.errors %}
+                            <div class="red col-md-3">
+                                {{ form.logging_enable_rsyslog.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group {% if form.logging_rsyslog_server.errors %} has-error{% endif %}">
+                  <div class="row">
+                        <div class="col-md-2 control-label">
+                            {{ form.logging_rsyslog_server.label_tag }}
+                        </div>
+                        <div class="col-md-5">
+                            {{ form.logging_rsyslog_server|add_class:"form-control disabled" }}
+                        </div>
+                        {% if form.logging_rsyslog_server.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.logging_rsyslog_server.errors }}
+                            </div>
+                        {% endif %}
+                        </div>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+{% block javascript %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+
+
+    $('#id_snmp_version').selectpicker({
+        style: 'btn-primary',
+        size: 3
+    });
+    $('#id_email_use_ssl').selectpicker({
+        style: 'btn-primary',
+        size: 3
+    });
+    $('#id_loggin_level').selectpicker({
+        style: 'btn-primary',
+        size: 6
+    });
+    });
+    </script>
+{% endblock %}

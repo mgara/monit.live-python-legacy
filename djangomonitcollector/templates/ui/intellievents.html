@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% load extra_tags %}
+{% block title %} Intelli Alerts {% endblock %}
+
+{% block content %}
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+
+<style type="text/css" media="print">
+   .no-print { display: none; }
+
+</style>
+<style type="text/css">
+       .fade_me {
+          filter: alpha(opacity=60);
+  opacity: 0.60;
+   }
+</style>
+        <div class="page-header">
+            <h1>Last Events </h1>
+        </div>
+        <div class="row">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <form class="form-inline">
+                      <div class="form-group">
+                        <label for="exampleInputName2">Event Type</label>
+                        <input type="text" class="form-control" id="exampleInputName2" placeholder="Jane Doe">
+                      </div>
+                      <div class="form-group">
+                        <label for="exampleInputEmail2">Email</label>
+                        <input type="email" class="form-control" id="exampleInputEmail2" placeholder="jane.doe@example.com">
+                      </div>
+                      <button type="submit" class="btn btn-default">Send invitation</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover" id="event_table">
+                            <thead>
+                                <tr>
+                                    <th>Message</th>
+                                    <th>Date </th>
+                                    <th>Event</th>
+                                    <th>Type</th>
+                                    <th>Monit Action</th>
+                                    <th>Ack?</th>
+                                    <th>Raised</th>
+                                    <th>Duplicate of</th>
+                                    <th>cleared by</th>
+                                    <th>cleared </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for monit_event in events %}
+                                        <tr id="event-{{ monit_event.id }}" class="{% if monit_event.alarm_raised and not monit_event.cleared_by %}danger {% else %} fade_me {% endif %}">
+                                            <td><small><span class="label label-warning" >{{ monit_event.id }}<span></small> {{ monit_event.event_message }}</td>
+                                            <td>{{ monit_event.event_time }}</td>
+                                            <td><b>{{ monit_event.event_id|event_status_to_string }}</b> : <b>{{ monit_event.event_state|event_state_to_string }}</b></td>
+                                            <td>{{ monit_event.event_type|type_to_string }}: <b>{{ monit_event.service}} </b></td>
+                                            <td>{{ monit_event.event_action|action_to_string }}</td>
+                                            <td>
+                                                <button type="button" id="ack-{{ monit_event.id }}" data-id="{{ monit_event.id }}"
+                                                class="btn btn-xs btn-{{ monit_event.event_state|event_state_to_style }}"><i class="fa fa-check"></i>
+                                                </button>
+                                            </td>
+                                            <td>{% if monit_event.event_state == 1  %} {{ monit_event.alarm_raised|to_icon|safe }} {% else %} - {% endif%}</td>
+                                            <td>{% if monit_event.event_state == 1  %} {{ monit_event.is_duplicate_of|to_btns|safe }} {% else %} - {% endif%}</td>
+                                            <td>{% if monit_event.event_state == 1 and monit_event.cleared_by  %} {{ monit_event.cleared_by|to_btn|safe }} {% else %} - {% endif%}</td>
+                                            <td>{% if monit_event.event_state == 0  %} {{ monit_event.cleared_alarms|to_btns|safe }} {% else %} - {% endif%}</td>
+
+                                    </tr>
+                                    <script language="javascript">
+                                    // Submit post on submit
+                                    $('#ack-{{ monit_event.id }}').on("click", function (event) {
+                                    event_id = $(this).data("id");
+                                    ack(event_id);
+                                    return false
+                                    });
+                                    </script>
+                                {% endfor %}
+                            </tbody>
+                                                   <tfoot>
+                                <tr>
+                                            <th>Message</th>
+                                    <th>Date </th>
+                                    <th>Event</th>
+                                    <th>Type</th>
+                                    <th>Monit Action</th>
+                                    <th>Operations</th>
+
+                                    <th>Raised</th>
+                                    <th>Duplicate of</th>
+                                    <th>cleared by</th>
+                                    <th>cleared </th>
+                                    </tr>
+                                </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}
+{% block customjs %}
+
+ <script type="text/javascript">
+
+
+    $(document).ready(function() {
+
+    function getCookie(name) {
+         var cookieValue = null;
+         if (document.cookie && document.cookie != '') {
+             var cookies = document.cookie.split(';');
+             for (var i = 0; i < cookies.length; i++) {
+                 var cookie = jQuery.trim(cookies[i]);
+                 // Does this cookie string begin with the name we want?
+                 if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                     break;
+                 }
+             }
+         }
+         return cookieValue;
+     }
+
+     var csrftoken = getCookie('csrftoken');
+
+     function csrfSafeMethod(method) {
+         // these HTTP methods do not require CSRF protection
+         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+     }
+
+     $.ajaxSetup({
+         beforeSend: function(xhr, settings) {
+             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
+             }
+         }
+     });
+
+     // AJAX for posting
+     var ack = function(event_id) {
+         $.ajax({
+             url: "{% url 'ui:ack_event' %}", // the endpoint
+             type: "POST", // http method
+             data: {
+                 "event_id": event_id
+             },
+             // handle a successful response
+             success: function(json) {
+                 event_id = json.event_id
+                 element_selector = "#event-element-" + event_id
+                 $(element_selector).fadeOut(150)
+             },
+             // handle a non-successful response
+             error: function(xhr, errmsg, err) {
+                 $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                     " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                 console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+             }
+         });
+     };
+ });
+        </script>
+    {% endblock customjs %}
