@@ -48,6 +48,9 @@ LOCAL_APPS = (
     'djangomonitcollector.datacollector',
     'djangomonitcollector.ui',
     'djangomonitcollector.notificationsystem',
+    'widget_tweaks',
+    'django_filters',
+    'pagination',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -63,6 +66,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'pagination.middleware.PaginationMiddleware',
+
 )
 
 # MIGRATIONS CONFIGURATION
@@ -102,10 +107,22 @@ MANAGERS = ADMINS
 # DATABASE CONFIGURATION
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
+# DATABASES = {
+#    # Raises ImproperlyConfigured exception if DATABASE_URL not in os.environ
+#    'default':
+#    env.db("DATABASE_URL", default="postgres://localhost/djangomonitcollector"),
+#
+# }
+
 DATABASES = {
-    # Raises ImproperlyConfigured exception if DATABASE_URL not in os.environ
-    'default': env.db("DATABASE_URL", default="postgres://localhost/djangomonitcollector"),
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'djangomonitcollector',
+        'USER': 'kokoro',
+    }
 }
+
+
 DATABASES['default']['ATOMIC_REQUESTS'] = True
 
 
@@ -215,7 +232,7 @@ AUTHENTICATION_BACKENDS = (
 # Some really nice defaults
 ACCOUNT_AUTHENTICATION_METHOD = 'username'
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION = False
 
 # Custom user app defaults
 # Select the correct user model
@@ -253,9 +270,4 @@ ENABLE_MANUAL_APPROVAL = False
 NUMBER_OF_TRANSITIONS_PER_FLAPPING_PERIOD = 2
 
 SERVICE_FLAPPING_PERIOD = 60
-
-
-SOCKETIO_HOST = "0.0.0.0"
-SOCKETIO_PORT = "9000"
-
 
