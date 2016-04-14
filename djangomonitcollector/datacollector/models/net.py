@@ -5,6 +5,7 @@ from pytz import timezone
 
 from service import Service
 from utils import get_value, get_string, get_int
+from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
 
 
 # type = 8
@@ -52,12 +53,12 @@ class Net(Service):
 
         net.save()
         if download_packets:
-            colect_timestamp = int(get_value(service, "collected_sec", ""))
+            collect_timestamp = int(get_value(service, "collected_sec", ""))
             try:
-                NetStats.create(
+                entry = NetStats.create(
                         net,
                         net.server.data_timezone,
-                        colect_timestamp,
+                        collect_timestamp,
                         net.download_packet,
                         net.download_bytes,
                         net.download_errors,
@@ -65,11 +66,20 @@ class Net(Service):
                         net.upload_bytes,
                         net.upload_errors
                 )
+
+                NetStats.to_elasticsearch(
+                    entry,
+                    net.server.localhostname.replace('.','_'),
+                    net.name
+                    )
+
             except ValueError as e:
                 print "{0}:{1}".format(e.args, e.message)
             except NameError as e:
                 print "{0}:{1}".format(e.args, e.message)
         return net
+
+
 
     @classmethod
     def get_by_name(cls, server, name):
@@ -101,7 +111,7 @@ class NetStats(models.Model):
                ):
         entity = cls(net_id=net)
         tz = timezone(tz_str)
-        entity.date_last = datetime.datetime.fromtimestamp(unixtimestamp).replace(tzinfo=tz)
+        entity.date_last = datetime.datetime.fromtimestamp(unixtimestamp, tz)
         entity.download_bytes = download_bytes
         entity.download_errors = download_errors
         entity.download_packet = download_packet
@@ -110,3 +120,20 @@ class NetStats(models.Model):
         entity.upload_packet = upload_packet
         entity.save()
         return entity
+
+    @classmethod
+    def to_elasticsearch(cls, entry, server_name, net):
+        _doc = dict()
+        _doc['timestamp'] = entry.date_last
+        _doc['{}_net_{}_download_packet'.format(server_name, net)] = entry.download_packet
+        _doc['{}_net_{}_download_bytes'.format(server_name, net)] = entry.download_bytes
+        _doc['{}_net_{}_download_errors'.format(server_name, net)] = entry.download_errors
+        _doc['{}_net_{}_upload_packet'.format(server_name, net)] = entry.upload_packet
+        _doc['{}_net_{}_upload_bytes'.format(server_name, net)] = entry.upload_bytes
+        _doc['{}_net_{}_upload_errors'.format(server_name, net)] = entry.upload_errors
+
+        publish_to_elasticsearch(
+            "monit",
+            "net-stats",
+            _doc
+            )
