@@ -49,7 +49,7 @@ STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 DEFAULT_FROM_EMAIL = env('DJANGO_DEFAULT_FROM_EMAIL',
                          default='djangomonitcollector <platform@vantrix.com>')
 
-EMAIL_HOST = 'services.vantrix.com'
+EMAIL_HOST = 'localhost'
 EMAIL_PORT = 25
 DEFAULT_FROM_EMAIL = 'platform@vantrix.com'
 

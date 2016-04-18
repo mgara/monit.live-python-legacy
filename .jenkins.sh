@@ -4,9 +4,7 @@ virtualenv venv
 source venv/bin/activate
 
 #install requirements
-pip install -r requirements/local.txt
 pip install -r requirements/test.txt
-pip install -r requirements.txt
 
 # build
 python manage.py compilemessages
