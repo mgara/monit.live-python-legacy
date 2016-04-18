@@ -102,6 +102,11 @@ def server(request, server_id):
     hosts = server.host_set.all().order_by('name')
     alerts_count = server.monitevent_set.filter(is_active=True).count()
 
+    disk_usage = 0
+    for fs in filesystems:
+        if fs.name in ['__','_','___']:
+            disk_usage = int(fs.blocks_percent_last)
+
     return render(request, 'ui/server.html', {
         'server_found': True,
         'server': server,
@@ -123,6 +128,7 @@ def server(request, server_id):
         'files': files,
         'directories': directories,
         'filesystems': filesystems,
+        'disk_usage':disk_usage,
         'hosts': hosts,
         'alerts_count': alerts_count,
         'monit_update_period': server.monit_update_period,

@@ -385,7 +385,8 @@ $(function() {
             renderTo: 'cpu-chart',
             plotBackgroundColor: null,
             plotBorderWidth: 0,
-            plotShadow: false
+            plotShadow: false,
+            backgroundColor:'rgba(255, 255, 255, 0.1)'
         },
         title: {
             text: 'CPU<br>Usage',
@@ -426,7 +427,8 @@ $(function() {
             renderTo: 'memory-chart',
             plotBackgroundColor: null,
             plotBorderWidth: 0,
-            plotShadow: false
+            plotShadow: false,
+            backgroundColor:'rgba(255, 255, 255, 0.1)'
         },
         title: {
             text: 'Memory<br>Usage',
@@ -466,7 +468,8 @@ $(function() {
             renderTo: 'disk-chart',
             plotBackgroundColor: null,
             plotBorderWidth: 0,
-            plotShadow: false
+            plotShadow: false,
+            backgroundColor:'rgba(255, 255, 255, 0.1)'
         },
         title: {
             text: 'Disk<br>Usage',
@@ -496,8 +499,8 @@ $(function() {
             name: 'Disk',
             innerSize: '50%',
             data: [
-                ['Used', {{server.system.memory_percent_last}}],
-                ['Free', 100 - {{server.system.memory_percent_last}}],
+                ['Used', {{disk_usage}}],
+                ['Free', 100 - {{disk_usage}}],
             ]
         }]
     });
