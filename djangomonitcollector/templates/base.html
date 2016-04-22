@@ -25,8 +25,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <link href="{% static 'css/multiselect.css' %}" rel="stylesheet">
     <link href="{% static 'css/plugins/dataTables/datatables.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/project.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/project.css' %}" rel="stylesheet">
+
     {%  block head %}
 {% endblock head %}
 </head>
@@ -46,10 +47,8 @@
                             </span>
                         </a>
                     </div>
-                    <div class="logo-element">
-                            IN+
-                    </div>
-                    </li>
+                </li>
+
                     {% if request.user.is_authenticated %}
                         {% if request.user.is_superuser %}
                          {% url 'datacollector:organisations' as organisations %}
@@ -72,11 +71,15 @@
                         {% block submenu %}
                         {% endblock %}
                     {% endif %}
+
                 </nav>
+
+
                 <div id="page-wrapper" class="gray-bg">
                     {% include "ui/_topnavbar.html" %}
-                    <div class="row wrapper border-bottom white-bg page-heading">
-                        <div class="col-lg-10">
+
+                    <div class="row wrapper border-bottom white-bg page-heading animated fadeInUp">
+                        <div class="col-lg-12">
                             <h2>{% block page_header %}{% endblock %}</h2>
                             <ol class="breadcrumb">
                                 <li>
@@ -87,20 +90,28 @@
                                 </li>
                             </ol>
                         </div>
-                        <div class="col-lg-2">
-                        </div>
                     </div>
-                    <div id="inner-wrapper" class="row wrapper border-bottom white-bg page-heading  wrapper-content animated fadeInRight">
-                        <div class="container row-fluid">
+                    <div class="page-header">
+                        <h1>{% block page_title %}{% endblock %}</h1>
+                    </div>
+                    <div id="inner-wrapper" class="row wrapper  white-bg  wrapper-content animated fadeInRight">
+                        <div class="col-lg-12">
+                        <div class="col-md-12 column">
+
                             {% block content %}
                                 <p>Use this document as a way to quick start any new project.</p>
                             {% endblock content %}
                             <!-- /row wrapper border-bottom white-bg page-heading -->
+                            </div>
                         </div>
-                        <div class="filler">
-                        </div>
+
                     </div>
+                    <div class="row">
+
+                     <div class="filler"></div>
                     {% include "ui/_footer.html" %}
+
+                    </div>
                 </div>
 
                 {% block customjs %}

@@ -1,6 +1,9 @@
+{% load tz %}
+{% get_current_timezone as TIME_ZONE %}
 <div class="footer">
     <div class="pull-right">
-        Example text
+            <a class="nav-link" href="#"><small class="text-danger">{{ TIME_ZONE }}</small></a>
+
     </div>
     <div>
         <strong>Copyright</strong> Vantrix&copy; 2005-2016 | {{ request.user.organisation.name }}

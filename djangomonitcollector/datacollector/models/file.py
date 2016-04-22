@@ -1,7 +1,7 @@
 from django.db import models
 
 from service import Service
-from utils import get_value, get_int
+from ..lib.utils import get_value, get_int
 
 
 class File(Service):

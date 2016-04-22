@@ -6,7 +6,7 @@ from pytz import timezone
 import pika
 import json
 from service import Service
-from utils import get_value, json_list_append
+from ..lib.utils import get_value, json_list_append
 
 from django.conf import settings
 

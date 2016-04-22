@@ -4,27 +4,24 @@
 {% load staticfiles %}
 {% load extra_tags %}
 {% load crispy_forms_tags %}
+{% block page_title %} {% if object.id%} Update Notification <small class="text-navy"> {{ object.notification_label }}</small>{% else %} New Notification {% endif %}{% endblock %}
 
 
 {% block content %}
 
-    <div class="page-header">
-        <h1> Notification
-        </h1>
-    </div>
 
-    <form id="notification_type_form" class="form-horizontal" method="post" action="">
-        {% csrf_token %}
-        {{ form|crispy }}
-        <div id="extra_params_container"></div>
-        <hr class="divider"/>
-        <div class="control-group">
-            <div class="form-controls">
-                <button type="submit" class="btn">Create</button>
-            </div>
-        </div>
+            <form id="notification_type_form" class="forn-horizontal" method="post" action="">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div id="extra_params_container"></div>
+                <hr class="divider"/>
+                <div class="control-group">
+                    <div class="form-controls">
+                        <button type="submit" class="btn">Create</button>
+                    </div>
+                </div>
 
-    </form>
+            </form>
 
 
         <script language="javascript">

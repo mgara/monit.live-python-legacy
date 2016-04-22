@@ -20,7 +20,7 @@
 }
 
 /*Fade all the DIV when user hovers on any div*/
-.container:hover .column{
+.row:hover .column{
   zoom: 1;
   filter: alpha(opacity=45);
   opacity: 0.45;
@@ -32,7 +32,7 @@
 }
 
 
-.container .column:hover{
+.row .column:hover{
 /*  border-color:#aaaaaa;
   border-width: 1px;
   border-style: dotted;*/
@@ -42,4 +42,8 @@
   zoom: 1;
   filter: alpha(opacity=100);
   opacity: 1;
+}
+
+.link:hover {
+    cursor: pointer;
 }

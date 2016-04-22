@@ -49,10 +49,16 @@
 
     <script>
         $(document).ready(function () {
+                {% if request.session.is_dst %}
+            var dst_delta =3600
+                  {% else %}
+            var dst_delta= 0 // 1h
+                {% endif %}
+
             var point_size = 1;
-            var stroke_width = 1;
+            var stroke_width = 2;
             var draw_point = false;
-            var graph_colors = ["#173e43", "#b56969", "#22264b", "#3fb0ac"];
+            var graph_colors =  ["#1ab394", "#ed5565", "#f8ac59", "#1c84c6"];
 
             var update_period = 1000 *{{monit_update_period}};
             var data_cpu = [];
@@ -60,7 +66,7 @@
             var y1 = {{cpu_percent}};
             var i;
             for (i = 0; i < dates.length; i++)
-                data_cpu.push([new Date(dates[i] * 1000.), y1[i]]);
+                data_cpu.push([new Date((dates[i]-dst_delta) * 1000.), y1[i]]);
             var graph_cpu = new Dygraph(document.getElementById("graph_cpu"), data_cpu,
                     {
                         legend: 'always', // show always
@@ -68,14 +74,14 @@
                         labelsSeparateLines: true,
                         ylabel: 'CPU usage (in %)',
                         xlabel: 'Time',
-                        rollPeriod: 0,
+                        rollPeriod: 10,
                         drawPoints: draw_point,
                         pointSize: point_size,
                         strokeWidth: stroke_width,
                         labels: ['Time', '{{process.name}} CPU usage'],
                         axisLabelColor: '#CCC',
                         axisLineColor: '#CCC',
-                       // plotter: barChartPlotter,
+                        //plotter: barChartPlotter,
                         colors: graph_colors,
                         zoomCallback: function () { // (minDate, maxDate)
                             set_linewidth(graph_cpu, data_cpu);
@@ -111,7 +117,8 @@
             window.intervalId = setInterval(function () {
                 $.post("{% url 'ui:load_process_data' server.id process.name %}", function (data) {
                     var date = new Date(JSON.parse(data.date) * 1000.);
-                    if (date > data_cpu[data_cpu.length - 1][0]) {
+                    var last_received_data = data_cpu[data_cpu.length - 1][0]
+                    if (date > last_received_data) {
                         data_cpu.push([date, JSON.parse(data.cpu_percenttotal)]);
                         graph_cpu.updateOptions({'file': data_cpu});
 
@@ -121,6 +128,7 @@
                 });
 
             }, update_period);
+
             window.intervalId = setInterval(function () {
                 $.post("{% url 'ui:load_process_table' server.id process.name %}", function (data) {
                     $("#process_table").replaceWith(data.table_html);

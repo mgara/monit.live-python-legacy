@@ -60,7 +60,9 @@
                                 <tbody>
                                     {% for monit_event in events %}
                                         <tr id="event-{{ monit_event.id }}" class="{% if monit_event.alarm_raised and not monit_event.cleared_by %}danger {% else %} fade_me {% endif %}">
-                                            <td><small><span class="label label-warning" >{{ monit_event.id }}<span></small> {{ monit_event.event_message }}</td>
+                                            <td><small><span class="label label-warning" >{{ monit_event.id }}<span></small> {{ monit_event.event_message }}
+
+                                            </td>
                                             <td>{{ monit_event.event_time }}</td>
                                             <td><b>{{ monit_event.event_id|event_status_to_string }}</b> : <b>{{ monit_event.event_state|event_state_to_string }}</b></td>
                                             <td>{{ monit_event.event_type|type_to_string }}: <b>{{ monit_event.service}} </b></td>

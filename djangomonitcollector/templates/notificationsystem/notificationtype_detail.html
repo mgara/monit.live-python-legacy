@@ -6,85 +6,77 @@
 {% load extra_tags %}
 {% load notification_extra_tags %}
 
-{% block submenu %}
 
-{% endblock %}
 
 {% block page_header %}
 
 {% endblock %}
+{% block page_title %} Notification
+                <small class="text-navy">{{ object.notification_label }}</small> {% endblock %}
+
 
 {% block content %}
 
 
-    <div class="row">
+    <div class="ibox">
+        <div class="ibox-content">
 
+            {% if "Mute" in object.notification_class %}
+            <div class="row">
+                <a class="btn btn-outline btn-danger pull-right" href="{% url 'n:notification_mute_all' object.id %}">Apply "{{ object.notification_label}}" on previous alerts</a>
+                </div>
+                                <div class="hr-line-dashed">
 
-        <div class="page-header">
-            <h1>Notification
-                <small>{{ object.notification_label }}</small>
-            </h1>
-        </div>
-        {% if "Mute" in object.notification_class %}
-        <div class="row list-group-item list-group-item-danger">
-            <div class="col-sm-12 ">
-            <a class="btn btn-danger pull-right" href="{% url 'n:notification_mute_all' object.id %}">Apply "{{ object.notification_label}}" for previous alerts</a>
+            {% endif %}
             </div>
-         </div>
-
-        {% endif %}
-
-        <div class="row col-md-6">
-            {% if object.notification_service|check_size %}
-                <p><span class="text-uppercase"> if Services in:  </span> <span
-                        class="lead">{{ object.notification_service|parse_service_list | safe }}</span></p>
-            {% endif %}
-            {% if object.notification_type %}
-                <p><span class="text-uppercase">And monit alert Type in :  </span> <span
-                        class="lead">{{ object.notification_type | parse_notification_type | safe }}</span></p>
-            {% endif %}
-            {% if object.notification_state %}
-                <p><span class="text-uppercase">And monit alert State in:  </span> <span
-                        class="lead">{{ object.notification_state | parse_notification_state | safe }}</span></p>
-            {% endif %}
-            {% if object.notification_action %}
-                <p><span class="text-uppercase">And monit Action in :  </span> <span
-                        class="lead">{{ object.notification_action | parse_notification_action | safe }}</span></p>
-            {% endif %}
-
-            {% if object.notification_message %}
-                <p><span class="text-uppercase">And monit messages matches :  </span> <span
-                        class="lead"><h5><span class="label label-info">{{ object.notification_message }}</span>
-                </h5></span></p>
-            {% endif %}
-
-            {% if object.notification_class %}
-                <p><span class="text-uppercase">Apply Plugin Class :  </span> <span
-                        class="lead"><h5><span class="label label-info">{{ object.notification_class }}</span>
-                </h5> </span>
-                </p>
-            {% endif %}
-
-
-            {% if object.notification_plugin_extra_params %}
-                <p><span class="text-uppercase"> Plugin extra parameters :  </span>
-                <span class="lead">
-                        {{ object.notification_plugin_extra_params|extra_params|safe }}
-                </span>
-                </p>
-            {% endif %}
-            <p><span class="text-uppercase">Enabled :  </span> <span
-                    class="lead"><h5>
-                {% if object.notification_enabled %}
-                    <span class="label label-success">ON</span>
-                {% else %}
-                    <span class="label label-danger">OFF</span>
+                {% if object.notification_service|check_size %}
+                    <p><span class="text-uppercase"> if Services in:  </span> <span
+                            class="lead">{{ object.notification_service|parse_service_list | safe }}</span></p>
                 {% endif %}
-            </h5> </span></p>
+                {% if object.notification_type %}
+                    <p><span class="text-uppercase">And monit alert Type in :  </span> <span
+                            class="lead">{{ object.notification_type | parse_notification_type | safe }}</span></p>
+                {% endif %}
+                {% if object.notification_state %}
+                    <p><span class="text-uppercase">And monit alert State in:  </span> <span
+                            class="lead">{{ object.notification_state | parse_notification_state | safe }}</span></p>
+                {% endif %}
+                {% if object.notification_action %}
+                    <p><span class="text-uppercase">And monit Action in :  </span> <span
+                            class="lead">{{ object.notification_action | parse_notification_action | safe }}</span></p>
+                {% endif %}
+
+                {% if object.notification_message %}
+                    <p><span class="text-uppercase">And monit messages matches :  </span> <span
+                            class="lead"><h5><span class="label label-info">{{ object.notification_message }}</span>
+                    </h5></span></p>
+                {% endif %}
+
+                {% if object.notification_class %}
+                    <p><span class="text-uppercase">Apply Plugin Class :  </span> <span
+                            class="lead"><h5><span class="label label-info">{{ object.notification_class }}</span>
+                    </h5> </span>
+                    </p>
+                {% endif %}
+
+
+                {% if object.notification_plugin_extra_params %}
+                    <p><span class="text-uppercase"> Plugin extra parameters :  </span>
+                    <span class="lead">
+                            {{ object.notification_plugin_extra_params|extra_params|safe }}
+                    </span>
+                    </p>
+                {% endif %}
+                <p><span class="text-uppercase">Enabled :  </span> <span
+                        class="lead"><h5>
+                    {% if object.notification_enabled %}
+                        <span class="label label-success">ON</span>
+                    {% else %}
+                        <span class="label label-danger">OFF</span>
+                    {% endif %}
+                </h5> </span></p>
         </div>
     </div>
-    <hr class="divider">
-
     <!-- Action buttons -->
     <div class="row">
 

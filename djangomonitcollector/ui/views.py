@@ -25,7 +25,7 @@ from filters import IntelliEventsFilter
 
 # import the logging library
 import logging
-
+import pytz
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -39,13 +39,13 @@ def dashboard(request):
     org = request.user.organisation
 
     servers = Server.objects.filter(
-        organisation=org).order_by('host_group')
+        organisation=org).order_by('host_group','localhostname')
     host_groups = HostGroup.objects.filter(owned_by=org)
     if org.server_set.all().count() > 0:
         for server in servers:
-            server.alerts = server.monitevent_set.filter(is_active=True).count()
+            server.alerts = server.monitevent_set.filter(is_active=True, is_ack=False).count()
             server.processes = len(set(server.process_set.all()))
-        return render(request, 'ui/dashboard.html', {'servers': servers, 'host_groups':host_groups, 'server_found': True})
+        return render(request, 'ui/dashboard.html', {'servers': servers, 'host_groups': host_groups, 'server_found': True})
     else:
         return render(request, 'ui/dashboard.html', {'server_found': False})
 
@@ -77,9 +77,12 @@ def server(request, server_id):
     swap_percent = []
     swap_kilobyte = []
 
+    user_tz = timezone(request.user.user_timezone)
+    print user_tz
     for resources_at_some_time in system_resources_list:
+        adjusted_date_last = resources_at_some_time.date_last.astimezone(user_tz)
         date_last.append(str(
-            time.mktime(resources_at_some_time.date_last.timetuple())))
+            time.mktime(adjusted_date_last.timetuple())))
         load_avg01.append(resources_at_some_time.load_avg01)
         load_avg05.append(resources_at_some_time.load_avg05)
         load_avg15.append(resources_at_some_time.load_avg15)
@@ -104,7 +107,7 @@ def server(request, server_id):
 
     disk_usage = 0
     for fs in filesystems:
-        if fs.name in ['__','_','___']:
+        if fs.name in ['__', '_', '___']:
             disk_usage = int(fs.blocks_percent_last)
 
     return render(request, 'ui/server.html', {
@@ -128,7 +131,7 @@ def server(request, server_id):
         'files': files,
         'directories': directories,
         'filesystems': filesystems,
-        'disk_usage':disk_usage,
+        'disk_usage': disk_usage,
         'hosts': hosts,
         'alerts_count': alerts_count,
         'monit_update_period': server.monit_update_period,
@@ -143,18 +146,20 @@ def server(request, server_id):
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def process(request, server_id, process_name):
-    tz = timezone('UTC')
-    now = datetime.datetime.now().replace(tzinfo=tz)
-    display_time = datetime.timedelta(hours=default_display_period)
-    min_display = now - display_time
-    min_display = min_display.replace(tzinfo=tz)
-
     server = Server.objects.get(id=server_id)
+    server_tz = pytz.timezone(server.data_timezone)
+    utc_dt = datetime.datetime.utcnow()
+    utc_dt = utc_dt.replace(tzinfo=timezone("UTC"))
+    server_date_now = utc_dt.astimezone(server_tz)
+
+    display_time = datetime.timedelta(hours=default_display_period)
+    min_display = server_date_now - display_time
+
     process = server.process_set.get(name=process_name)
 
     process_resources = MemoryCPUProcessStats.objects.filter(
         date_last__gt=min_display,
-        date_last__lt=now,
+        date_last__lt=server_date_now,
         process_id=process
     )
     process_resources_list = list(process_resources)
@@ -164,9 +169,11 @@ def process(request, server_id, process_name):
     memory_percent = []
     memory_kilobyte = []
 
+    user_tz = timezone(request.user.user_timezone)
     for resources_at_some_time in process_resources_list:
+        adjusted_date_last = resources_at_some_time.date_last.astimezone(user_tz)
         date_last.append(str(
-            time.mktime(resources_at_some_time.date_last.replace(tzinfo=None).timetuple())))
+            time.mktime(adjusted_date_last.timetuple())))
         cpu_percent.append(resources_at_some_time.cpu_percent)
         memory_percent.append(resources_at_some_time.memory_percent)
         memory_kilobyte.append(resources_at_some_time.memory_kilobyte)
@@ -208,13 +215,13 @@ def load_dashboard_table(request):
     org = request.user.organisation
     host_groups = HostGroup.objects.filter(owned_by=org)
     servers = Server.objects.filter(
-        organisation=org).order_by('host_group')
+        organisation=org).order_by('host_group','localhostname')
 
     for server in servers:
-        server.alerts = server.monitevent_set.filter(is_active=True).count()
+        server.alerts = server.monitevent_set.filter(is_active=True, is_ack=False).count()
         server.processes = len(set(server.process_set.all()))
     table_html = render_to_string(
-        'ui/includes/dashboard_table.html', {'servers': servers, 'host_groups':host_groups})
+        'ui/includes/dashboard_table.html', {'servers': servers, 'host_groups': host_groups})
     return JsonResponse({'table_html': table_html})
 
 
@@ -258,14 +265,14 @@ def load_process_table(request, server_id, process_name):
 def load_process_data(request, server_id, process_name):
     server = Server.objects.get(id=server_id)
     process = server.process_set.get(name=process_name)
+    system = server.system
     table_html = render_to_string(
         'ui/includes/process_table.html', {'process': process})
-    # TODO: when the service is not monitored none of this fields is filled.
-    # (we dont have any data)
-    data = {'date': process.date_last,
-            'cpu_percenttotal': process.cpu_percenttotal_last,
-            'memory_percenttotal': process.memory_percenttotal_last,
-            'memory_kilobytetotal': process.memory_kilobytetotal_last,
+
+    data = {'date': system.date_last,
+            'cpu_percenttotal': process.cpu_percent_last,
+            'memory_percenttotal': process.memory_percent_last,
+            'memory_kilobytetotal': process.memory_kilobyte_last,
             'table_html': table_html
             }
     return JsonResponse(data)
@@ -317,7 +324,11 @@ class EventListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         server_id = self.kwargs['pk']
-        return self.model.objects.filter(server=server_id, is_active=True).order_by('-event_time')
+        return self.model.objects.filter(
+            server=server_id,
+            is_active=True,
+            is_ack=False
+            ).order_by('-event_time')
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
@@ -327,7 +338,7 @@ class EventListView(LoginRequiredMixin, ListView):
         server = Server.objects.get(id=int(server_id))
         context['server'] = server
         context['alerts_count'] = server.monitevent_set.filter(
-            is_active=True).count()
+            is_active=True, is_ack=False).count()
         return context
 
 

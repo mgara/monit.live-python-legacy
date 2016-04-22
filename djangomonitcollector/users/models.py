@@ -11,12 +11,14 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+from djangomonitcollector.datacollector.lib.utils import TIMEZONES_CHOICES
 
 
 class Organisation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(null=True, max_length=100, default="Default")
     is_active = models.BooleanField(default=True)
+
 
     def __str__(self):
         return self.name
@@ -57,7 +59,8 @@ class User(AbstractUser):
         default='default',
         max_length=10
         )
-
+    user_timezone = models.CharField(
+        max_length=30, choices=TIMEZONES_CHOICES, default="Canada/Eastern")
 
     def __str__(self):
         return self.username

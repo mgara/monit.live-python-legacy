@@ -3,13 +3,9 @@
 {% load extra_tags %}
 
 {% block title %}User: {{ object.username }}{% endblock %}
-
+{% block page_title %} User <small>{{ object.username }}</small>{% endblock %}
 {% block content %}
     <div class="row clearfix">
-        <div class="page-header">
-            <h1>User <small>{{ object.username }}</small>
-            </h1>
-        </div>
         <div class="row">
             <div class="col-sm-6">
                     <h4><i class="fa fa-user"></i>{{ object.name }}</h4>
@@ -20,6 +16,10 @@
                 {% if object.last_name %}
                     <h4>Lastname : </h4>
                     <p>{{ object.last_name }}</p>
+                {% endif %}
+                 {% if object.user_timezone %}
+                    <h4>Timezone :</h4>
+                    <p>{{ object.user_timezone }}</p>
                 {% endif %}
                 {% if object.inspinia_skin %}
                     <h4>Inspinia Skin :</h4>

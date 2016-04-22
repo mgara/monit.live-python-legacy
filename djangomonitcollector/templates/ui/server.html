@@ -5,6 +5,8 @@
     <link href="{% static 'css/plugins/c3/c3.min.css' %}" rel="stylesheet">
 
 {% endblock %}
+{% block page_title %} Server : <small class="text-navy">{{ server.localhostname }}</small> <br/> IP : <small class="text-navy">{{ server.external_ip }}</small> {% endblock %}
+
 {% block submenu %}
   <li class="nav-item">
     <a class="nav-link" href="{% url 'ui:server_alerts' server.id %}"><i class="fa fa-bell"></i>Active Alerts <span
@@ -37,10 +39,7 @@
 {% endblock %}
 {% block content %}
   <div class="row clearfix">
-    <div class="page-header">
-      <h1>Server <small>{{ server.localhostname }}</small> <br/> IP : <small>{{ server.external_ip }}</small>
-      </h1>
-    </div>
+
     <div class="col-md-12 column2">
       <div class="col-lg-4 col-md-6 column">
         <div id="cpu-chart" class="graph" style="width:100%;"></div>
@@ -56,6 +55,7 @@
     <div class="col-md-12 column2">
       <div class="col-lg-4 col-md-6 column">
         <div id="graph_load" class="graph" style="width:100%;"></div>
+
       </div>
 
       <div class="col-lg-4 col-md-6 column">
@@ -64,8 +64,9 @@
       <div class="col-lg-4 col-md-6 column">
         <div id="graph_mem" class="graph" style="width:100%;"></div>
       </div>
-      <small>Zoom: click-drag --- Pan: shift-click-drag --- Restore zoom level: double-click</small>
+
     </div>
+
   </div>
   <div class="row clearfix marginTop">
     {% if processes %}
@@ -213,7 +214,7 @@ $(function() {
     Highcharts.setOptions({
         colors: [
             '#1ab394',
-            '#79d2c0',
+            '#d1dade',
             '#f8ac59',
             '#1c84c6',
             '#a3e1d4',
@@ -242,17 +243,22 @@ $(function() {
     var y1 = {{load_avg01}};
     var y2 = {{load_avg05}};
     var y3 = {{load_avg15}};
+
+    {% if request.session.is_dst %}
+    var dst_delta =3600
+          {% else %}
+    var dst_delta= 0 // 1h
+        {% endif %}
+
     for (i = 0; i < dates.length; i++)
-    {
-        data_load.push([new Date(dates[i] * 1000.), y1[i], y2[i], y3[i]]);
-    }
+        data_load.push([new Date((dates[i]-dst_delta) * 1000.), y1[i], y2[i], y3[i]]);
     // CPU Data
     var data_cpu = [];
     y1 = {{cpu_user}};
     y2 = {{cpu_system}};
     y3 = {{cpu_wait}};
     for (i = 0; i < dates.length; i++)
-        data_cpu.push([new Date(dates[i] * 1000.), y1[i], y2[i], y3[i]]);
+        data_cpu.push([new Date((dates[i]-dst_delta) * 1000.), y1[i], y2[i], y3[i]]);
     // Mem Data
     var data_mem = [];
     y1 = {{memory_percent}};
@@ -260,7 +266,7 @@ $(function() {
     y3 = {{swap_percent}};
     var y4 = {{swap_kilobyte}};
     for (i = 0; i < dates.length; i++)
-        data_mem.push([new Date(dates[i] * 1000.), y1[i], y2[i] / 1.e6, y3[i], y4[i] / 1.e6]);
+        data_mem.push([new Date((dates[i]-dst_delta) * 1000.), y1[i], y2[i] / 1.e6, y3[i], y4[i] / 1.e6]);
     // smaller points if the data array is too big
     function set_linewidth(graph, data) {
         var range = graph.xAxisRange();
@@ -271,16 +277,17 @@ $(function() {
             if (x > range[0] && x < range[1])
                 data_points++;
         }
+
         var new_opts = {};
         if (data_points > 2000) {
             new_opts.pointSize = 0.5;
-            new_opts.strokeWidth = 0.33;
+            new_opts.strokeWidth = stroke_width;
         } else if (data_points > 900) {
             new_opts.pointSize = 1;
-            new_opts.strokeWidth = 0.5;
+            new_opts.strokeWidth = 1.5;
         } else {
             new_opts.pointSize = 1.5;
-            new_opts.strokeWidth = 1.;
+            new_opts.strokeWidth = 1;
         }
         graph.updateOptions(new_opts);
     }
@@ -304,8 +311,9 @@ $(function() {
         colors: graph_colors,
 
         zoomCallback: function() { // (minDate, maxDate)
-            //          set_linewidth(graph_load, data_load);
+            set_linewidth(graph_load, data_load);
         },
+
     });
     var graph_cpu = new Dygraph(document.getElementById("graph_cpu"), data_cpu, {
         rollPeriod: rollperiod,
@@ -324,8 +332,9 @@ $(function() {
         axisLineColor: '#CCC',
         colors: graph_colors,
         zoomCallback: function() { // (minDate, maxDate)
-            //      set_linewidth(graph_cpu, data_cpu);
+            set_linewidth(graph_cpu, data_cpu);
         },
+
     });
     // set_linewidth(graph_cpu, data_cpu);
     var graph_mem = new Dygraph(document.getElementById("graph_mem"), data_mem, {
@@ -347,8 +356,9 @@ $(function() {
         axisLineColor: '#CCC',
         colors: graph_colors,
         zoomCallback: function() { // (minDate, maxDate)
-            //   set_linewidth(graph_mem, data_mem);
+            set_linewidth(graph_mem, data_mem);
         },
+
     });
 
 
@@ -356,9 +366,11 @@ $(function() {
     window.intervalId = setInterval(function() {
         $.post("{% url 'ui:load_system_data' server.id %}", function(data) {
             if (data_cpu.length > 0) {
+
                 var date_of_last_data_received = data_cpu[data_cpu.length - 1][0]
                 var date_of_just_received_data = new Date(JSON.parse(data.date) * 1000);
                 if (date_of_just_received_data > date_of_last_data_received) {
+
                     data_load.push([date_of_just_received_data, JSON.parse(data.load_avg01), JSON.parse(data.load_avg05), JSON.parse(data.load_avg15)]);
                     graph_load.updateOptions({
                         'file': data_load
@@ -371,15 +383,16 @@ $(function() {
                     graph_mem.updateOptions({
                         'file': data_mem
                     });
-                    $("#server_table").replaceWith(data.table_html);
                 }}
         });
     }, update_period);
+
     window.intervalId = setInterval(function() {
         $.post("{% url 'ui:load_system_table' server.id %}", function(data) {
             $("#server_table").replaceWith(data.table_html);
         });
     }, update_period);
+
     chart_cpu = new Highcharts.Chart({
         chart: {
             renderTo: 'cpu-chart',

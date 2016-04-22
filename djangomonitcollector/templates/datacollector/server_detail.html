@@ -1,123 +1,62 @@
 {% extends "base.html" %}
 {% load static %}
 {% load extra_tags %}
-
 {% block title %}Server: {{ object.localhostname }}{% endblock %}
-
+{% block page_title %} Server Details <small class="text-navy">{{ object.localhostname }} </small>{% endblock %}
 {% block content %}
-    <div class="container">
-        <div class="page-header">
-            <h1>Server <small>{{ object.localhostname }}</small>
-            </h1>
-        </div>
-          <div class="row">
-      <div class="col-lg-6">
-        <div class="widget style1 navy-bg">
-          <div class="">
-            <p> Running on server <br/> <h2>{{ object.localhostname }}</h2> </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3">
-        <div class="widget style1 navy-bg text-right">
-          <div class="">
-            <p> Monit  <br> <h2>{{ object.monit_version }}</h2> </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3">
-        <div class="widget style1 navy-bg">
-          <p> IP Address<br/> <h2>{{ object.external_ip }}</h2></p>
-        </div>
-      </div>
-      <div class="col-lg-3">
-        <div class="widget style1 navy-bg">
-          <p> Server Uptime <br/> <h2>{{ object.uptime|time_str }}</h2></p>
-        </div>
-      </div>
-      <div class="col-lg-3">
-        <div class="widget style1 navy-bg">
-          <p> Memory <br/> <h2>{{ object.platform.memory|kb_formatting }}</h2> <br/>
-            Swap <br/> <h2>{{ object.platform.swap|kb_formatting }}</h2>
-          </p>
-        </div>
-      </div>
-      <div class="col-lg-3">
-        <div class="widget style1 navy-bg">
-          <p> CPUs <br/> <h2>{{ object.platform.cpu }}</h2> <br/>
-          </p>
-        </div>
-      </div>
-      <div class="col-lg-6">
-        <div class="widget style1 navy-bg">
-          <p>Platform: <b> {{ object.platform.name }} </b>, release: <b>{{ object.platform.release }} </b>
-          version: <b>{{ object.platform.version }}, {{ object.platform.machine }} </b></p>
-        </div>
-      </div>
+  <div class="row">
+    <div class="ibox">
+      <div class="ibox-content">
+        {% if object.external_ip %}
+          <p><span class="text-uppercase"> External IP :  </span> <span class="lead text-navy">{{ object.external_ip }}</span></p>
+        {% endif %}
+        {% if object.address %}
+          <p><span class="text-uppercase"> Monit Binding IP Address :  </span> <span class="lead text-navy">{{ object.address }}</span></p>
+        {% endif %}
+        {% if object.monit_id %}
+          <p><span class="text-uppercase"> Monit ID : </span> <span class="lead text-navy"> {{ object.monit_id }}</span>
+        </p>
+      {% endif %}
+      {% if object.address %}
+        <p><span class="text-uppercase"> UP Time :  </span> <span class="lead text-navy">{{ object.uptime|time_str }}</span></p>
+      {% endif %}
     </div>
-        <div class="row">
-            <div class="col-sm-12">
-                {% if object.external_ip %}
-                    <p><span class="text-uppercase"> External IP :  </span> <span
-                            class="lead">{{ object.external_ip }}</span></p>
-                {% endif %}
-
-                {% if object.address %}
-                    <p><span class="text-uppercase"> Monit Binding IP Address :  </span> <span
-                            class="lead">{{ object.address }}</span></p>
-                {% endif %}
-                {% if object.monit_id %}
-                    <p><span class="text-uppercase"> Monit ID : </span> <span class="lead"> {{ object.monit_id }}</span>
-                    </p>
-                {% endif %}
-                {% if object.address %}
-                    <p><span class="text-uppercase"> UP Time :  </span> <span
-                            class="lead">{{ object.uptime|time_str }}</span></p>
-                {% endif %}
-
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <h3>Monit Parameters</h3>
-                {% if object.http_address %}
-                    <p><span class="text-uppercase"> HTTP Address : </span> <span
-                            class="lead"> <a target="_blank" href="{{ object.http_address }}">{{ object.http_address }}</a></span></p>
-                {% endif %}
-                {% if object.http_username %}
-                    <p><span class="text-uppercase"> Monit Username : </span> <span
-                            class="lead"> {{ object.http_username }}</span></p>
-                {% endif %}
-                {% if object.http_password %}
-                    <p><span class="text-uppercase"> Monit Password : </span> <span
-                            class="lead">{{ object.http_password }}</span></p>
-                {% endif %}
-                {% if object.monit_update_period %}
-                    <p><span class="text-uppercase"> Monit Update Period : </span> <span
-                            class="lead"> {{ object.monit_update_period }}</span></p>
-                {% endif %}
-                {% if object.data_timezone %}
-                    <p><span class="text-uppercase"> TimeZone : </span> <span
-                            class="lead"> {{ object.data_timezone }}</span></p>
-                {% endif %}
-                <hr class="divider"></hr>
-                    <p><span class="text-uppercase"> Monitoring Disabled :  </span> <span class="lead">{{ object.disable_monitoring }}</span>
-                    </p>
-
-            </div>
-        </div>
-        <hr class="divider"></hr>
-        <div class="row">
-            <div class="control-group">
-                <div class="form-controls">
-                    <a class="btn btn-primary" href="{% url 'ui:server_update' object.id %}">Update</a>
-                    <a class="btn btn-danger pull-right" href="{% url 'ui:server_delete' object.id %}">Delete</a>
-                </div>
-            </div>
-        </div>
-
+  </div>
+</div>
+<div class="row">
+  <div class="ibox">
+    <div class="ibox-title"> Monit Paremeters</div>
+    <div class="ibox-content">
+      {% if object.http_address %}
+        <p><span class="text-uppercase"> HTTP Address : </span> <span
+        class="lead"> <a target="_blank" href="{{ object.http_address }}">{{ object.http_address }}</a></span></p>
+      {% endif %}
+      {% if object.http_username %}
+        <p><span class="text-uppercase"> Monit Username : </span> <span class="lead text-navy"> {{ object.http_username }}</span></p>
+      {% endif %}
+      {% if object.http_password %}
+        <p><span class="text-uppercase"> Monit Password : </span> <span class="lead text-navy">{{ object.http_password }}</span></p>
+      {% endif %}
+      {% if object.monit_update_period %}
+        <p><span class="text-uppercase"> Monit Update Period : </span> <span class="lead text-navy"> {{ object.monit_update_period }}</span></p>
+      {% endif %}
+      {% if object.data_timezone %}
+        <p><span class="text-uppercase"> TimeZone : </span> <span class="lead text-navy"> {{ object.data_timezone }}</span></p>
+      {% endif %}
+      {% if not request.user.organisation.settings.general_auto_add_unknown_servers %}
+        <hr class="hr-line-dashed"></hr>
+        <p><span class="text-uppercase"> Monitoring Disabled :  </span> <span class="lead text-navy">{{ object.disable_monitoring }}* </span>
+        {%  endif %}
+      </p>
     </div>
+  </div>
+</div>
+<div class="row">
+  <div class="control-group">
+    <div class="form-controls">
+      <a class="btn btn-primary" href="{% url 'ui:server_update' object.id %}">Update</a>
+      <a class="btn btn-danger pull-right" href="{% url 'ui:server_delete' object.id %}">Delete</a>
+    </div>
+  </div>
+</div>
 {% endblock content %}
-
-
-

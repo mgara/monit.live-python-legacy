@@ -1,6 +1,6 @@
 from django.db import models
 
-from utils import get_value
+from ..lib.utils import get_value
 
 
 class Platform(models.Model):

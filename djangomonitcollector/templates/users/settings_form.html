@@ -4,6 +4,8 @@
 {% load widget_tweaks %}
 {% load staticfiles %}
 {% load extra_tags %}
+{% block page_title %} Settings {% endblock %}
+
 {% block submenu %}
     <li class="nav-item">
         <a class="nav-link" href="#general"><i class="fa fa-bullseye"></i> General</a>
@@ -22,7 +24,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css">
 {% endblock %}
 {% block content %}
-    <h1>Settings </h1>
     <form class="form-horizontal" method="post">
         {% csrf_token %}
 

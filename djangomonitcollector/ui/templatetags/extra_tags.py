@@ -4,6 +4,9 @@ import time
 from django import template
 from django.conf import settings
 from django.utils import timezone
+import datetime
+import pytz
+from math import floor
 
 register = template.Library()
 
@@ -11,6 +14,72 @@ try:
     monit_update_period = settings.MONIT_UPDATE_PERIOD
 except:
     monit_update_period = 60
+
+
+@register.filter
+def format_timedelta(value, time_format="{days} days, {hours2}:{minutes2}:{seconds2}"):
+
+    if hasattr(value, 'seconds'):
+        seconds = value.seconds + value.days * 24 * 3600
+    else:
+        seconds = int(value)
+
+    seconds_total = seconds
+
+    minutes = int(floor(seconds / 60))
+    minutes_total = minutes
+    seconds -= minutes * 60
+
+    hours = int(floor(minutes / 60))
+    hours_total = hours
+    minutes -= hours * 60
+
+    days = int(floor(hours / 24))
+    days_total = days
+    hours -= days * 24
+
+    years = int(floor(days / 365))
+    years_total = years
+    days -= years * 365
+
+    if days > 0:
+        time_format = "{days} days, {hours2}:{minutes2}:{seconds2} ago"
+    else:
+        if hours > 0:
+            time_format = "{hours2}h {minutes2}m {seconds2}s ago"
+        else:
+            if minutes > 0:
+                time_format = "{minutes2}m {seconds2}s ago"
+            else:
+                if seconds > 20:
+                    time_format = "{seconds2}s ago"
+                else:
+                    time_format = "New !"
+
+
+    return time_format.format(**{
+        'seconds': seconds,
+        'seconds2': str(seconds).zfill(2),
+        'minutes': minutes,
+        'minutes2': str(minutes).zfill(2),
+        'hours': hours,
+        'hours2': str(hours).zfill(2),
+        'days': days,
+        'years': years,
+        'seconds_total': seconds_total,
+        'minutes_total': minutes_total,
+        'hours_total': hours_total,
+        'days_total': days_total,
+        'years_total': years_total,
+    })
+
+
+@register.filter
+def time_diff(date):
+    utc_dt = datetime.datetime.utcnow()
+    utc_dt = utc_dt.replace(tzinfo=pytz.timezone("UTC"))
+    delta = utc_dt - date
+    return delta
 
 
 @register.filter
@@ -46,6 +115,9 @@ def event_state_to_widget_style(state):
         return "red"
     return "lazur"
 
+@register.filter
+def remove_protocol(value):
+    return value.replace('https://','').replace('http://','')
 
 @register.filter
 def get_server_len(server_set):
@@ -76,8 +148,12 @@ def extra_params(xtra):
 def timestamp_to_date(timestamp):
     if not isinstance(timestamp, int):
         return ""
-    return timezone.datetime.fromtimestamp(timestamp)
+    data_tz = pytz.timezone("UTC")
+    user_tz = timezone.get_current_timezone()
+    data_time = datetime.datetime.fromtimestamp(timestamp, tz=data_tz)
 
+    user_time = user_tz.normalize(data_time.astimezone(user_tz))
+    return user_time
 
 @register.filter
 def to_html(txt):

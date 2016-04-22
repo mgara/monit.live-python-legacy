@@ -2,204 +2,198 @@
 {% load crispy_forms_tags %}
 {% load i18n %}
 {% load widget_tweaks %}
+{% block page_title %} {% if object.id %} Update User <small>{{ object.username }}</small>{% else %}{% trans 'New' %}{% endif %}{% endblock %}
 {% block title %}{% if object.id %}{{ object.username }}{% else %}{% trans 'New' %}{% endif %}{% endblock %}
 {% block content %}
-    <div class="row clearfix">
-        <div class="page-header">
-            {% if object.id %}
-                <h1>User <small>{{ object.username }}</small></h1>
-            {% else %}
-                <h1> New User</h1>
-            {% endif %}
-        </div>
-        <div class="row">
-         <form class="form-horizontal" method="post" action="">
-            <div class="col-sm-6">
-
-
-                {% csrf_token %}
-                {% if not object.id %}
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-md-2">
-                            {{ form.username.label_tag }}
+            <form class="form-horizontal" method="post" action="">
+                <div class="col-sm-6">
+                    {% csrf_token %}
+                    {% if not object.id %}
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    {{ form.username.label_tag }}
+                                </div>
+                                <div class="col-md-5">
+                                    {{ form.username|add_class:"form-control" }}
+                                </div>
+                                {% if form.username.errors %}
+                                    <div class="alert alert-warning red col-md-3">
+                                        {{ form.username.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
-                        <div class="col-md-5">
-                            {{ form.username|add_class:"form-control" }}
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    {{ form.password1.label_tag }}
+                                </div>
+                                <div class="col-md-5">
+                                    {{ form.password1|add_class:"form-control" }}
+                                </div>
+                                {% if form.password1.errors %}
+                                    <div class="alert alert-warning red col-md-3">
+                                        {{ form.password1.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
-                        {% if form.username.errors %}
-                            <div class="alert alert-warning red col-md-3">
-                            {{ form.username.errors }}
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    {{ form.password2.label_tag }}
+                                </div>
+                                <div class="col-md-5">
+                                    {{ form.password2|add_class:"form-control" }}
+                                </div>
+                                {% if form.password2.errors %}
+                                    <div class="alert alert-warning red col-md-3">
+                                        {{ form.password2.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    {{ form.email.label_tag }}
+                                </div>
+                                <div class="col-md-5">
+                                    {{ form.email|add_class:"form-control" }}
+                                </div>
+                                {% if form.email.errors %}
+                                    <div class="alert alert-warning red col-md-3">
+                                        {{ form.email.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-2">
+                                {{ form.first_name.label_tag }}
+                            </div>
+                            <div class="col-md-5">
+                                {{ form.first_name|add_class:"form-control" }}
+                            </div>
+                            {% if form.first_name.errors %}
+                                <div class="alert alert-warning red col-md-3">
+                                    {{ form.first_name.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-2">
+                                {{ form.last_name.label_tag }}
+                            </div>
+                            <div class="col-md-5">
+                                {{ form.last_name|add_class:"form-control" }}
+                            </div>
+                            {% if form.last_name.errors %}
+                                <div class="alert alert-warning red col-md-3">
+                                    {{ form.last_name.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                     <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-2">
+                                {{ form.user_timezone.label_tag }}
+                            </div>
+                            <div class="col-md-5">
+                                {{ form.user_timezone|add_class:"form-control" }}
+                            </div>
+                            {% if form.user_timezone.errors %}
+                                <div class="alert alert-warning red col-md-3">
+                                    {{ form.user_timezone.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-2">
+                                {{ form.inspinia_skin.label_tag }}
+                            </div>
+                            <div class="col-md-5">
+                                {{ form.inspinia_skin|add_class:"form-control" }}
+                            </div>
+                            {% if form.inspinia_skin.errors %}
+                                <div class="alert alert-warning red col-md-3">
+                                    {{ form.inspinia_skin.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if request.user.organisation_manager %}
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    {{ form.organisation_manager.label_tag }}
+                                </div>
+                                <div class="col-md-5">
+                                    {{ form.organisation_manager }}
+                                </div>
+                                {% if form.organisation_manager.errors %}
+                                    <div class="alert alert-warning red col-md-3">
+                                        {{ form.organisation_manager.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if not object.id %}
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        {{ form.organisation.label_tag }}
+                                    </div>
+                                    <div class="col-md-5">
+                                        {{ request.user.organisation.name|title}}
+                                    </div>
+                                </div>
                             </div>
                         {% endif %}
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-md-2">
-                            {{ form.password1.label_tag }}
-                        </div>
-                        <div class="col-md-5">
-                            {{ form.password1|add_class:"form-control" }}
-                        </div>
-                        {% if form.password1.errors %}
-                            <div class="alert alert-warning red col-md-3">
-                            {{ form.password1.errors }}
+                    {% endif %}
+                    {% if request.user.is_superuser %}
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    {{ form.organisation_manager.label_tag }}
+                                </div>
+                                <div class="col-md-5">
+                                    {{ form.organisation_manager }}
+                                </div>
+                                {% if form.organisation_manager.errors %}
+                                    <div class="alert alert-warning red col-md-3">
+                                        {{ form.organisation_manager.errors }}
+                                    </div>
+                                {% endif %}
                             </div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-md-2">
-                            {{ form.password2.label_tag }}
                         </div>
-                        <div class="col-md-5">
-                            {{ form.password2|add_class:"form-control" }}
-                        </div>
-                        {% if form.password2.errors %}
-                            <div class="alert alert-warning red col-md-3">
-                            {{ form.password2.errors }}
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    {{ form.organisation.label_tag }}
+                                </div>
+                                <div class="col-md-5">
+                                    {{ form.organisation|add_class:"form-control" }}
+                                </div>
                             </div>
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% endif %}
                 </div>
-
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-md-2">
-                            {{ form.email.label_tag }}
-                        </div>
-                        <div class="col-md-5">
-                            {{ form.email|add_class:"form-control" }}
-                        </div>
-                        {% if form.email.errors %}
-                            <div class="alert alert-warning red col-md-3">
-                            {{ form.email.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endif %}
-
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-md-2">
-                            {{ form.first_name.label_tag }}
-                        </div>
-                        <div class="col-md-5">
-                            {{ form.first_name|add_class:"form-control" }}
-                        </div>
-                        {% if form.first_name.errors %}
-                            <div class="alert alert-warning red col-md-3">
-                            {{ form.first_name.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-md-2">
-                            {{ form.last_name.label_tag }}
-                        </div>
-                        <div class="col-md-5">
-                            {{ form.last_name|add_class:"form-control" }}
-                        </div>
-                        {% if form.last_name.errors %}
-                            <div class="alert alert-warning red col-md-3">
-                            {{ form.last_name.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-md-2">
-                            {{ form.inspinia_skin.label_tag }}
-                        </div>
-                        <div class="col-md-5">
-                            {{ form.inspinia_skin|add_class:"form-control" }}
-                        </div>
-                        {% if form.inspinia_skin.errors %}
-                            <div class="alert alert-warning red col-md-3">
-                            {{ form.inspinia_skin.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                {% if request.user.organisation_manager %}
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-md-2">
-                            {{ form.organisation_manager.label_tag }}
-                        </div>
-                        <div class="col-md-5">
-                            {{ form.organisation_manager }}
-                        </div>
-                        {% if form.organisation_manager.errors %}
-                            <div class="alert alert-warning red col-md-3">
-                            {{ form.organisation_manager.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-                  {% if not object.id %}
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-md-2">
-                            {{ form.organisation.label_tag }}
-                        </div>
-                        <div class="col-md-5">
-                        {{ request.user.organisation.name|title}}
-                        </div>
-                    </div>
-                </div>
-                 {% endif %}
-                 {% endif %}
-
-                {% if request.user.is_superuser %}
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-md-2">
-                            {{ form.organisation_manager.label_tag }}
-                        </div>
-                        <div class="col-md-5">
-                            {{ form.organisation_manager }}
-                        </div>
-                        {% if form.organisation_manager.errors %}
-                            <div class="alert alert-warning red col-md-3">
-                            {{ form.organisation_manager.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-md-2">
-                            {{ form.organisation.label_tag }}
-                        </div>
-                        <div class="col-md-5">
-                        {{ form.organisation|add_class:"form-control" }}
-                        </div>
-                    </div>
-                </div>
-
-                 {% endif %}
-
-            </div>
-            <div class="col-sm-12">
-                 <div class="hr-line-dashed"></div>
+                <div class="col-sm-12">
+                    <div class="hr-line-dashed"></div>
                     <div class="control-group">
                         <div class="controls">
                             <button type="submit" class="btn btn-primary">{% if object.id %}{% trans 'Update' %}{% else %}{% trans 'New' %}{% endif %}</button>
                         </div>
                     </div>
-            </div>
+                </div>
             </form>
-        </div>
-    </div>
 {% endblock %}

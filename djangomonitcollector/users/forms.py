@@ -6,6 +6,7 @@ from django.contrib.auth.forms import UserChangeForm, UserCreationForm, AdminPas
 from django.utils.translation import ugettext as _
 
 from .models import User, Organisation, INSPINIA_SKINS
+from djangomonitcollector.datacollector.lib.utils import TIMEZONES_CHOICES
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -37,6 +38,14 @@ class MyUserCreationForm(UserCreationForm):
         required=False
         )
 
+    user_timezone = forms.ChoiceField(
+        label=_("User Timezone"),
+        widget=forms.Select,
+        choices=TIMEZONES_CHOICES,
+        required=False,
+        initial="Canada/Eastern"
+        )
+
     class Meta(UserCreationForm.Meta):
         model = User
 
@@ -56,6 +65,7 @@ class MyUserCreationForm(UserCreationForm):
         self.instance.first_name = self.cleaned_data["first_name"]
         self.instance.last_name = self.cleaned_data["last_name"]
         self.instance.email = self.cleaned_data["email"]
+        self.instance.user_timezone = self.cleaned_data["user_timezone"]
         self.instance.inspinia_skin = self.cleaned_data["inspinia_skin"]
         self.instance.organisation_manager = self.cleaned_data["organisation_manager"]
         if commit:

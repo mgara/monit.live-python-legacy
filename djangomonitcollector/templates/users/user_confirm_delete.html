@@ -5,15 +5,12 @@
 {% load static %}
 {% load extra_tags %}
 
-{% block title %}Server: {{ object.username }}{% endblock %}
+{% block title %}Delete {{ object.username }}{% endblock %}
+{% block page_title %} Delete
+                <small>{{ object.username }}</small> {% endblock %}
 
 {% block content %}
-    <div class="container">
-        <div class="page-header">
-            <h1>Delete
-                <small>{{ object.username }}</small>
-            </h1>
-        </div>
+    <div class="row clearfix">
         <form action="" method="post">{% csrf_token %}
 
             <div class="row">

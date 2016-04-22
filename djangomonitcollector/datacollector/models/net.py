@@ -4,7 +4,7 @@ from django.db import models
 from pytz import timezone
 
 from service import Service
-from utils import get_value, get_string, get_int
+from ..lib.utils import get_value, get_string, get_int
 from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
 
 

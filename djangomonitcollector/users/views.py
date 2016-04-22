@@ -59,11 +59,23 @@ class UserCreate(LoginRequiredMixin, CreateView):
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
-    form = MyUserChangeForm
-    fields = ['first_name', 'last_name', 'email', 'inspinia_skin', 'organisation_manager', 'organisation']
+ #   form_class = MyUserChangeForm
+    fields = ['first_name', 'last_name', 'email', 'inspinia_skin', 'organisation_manager','user_timezone']
+
+    def dispatch(self, *args, **kwargs):
+        if self.request.method == "GET":
+            if self.request.user.is_superuser:
+                self.fields.append('organisation')
+
+        return super(UserUpdateView, self).dispatch(*args, **kwargs)
+
+
+    def form_invalid(self, form):
+        print form.__dict__
+        response = super(UserUpdateView, self).form_invalid(form)
+        return response
 
     def form_valid(self, form):
-        print "Form valid for update"
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
         if self.request.user.organisation_manager:

@@ -79,7 +79,6 @@ class Command(BaseCommand):
                         hosts_down.remove(server['monitid'])
                         self.host_is_up_again(server, options)
 
-
     def get_monit_hosts(self, options):
         try:
             endpoint = "http://{0}:{1}/dc/get_servers/".format(

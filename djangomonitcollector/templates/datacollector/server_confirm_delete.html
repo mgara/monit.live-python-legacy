@@ -6,14 +6,10 @@
 {% load extra_tags %}
 
 {% block title %}Server: {{ object.localhostname }}{% endblock %}
+{% block page_title %} Delete <small class="text-navy">{{ object.localhostname }} </small>{% endblock %}
 
 {% block content %}
     <div class="container">
-        <div class="page-header">
-            <h1>Delete
-                <small>{{ object.localhostname }}</small>
-            </h1>
-        </div>
         <form action="" method="post">{% csrf_token %}
 
             <div class="row">

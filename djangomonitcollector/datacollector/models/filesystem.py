@@ -6,7 +6,7 @@ from django.db import models
 from pytz import timezone
 
 from service import Service
-from utils import get_value, get_float
+from ..lib.utils import get_value, get_float
 from system import to_queue
 from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
 

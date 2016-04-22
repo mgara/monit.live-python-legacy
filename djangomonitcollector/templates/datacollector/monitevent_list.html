@@ -4,19 +4,12 @@
 
 {% load extra_tags %}
 {% block title %}Server {{ server.localhostname }} {% endblock %}
+{% block page_title %} Last Events For : <small class="text-navy">{{ server.localhostname }} </small>{% endblock %}
 
 {% block content %}
 <style type="text/css" media="print">
    .no-print { display: none; }
 </style>
-    <div class="container">
-        <div class="page-header">
-            <h1>Last Events for <small>{{ server.localhostname }}</small>
-            </h1>
-        </div>
-        <div class="row">
-        </div>
-        <div class="row">
             <div class="ibox float-e-margins">
                 <div class="ibox-content">
                     <div class="table-responsive">
@@ -33,7 +26,7 @@
                                 </thead>
                                 <tbody>
                                     {% for monit_event in object_list %}
-                                        <tr>
+                                        <tr id="tr-{{ monit_event.id }}">
                                             <td>{{ monit_event.event_message }}</td>
                                             <td>{{ monit_event.event_time }}</td>
                                             <td><b>{{ monit_event.event_id|event_status_to_string }}</b> : <b>{{ monit_event.event_state|event_state_to_string }}</b></td>
@@ -69,8 +62,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
 {% endblock %}
 {% block customjs %}
@@ -141,7 +132,7 @@
              // handle a successful response
              success: function(json) {
                  event_id = json.event_id
-                 element_selector = "#event-element-" + event_id
+                 element_selector = "#tr-" + event_id
                  $(element_selector).fadeOut(150)
              },
              // handle a non-successful response

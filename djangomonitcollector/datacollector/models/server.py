@@ -33,7 +33,7 @@ from .program import Program
 from .service import Service
 from .system import System
 from .url import Host
-from .utils import \
+from ..lib.utils import \
     remove_old_services, \
     get_value, \
     get_int, \
