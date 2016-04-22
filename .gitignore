@@ -67,3 +67,6 @@ mailhog
 *.iml
 
 staticfiles/
+
+
+*migrations/
