@@ -1,3 +1,12 @@
+
+# Common configuration, this will be used for both writing and reading from the broker
+export CELERY_BROKER_URL='amqp://dmc:va2root@localhost:5672'
+
+# This will configure the socket io app server
+export IO_SERVER=127.0.0.1
+export IO_PORT=8000
+
+# This will configure the Django application
 export DJANGO_ALLOWED_HOST=192.168.0.7
 export DJANGO_SETTINGS_MODULE=config.settings.production
 export DATABASE_URL=postgres://kokoro:WdOKanaoF@localhost/monit_collector_production

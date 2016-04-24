@@ -517,7 +517,7 @@ $(function() {
             ]
         }]
     });
-    var socket = io('http://10.209.105.12:8000/server_dashboard_{{ server.id }}');
+    var socket = io('/server_dashboard_{{ server.id }}');
     socket.on('dmc', function(msg) {
         var data = msg.data;
         // var cpu_system_last=['System', data.cpu_system_last];
