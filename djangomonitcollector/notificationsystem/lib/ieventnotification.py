@@ -40,7 +40,7 @@ class EventSettingsInterface(object):
     def set_event(self, event_object):
         self.event = event_object
         self.server = self.event.server.localhostname
-        self.event_service = self.event.service
+        self.event_service = self.event.service.replace('___','/').replace('__','_').replace('_','/')
 
         self.event_message = self.event.event_message
 
