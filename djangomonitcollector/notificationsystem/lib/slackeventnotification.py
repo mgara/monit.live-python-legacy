@@ -64,7 +64,7 @@ class SlackEventNotification(EventSettingsInterface):
                 },
                 {
                     "title": "Service",
-                    "value": self.event_service,
+                    "value": self.service_name,
                     "short": False
                 },
                 {
