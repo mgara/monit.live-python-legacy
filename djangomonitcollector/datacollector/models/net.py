@@ -87,6 +87,41 @@ class Net(Service):
         return service
 
 
+class NetDailyStats(models.Model):
+    net_id = models.ForeignKey('Net')
+    date_last = models.DateTimeField()
+    download_packet = models.IntegerField(null=True)
+    download_bytes = models.IntegerField(null=True)
+    download_errors = models.IntegerField(null=True)
+    upload_packet = models.IntegerField(null=True)
+    upload_bytes = models.IntegerField(null=True)
+    upload_errors = models.IntegerField(null=True)
+
+    @classmethod
+    def create(cls,
+               net,
+               tz_str,
+               unixtimestamp,
+               download_packet,
+               download_bytes,
+               download_errors,
+               upload_packet,
+               upload_bytes,
+               upload_errors,
+               ):
+        entity = cls(net_id=net)
+        tz = timezone(tz_str)
+        entity.date_last = datetime.datetime.fromtimestamp(unixtimestamp, tz)
+        entity.download_bytes = download_bytes
+        entity.download_errors = download_errors
+        entity.download_packet = download_packet
+        entity.upload_bytes = upload_bytes
+        entity.upload_errors = upload_errors
+        entity.upload_packet = upload_packet
+        entity.save()
+        return entity
+
+
 class NetStats(models.Model):
     net_id = models.ForeignKey('Net')
     date_last = models.DateTimeField()

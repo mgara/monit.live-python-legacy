@@ -125,6 +125,36 @@ class FsAndDiskUsageStats(models.Model):
             _doc
         )
 
+class FsAndDiskDailyUsageStats(models.Model):
+    fs_id = models.ForeignKey('FileSystem')
+    date_last = models.DateTimeField(null=False)
+    blocks_percent = models.FloatField(null=True)
+    blocks_usage = models.FloatField(null=True)
+    inode_percent = models.FloatField(null=True)
+    inode_usage = models.FloatField(null=True)
+
+    @classmethod
+    def create(
+        cls,
+        fs,
+        tz_str,
+        unixtimestamp,
+        blocks_percent,
+        blocks_usage,
+        inode_percent,
+        inode_usage
+    ):
+
+        entry = cls(fs_id=fs)
+        tz = timezone(tz_str)
+        entry.date_last = datetime.datetime.fromtimestamp(unixtimestamp, tz)
+        entry.blocks_percent = blocks_percent
+        entry.blocks_usage = blocks_usage
+        entry.inode_percent = inode_percent
+        entry.inode_usage = inode_usage
+        entry.save()
+        return entry
+
 
 def broadcast_to_websocket_channel(server, fs):
     response = dict()
@@ -133,3 +163,6 @@ def broadcast_to_websocket_channel(server, fs):
     response['fs_blocks_total'] = fs.blocks_total
     response_str = json.dumps(response)
     to_queue(response_str)
+
+
+

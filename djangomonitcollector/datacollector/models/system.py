@@ -79,7 +79,7 @@ class System(Service):
             )
             MemoryCPUSystemStats.to_elasticsearch(
                 entity,
-                system.server.localhostname.replace('.','_')
+                system.server.localhostname.replace('.', '_')
                 )
         return system
 
@@ -87,6 +87,53 @@ class System(Service):
     def get_by_server(cls, server):
         system, created = cls.objects.get_or_create(server=server)
         return system
+
+
+class MemoryCPUDailySystemStats(models.Model):
+    system_id = models.ForeignKey('System')
+    date_last = models.DateTimeField()
+    load_avg01 = models.FloatField(null=True)
+    load_avg05 = models.FloatField(null=True)
+    load_avg15 = models.FloatField(null=True)
+    cpu_user = models.FloatField(null=True)
+    cpu_system = models.FloatField(null=True)
+    cpu_wait = models.FloatField(null=True)
+    memory_percent = models.FloatField(null=True)
+    memory_kilobyte = models.PositiveIntegerField(null=True)
+    swap_percent = models.FloatField(null=True)
+    swap_kilobyte = models.PositiveIntegerField(null=True)
+
+    @classmethod
+    def create(cls,
+               system,
+               tz_str,
+               data_timestamp,
+               load_avg01,
+               load_avg05,
+               load_avg15,
+               cpu_user,
+               cpu_system,
+               cpu_wait,
+               memory_percent,
+               memory_kilobyte,
+               swap_percent,
+               swap_kilobyte
+               ):
+        entry = cls(system_id=system)
+        tz = timezone(tz_str)
+        entry.date_last = datetime.datetime.fromtimestamp(data_timestamp, tz)
+        entry.load_avg01 = load_avg01
+        entry.load_avg05 = load_avg05
+        entry.load_avg15 = load_avg15
+        entry.cpu_user = cpu_user
+        entry.cpu_system = cpu_system
+        entry.cpu_wait = cpu_wait
+        entry.memory_percent = memory_percent
+        entry.memory_kilobyte = memory_kilobyte
+        entry.swap_percent = swap_percent
+        entry.swap_kilobyte = swap_kilobyte
+        entry.save()
+        return entry
 
 
 class MemoryCPUSystemStats(models.Model):
@@ -121,7 +168,7 @@ class MemoryCPUSystemStats(models.Model):
                ):
         entry = cls(system_id=system)
         tz = timezone(tz_str)
-        entry.date_last = datetime.datetime.fromtimestamp(data_timestamp,tz)
+        entry.date_last = datetime.datetime.fromtimestamp(data_timestamp, tz)
         entry.load_avg01 = load_avg01
         entry.load_avg05 = load_avg05
         entry.load_avg15 = load_avg15
@@ -195,5 +242,4 @@ def to_queue(message):
 
         connection.close()
     except:
-        print "Error sending to Rabbit MQ"
         pass

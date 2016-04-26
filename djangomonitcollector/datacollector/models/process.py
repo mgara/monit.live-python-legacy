@@ -99,3 +99,31 @@ class MemoryCPUProcessStats(models.Model):
             "process-stats",
             _doc
             )
+
+
+class MemoryCPUProcessDailyStats(models.Model):
+    process_id = models.ForeignKey('Process')
+    date_last = models.DateTimeField()
+    cpu_percent = models.FloatField(null=True)
+    memory_percent = models.FloatField(null=True)
+    memory_kilobyte = models.PositiveIntegerField(null=True)
+
+    @classmethod
+    def create(
+            cls,
+            process,
+            tz_str,
+            unixtimestamp,
+            cpu_percent,
+            memory_percent,
+            memory_kilobyte
+    ):
+        entry = cls()
+        tz = timezone(tz_str)
+        entry.date_last = datetime.datetime.fromtimestamp(unixtimestamp, tz)
+        entry.process_id = process
+        entry.cpu_percent = cpu_percent
+        entry.memory_kilobyte = memory_kilobyte
+        entry.memory_percent = memory_percent
+        entry.save()
+        return entry
