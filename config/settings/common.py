@@ -51,6 +51,7 @@ LOCAL_APPS = (
     'widget_tweaks',
     'django_filters',
     'pagination',
+    'bootstrap_pagination'
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
