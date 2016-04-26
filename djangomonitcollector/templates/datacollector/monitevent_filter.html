@@ -3,6 +3,7 @@
 {% load i18n %}
 {% load widget_tweaks %}
 {% load pagination_tags %}
+{% load bootstrap_pagination %}
 
 
 {% load extra_tags %}
@@ -26,8 +27,9 @@
     opacity: 1;
    }
 </style>
+                {% autopaginate filter.qs 10 as filter_list %}
 
-            <div class="ibox float-e-margins">
+            <div class="ibox float-e-margins" id="ibox_filter">
             <div class="ibox-title">
                     <h5>Filter details </h5> <span id="filter-details" class="label label-danger"></span>
                     <div class="ibox-tools">
@@ -36,8 +38,8 @@
                         </a>
                     </div>
                 </div>
-                <div class="ibox-content">
-                <div class="row container">
+                <div class="ibox-content" id="filter_properties">
+                    <div class="row">
                        <form  action="" method="get">
                            <div class="col-md-12">
 
@@ -87,11 +89,13 @@
                              <div class="hr-line-dashed"></div>
 
                           </div>
-                </form>
-</div>
+                    </form>
+                    </div>
                 </div>
               </div>
-                  {% autopaginate filter.qs 10 as filter_list %}
+<div class="row text-center">
+                 {% bootstrap_paginate page_obj range=10 show_prev_next="true" show_first_last="true" %}
+</div>
 
             <div class="ibox float-e-margins">
                 <div class="ibox-content">
@@ -154,7 +158,9 @@
                         </table>
                     </div>
 
-                     {% paginate %}
+                   <div class="row text-center">
+                 {% bootstrap_paginate page_obj range=10 show_prev_next="true" show_first_last="true" %}
+</div>
 
                 </div>
             </div>
@@ -165,7 +171,31 @@
  <script type="text/javascript">
 
 
+
     $(document).ready(function() {
+        if(window.localStorage) {
+        localStorageSupport = true
+        }
+
+        $('.collapse-link').click(function (){
+            style = $("#filter_properties").css("display");
+            // none = Displayed
+            // block = Hidden (yes it's flipped)
+            if (style== "none")
+                localStorage.setItem("ibox-collapsed",'on');
+            else
+                localStorage.setItem("ibox-collapsed",'off');
+        })
+
+        if (localStorageSupport){
+            ibox_status = localStorage.getItem("ibox-collapsed")
+            if (ibox_status=="off"){
+                $("#filter_properties").css("display", "none");
+                $("#ibox_filter").addClass('border-bottom')
+            }
+        }
+
+
 
     function getCookie(name) {
          var cookieValue = null;
