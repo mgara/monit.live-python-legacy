@@ -1,152 +1,124 @@
-.. image:: http://10.104.1.167:8080/buildStatus/icon?job=django-monit-collector
-    :target: http://10.104.1.167:8080/job/django-monit-collector
-    
-.. image:: https://requires.io/bitbucket/ahuakivi/django-monit-collector/requirements.svg?branch=devel
-     :target: https://requires.io/bitbucket/ahuakivi/django-monit-collector/requirements/?branch=devel
-     :alt: Requirements Status
+monit collector v16.05-1
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-djangomonitcollector
+Django application for collecting monit metrics, host data management and host alerts management
 
+LICENSE: BSD
 
-A short description of the project.
+Developpement Settings
+----------------------
 
-
-LICENSE: Commercial
-
-Settings
-------------
-
-Moved to settings_.
+Check cookie-cutter django application settings_.
 
 .. _settings: http://cookiecutter-django.readthedocs.org/en/latest/settings.html
 
-Basic Commands
---------------
+Installation
+^^^^^^^^^^^^
 
-Setting Up Your Users
-^^^^^^^^^^^^^^^^^^^^^
+.. note::  Installation steps are meant for CentOS 7.
 
-To create a **normal user account**, just go to Sign Up and fill out the form. Once you submit it, you'll see a "Verify Your E-mail Address" page. Go to your console to see a simulated email verification message. Copy the link into your browser. Now the user's email should be verified and ready to go.
+Requirements:
 
-To create an **superuser account**, use this command::
+    * nginx
+    * rabbitmq
+    * postgresql
 
-    $ python manage.py createsuperuser
+
+
+Installing requirements
+-----------------------
+
+Many Packages requires EPEL Repository
+
+1. Installing **epel** repository:
+
+Download the epel rpm package and install it ::
+
+    yum install http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-6.noarch.rpm
+
+2. Installing **Postgresql**
+
+Postgrsql can be installed from here ::
+
+    yum install http://yum.postgresql.org/9.5/redhat/rhel-7-x86_64/pgdg-centos95-9.5-2.noarch.rpm
+
+* Postgresql Configuration ::
+
+    /usr/pgsql-9.5/bin/postgresql95-setup initdb  #initialise database
+    systemctl start postgresql-9.5  # Start the database
+    su postgres # connect to postgres bash session
+
+In postgres bash session run the psql command to enter the postgresql console: ::
+
+    psql
+
+In the psql invite:
+* Create USER/ROLE: ::
+
+    CREATE ROLE kokoro PASSWORD 'md535f5a74e5d624bbea732fd9018b36023' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;
+    ALTER USER postgres with password 'WdOKanaoF';
+
+* Create DATABASE:
+
+This command will create a database from PostgreSQL shell prompt, but you should have appropriate privilege to create database. By default, the new database will be created by cloning the standard system database template1. ::
+
+    CREATE DATABASE monit_collector_production;
+
+To exit the invite use: ::
+
+   \q
+
+* Configuring User permissions :
+
+Edit the file **pg_hba.conf**: ::
+
+    vim  /var/lib/pgsql/9.5/data/pg_hba.conf
+
+
+edit local user to **md5** auth
+
+* Restart the postgresql Service: ::
+
+    systemctl restart postgresql-9.5
+
+
+3. Installing **RabbitMQ**: ::
+
+     yum install https://www.rabbitmq.com/releases/rabbitmq-server/v3.6.1/rabbitmq-server-3.6.1-1.noarch.rpm
+     systemctl start rabbitmq-server
+     rabbitmqctl add_user dmc va2root
+     rabbitmqctl set_permissions -p / dmc ".*" ".*" ".*"
+
+     # You really don't want to keep the default rabbitmq user:
+     rabbitmqctl delete_user guest
+
+*  Optional you can enable the rabbitmq Management module: ::
+
+     rabbitmq-plugins enable rabbitmq_management
+     rabbitmqctl set_user_tags dmc administrator
+
+*  For more info check RabbitMQ official documentation_
+
+.. _documentation: https://www.rabbitmq.com/man/rabbitmqctl.1.man.html
+
+Installing the monit-collector rpm:
+-----------------------------------
+
+To import first data ::
+
+    $ python manage.py dataload fixture.json
 
 For convenience, you can keep your normal user logged in on Chrome and your superuser logged in on Firefox (or similar), so that you can see how the site behaves for both kinds of users.
 
+
+Development:
+^^^^^^^^^^^^
+
 Test coverage
-^^^^^^^^^^^^^
+-------------
 
 To run the tests, check your test coverage, and generate an HTML coverage report::
 
     $ coverage run manage.py test
     $ coverage html
     $ open htmlcov/index.html
-
-Live reloading and Sass CSS compilation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Moved to `Live reloading and SASS compilation`_.
-
-.. _`Live reloading and SASS compilation`: http://cookiecutter-django.readthedocs.org/en/latest/live-reloading-and-sass-compilation.html
-
-
-
-Celery
-^^^^^^
-
-This app comes with Celery.
-
-To run a celery worker:
-
-.. code-block:: bash
-
-    cd djangomonitcollector
-    celery -A djangomonitcollector.taskapp worker -l info
-
-Please note: For Celerys import magic to work, it is important *where* the celery commands are run. If you are in the same folder with *manage.py*, you should be right.
-
-
-
-
-
-Email Server
-^^^^^^^^^^^^
-
-In development, it is often nice to be able to see emails that are being sent from your application. If you choose to use `MailHog`_ when generating the project a local SMTP server with a web interface will be available.
-
-.. _mailhog: https://github.com/mailhog/MailHog
-
-To start the service, make sure you have nodejs installed, and then type the following::
-
-    $ npm install
-    $ grunt serve
-
-(After the first run you only need to type ``grunt serve``) This will start an email server that listens on ``127.0.0.1:1025`` in addition to starting your Django project and a watch task for live reload.
-
-To view messages that are sent by your application, open your browser and go to ``http://127.0.0.1:8025``
-
-The email server will exit when you exit the Grunt task on the CLI with Ctrl+C.
-
-
-
-
-
-Sentry
-^^^^^^
-
-Sentry is an error logging aggregator service. You can sign up for a free account at http://getsentry.com or download and host it yourself.
-The system is setup with reasonable defaults, including 404 logging and integration with the WSGI application.
-
-You must set the DSN url in production.
-
-
-
-It's time to write the code!!!
-
-
-Running end to end integration tests
-------------------------------------
-
-N.B. The integration tests will not run on Windows.
-
-To install the test runner::
-
-  $ pip install hitch
-
-To run the tests, enter the djangomonitcollector/tests directory and run the following commands::
-
-  $ hitch init
-
-Then run the stub test::
-
-  $ hitch test stub.test
-
-This will download and compile python, postgres and redis and install all python requirements so the first time it runs it may take a while.
-
-Subsequent test runs will be much quicker.
-
-The testing framework runs Django, Celery (if enabled), Postgres, HitchSMTP (a mock SMTP server), Firefox/Selenium and Redis.
-
-
-Deployment
-----------
-
-We providing tools and instructions for deploying using Docker and Heroku.
-
-Heroku
-^^^^^^
-
-.. image:: https://www.herokucdn.com/deploy/button.png
-    :target: https://heroku.com/deploy
-
-See detailed `cookiecutter-django Heroku documentation`_.
-
-.. _`cookiecutter-django Heroku documentation`: http://cookiecutter-django.readthedocs.org/en/latest/deployment-on-heroku.html
-
-Docker
-^^^^^^
-
-See detailed `cookiecutter-django Docker documentation`_.
-
-.. _`cookiecutter-django Docker documentation`: http://cookiecutter-django.readthedocs.org/en/latest/deployment-with-docker.html
