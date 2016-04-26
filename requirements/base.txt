@@ -42,15 +42,30 @@ celery==3.1.19
 
 # Add your custom stuff here.
 
+# RabbitMQ Client
 pika
 
+# Elasticsearch official library
 elasticsearch>=2.0.0,<3.0.0
 
+
+# Create Custom filters for models
 django-filter
+
+# Create Pagination for Object List
 django-pagination
+
+# Create widget Tweaks
 django-widget-tweaks
 
-# requirements for monit host heartbeat
+# Requirements for monit host heartbeat
 mako
 
+# Slack Slacker
 slacker
+
+# Bootstrap Pagination
+django-bootstrap-pagination
+
+# Ordered Model
+django-ordered-model
