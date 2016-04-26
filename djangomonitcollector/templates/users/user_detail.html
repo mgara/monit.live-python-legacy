@@ -5,9 +5,9 @@
 {% block title %}User: {{ object.username }}{% endblock %}
 {% block page_title %} User <small>{{ object.username }}</small>{% endblock %}
 {% block content %}
-    <div class="row clearfix">
-        <div class="row">
-            <div class="col-sm-6">
+<div class="container">
+  <div class="row">
+    <div class="col-md-5">
                     <h4><i class="fa fa-user"></i>{{ object.name }}</h4>
                 {% if object.first_name %}
                     <h4>Firstname : </h4>
@@ -34,6 +34,9 @@
 
         {% if object == request.user %}
             <!-- Action buttons -->
+               <div class="row">
+                <div class="hr-line-dashed"></div>
+            </div>
             <div class="row">
 
                 <div class="col-sm-6 ">

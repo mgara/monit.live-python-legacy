@@ -5,8 +5,11 @@
 {% block page_title %} {% if object.id %} Update User <small>{{ object.username }}</small>{% else %}{% trans 'New' %}{% endif %}{% endblock %}
 {% block title %}{% if object.id %}{{ object.username }}{% else %}{% trans 'New' %}{% endif %}{% endblock %}
 {% block content %}
+<div class="container">
             <form class="form-horizontal" method="post" action="">
-                <div class="col-sm-6">
+              <div class="row">
+
+                <div class="col-md-5">
                     {% csrf_token %}
                     {% if not object.id %}
                         <div class="form-group">
@@ -186,14 +189,20 @@
                             </div>
                         </div>
                     {% endif %}
-                </div>
-                <div class="col-sm-12">
+                    </div>
+                     <div class="row">
+
+
+                    <div class="col-lg-12">
                     <div class="hr-line-dashed"></div>
                     <div class="control-group">
                         <div class="controls">
                             <button type="submit" class="btn btn-primary">{% if object.id %}{% trans 'Update' %}{% else %}{% trans 'New' %}{% endif %}</button>
                         </div>
                     </div>
+                     </div>
                 </div>
             </form>
+            </div>
+            </div>
 {% endblock %}
