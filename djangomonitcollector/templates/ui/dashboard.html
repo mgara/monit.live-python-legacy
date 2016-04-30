@@ -39,10 +39,10 @@
 <script>
 $(document).ready(function () {
 window.intervalId = setInterval(function() {
-$.post("{% url 'ui:load_dashboard_table' %}", function(data) {
-$( "#dashboard_table" ).replaceWith( data.table_html );
-});
-}, 5000);
+  $.post("{% url 'ui:load_dashboard_table' %}", function(data) {
+  $( "#dashboard_table" ).replaceWith( data.table_html );
+  });
+  }, 5000);
 });
 </script>
 {% endblock %}

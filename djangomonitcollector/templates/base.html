@@ -41,7 +41,7 @@
                         <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                             <span class="clear">
                                 <span class="block m-t-xs">
-                                    <strong class="font-bold">Monit Collector v0.9.1b </strong>
+                                    <strong class="font-bold">Kairos Monit Collector v0.9b </strong>
                                     </span>
                                     <span class="text-muted text-xs block">User : <b>{{ request.user|title }}</b>|{{ request.user.organisation|title}}</span>
                             </span>
@@ -51,9 +51,13 @@
 
                     {% if request.user.is_authenticated %}
                         {% if request.user.is_superuser %}
-                         {% url 'datacollector:organisations' as organisations %}
+                            {% url 'datacollector:organisations' as organisations %}
                         <li {% if request.path == organisations %} class="active"{% endif %}>
                             <a class="nav-link" href="{% url 'datacollector:organisations' %}"><i class="fa fa-building"></i> Organisations Management </a>
+                        </li>
+                            {% url 'ui:aggregation' as aggregation %}
+                        <li {% if request.path == aggregation %} class="active"{% endif %}>
+                            <a class="nav-link" href="{% url 'ui:aggregation' %}"><i class="fa fa-reorder"></i> Agregation Management </a>
                         </li>
                         {% endif %}
                         {% if not request.user.is_superuser %}

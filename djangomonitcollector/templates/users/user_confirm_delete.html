@@ -10,21 +10,25 @@
                 <small>{{ object.username }}</small> {% endblock %}
 
 {% block content %}
+<div class="container">
     <div class="row clearfix">
         <form action="" method="post">{% csrf_token %}
 
             <div class="row">
-                <p>Are you sure you want to delete "{{ object.username }}"?</p>
+                <p>Are you sure you want to delete <b>"{{ object.username|title }}"</b>?</p>
             </div>
             <hr class="divider"/>
             <div class="row">
                 <div class="control-group">
                     <div class="form-controls">
                         <input type="submit" value="Confirm" class="btn btn-danger"/>
+                        <button type="button" value="Cancel" class="btn btn-info" onclick="window.history.back()">Cancel</button>
+
                     </div>
                 </div>
             </div>
         </form>
     </div>
+</div>
 {% endblock content %}
 

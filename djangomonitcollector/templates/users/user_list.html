@@ -6,13 +6,17 @@
 {% block title %}Users List{% endblock %}
 
 {% block content %}
+    <div class="container">
+
     <div class="row clearfix">
+
         <table class="table table-hover table-hover table-striped table-bordered">
             <thead>
                 <tr>
                     <th> Username</th>
                     <th> Firstname</th>
                     <th> Lastname </th>
+                    <th> Last Login</th>
                     {% if request.user.is_superuser %}
                     <th>Organisation</th>
                     <th>Organisation Manager</th>
@@ -28,6 +32,7 @@
                         </td>
                         <td>{{ user.first_name }}</td>
                         <td>{{ user.last_name }}</td>
+                        <td>{{ user.last_login }}</td>
                         {% if request.user.is_superuser %}
                         <td>{{ user.organisation }}</td>
                         <td> {% if not user.is_superuser %}{{ user.organisation_manager|boolean_widget|safe }}{% endif %}</td>
@@ -42,10 +47,14 @@
                 {% endfor %}
             </tbody>
         </table>
+
     </div>
+      <div class="hr-line-dashed"></div>
+
     <div class="row clearfix">
         <div>
             <a href="{% url 'users:create' %}" class="btn btn-primary">New</a>
         </div>
+    </div>
     </div>
 {% endblock content %}

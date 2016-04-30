@@ -28,10 +28,10 @@
                   {% if hg == server.host_group %}
                     {% if not monitoring_enabled  %}
 
-                            <tr class="link" onclick="document.location = '{% url 'ui:server' server.id %}';"  >
+                            <tr data-toggle="tooltip" data-placement="top" title="{{ server.platform }}" class="link" onclick="document.location = '{% url 'ui:server' server.id %}';"  >
                                 <td>{{ server.server_up|server_status_to_css_class|safe}}</td>
                                 <td>{{ server.localhostname }}</td>
-                                <td>{{ server.address }}</td>
+                                <td>{{ server.external_ip }}</td>
                                 <td>{{ server.monit_version }}</td>
                                 <td>{{ server.uptime|time_str }}</td>
                                 <td>{{ server.system.load_avg01_last }}, {{ server.system.load_avg05_last }}, {{ server.system.load_avg15_last }}</td>
@@ -65,3 +65,9 @@
         </tbody>
     </table>
 </div>
+
+<script>
+
+   $('[data-toggle="tooltip"]').tooltip()
+
+</script>
