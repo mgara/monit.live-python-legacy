@@ -14,7 +14,7 @@ from optparse import make_option
 from pytz import timezone
 from urlparse import urlparse
 
-FILENAME = '/var/log/vantrix/monit_host_heartbeat.log'
+FILENAME = '/var/log/vantrix/monit_collector_host_heartbeat.log'
 FORMAT = '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
 
 
