@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% load aggregation_tags %}
+
+{% block title %}Aggregation{% endblock %}
+{% block page_title %} Aggregation {% endblock %}
+{% block content %}
+    {% load i18n %}
+    <div class="container">
+    <div class="row clearfix">
+
+            {% for item in object_list %}
+                <hr/>
+                <div class="row">
+                    <div class="col-md-4">
+                        {% trans 'If data is older than' %} <b>{{ item.number_of_period }}</b> <b>{{ item.period|aggregation_period }}</b>  {% trans 'Aggregate to ' %} <b>{{ item.granularity|granularity }}</b>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                            <a type="button" class="btn btn-warning"  href="{% url 'ui:update_aggregation' pk=item.id %}" ><i class="fa fa-edit"></i></a>
+                            <a type="button" class="btn btn-danger" href="{% url 'ui:delete_aggregation' pk=item.id  %}" ><i class="fa fa-trash"></i></a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="row">
+                    <p>  <h2><span class="text-navy">{% trans "No Aggregation Rules Configured Yet." %}</span></h2>
+
+                </div>
+            {% endfor %}
+             </div>
+    <div class="hr-line-dashed"></div>
+    <div class="row clearfix">
+        <a href="{% url 'ui:create_aggregation' %}" class="btn btn-primary">New Aggregation Rule</a>
+    </div>
+    </div>
+{% endblock %}

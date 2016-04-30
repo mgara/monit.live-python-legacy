@@ -12,11 +12,11 @@ from django.http import HttpResponseNotAllowed
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
-from django.views.generic import DetailView, ListView, UpdateView, DeleteView
+from django.views.generic import DetailView, ListView, UpdateView, DeleteView, CreateView
 from django_filters.views import FilterView
 
 from djangomonitcollector.datacollector.models import MemoryCPUSystemStats, MemoryCPUProcessStats
-from djangomonitcollector.datacollector.models import Server, MonitEvent
+from djangomonitcollector.datacollector.models import Server, MonitEvent, AggregationPeriod
 from djangomonitcollector.users.models import validate_user, Settings
 from djangomonitcollector.ui.models import HostGroup
 
@@ -277,9 +277,27 @@ def load_process_data(request, server_id, process_name):
             }
     return JsonResponse(data)
 
+
+class AggreationView(LoginRequiredMixin, ListView):
+    model = AggregationPeriod
+
+
+class AggreationCreate(LoginRequiredMixin, CreateView):
+    model = AggregationPeriod
+    fields = '__all__'
+
+
+class AggreationUpdate(LoginRequiredMixin, UpdateView):
+    model = AggregationPeriod
+    fields = '__all__'
+
+
+class AggreationDelete(LoginRequiredMixin, DeleteView):
+    model = AggregationPeriod
+    success_url = reverse_lazy('ui:aggregation')
+
+
 # Server
-
-
 class ServerShowView(LoginRequiredMixin, DetailView):
     model = Server
 

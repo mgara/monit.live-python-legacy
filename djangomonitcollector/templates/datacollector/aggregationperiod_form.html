@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% load widget_tweaks %}
+{% block page_title %} {% if object.id %} {% trans 'Update Aggregation Rule' %}{% else %}{% trans 'New Aggregation Rule' %}{% endif %}{% endblock %}
+{% block title %} {% if object.id %} {% trans 'Update Aggregation Rule' %}{% else %}{% trans 'New Aggregation Rule' %}{% endif %}{% endblock %}{% block content %}
+<div class="container">
+    <form class="form-horizontal" method="post" action="">
+        {% csrf_token %}
+        <div class="row">
+            <h3> If data older than : </h3>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                {{ form.number_of_period|add_class:"form-control" }}
+            </div>
+            {% if form.number_of_period.errors %}
+                <div class="alert alert-danger col-md-3">
+                    {{ form.number_of_period.errors }}
+                </div>
+            {% endif %}
+            <div class="col-md-2">
+                {{ form.period|add_class:"form-control" }}
+            </div>
+            {% if form.period.errors %}
+                <div class="alert alert-danger col-md-3">
+                    {{ form.period.errors }}
+                </div>
+            {% endif %}
+        </div>
+              <div class="row">
+            <h3> Then aggregate data to : </h3>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    {{ form.granularity|add_class:"form-control" }}
+                </div>
+                {% if form.granularity.errors %}
+                    <div class="alert alert-danger col-md-3">
+                        {{ form.granularity.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn btn-primary">{% if object.id %} {% trans 'Update' %}{% else %}{% trans 'New' %}{% endif %}</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

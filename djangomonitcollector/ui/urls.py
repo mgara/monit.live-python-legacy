@@ -101,4 +101,28 @@ urlpatterns = [
             view=views.IntelliEvent.as_view(),
             name='intellievent'
     ),
+    url(
+            regex=r'aggregation/$',
+            view=views.AggreationView.as_view(),
+            name='aggregation'
+
+        ),
+    url(
+            regex=r'aggregation/new/$',
+            view=views.AggreationCreate.as_view(),
+            name='create_aggregation'
+
+        ),
+    url(
+        regex=r'aggregation/update/(?P<pk>.*)/$',
+        view=views.AggreationUpdate.as_view(),
+        name='update_aggregation'
+
+    ),
+    url(
+        regex=r'aggregation/delete/(?P<pk>.*)/$',
+        view=views.AggreationDelete.as_view(),
+        name='delete_aggregation'
+
+    )
 ]

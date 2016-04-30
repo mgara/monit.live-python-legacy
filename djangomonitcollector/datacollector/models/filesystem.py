@@ -1,6 +1,5 @@
 import datetime
 import json
-import calendar
 
 from django.db import models
 from pytz import timezone
@@ -9,6 +8,7 @@ from service import Service
 from ..lib.utils import get_value, get_float
 from system import to_queue
 from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
+from ..models import AggregationPeriod
 
 
 class FileSystem(Service):
@@ -125,13 +125,15 @@ class FsAndDiskUsageStats(models.Model):
             _doc
         )
 
-class FsAndDiskDailyUsageStats(models.Model):
+
+class FsAndDiskAggregatedUsageStats(models.Model):
     fs_id = models.ForeignKey('FileSystem')
     date_last = models.DateTimeField(null=False)
     blocks_percent = models.FloatField(null=True)
     blocks_usage = models.FloatField(null=True)
     inode_percent = models.FloatField(null=True)
     inode_usage = models.FloatField(null=True)
+    rule_id = models.ForeignKey(AggregationPeriod)
 
     @classmethod
     def create(

@@ -7,6 +7,7 @@ import pika
 import json
 from service import Service
 from ..lib.utils import get_value, json_list_append
+from ..models import AggregationPeriod
 
 from django.conf import settings
 
@@ -89,7 +90,7 @@ class System(Service):
         return system
 
 
-class MemoryCPUDailySystemStats(models.Model):
+class MemoryCPUAggregatedSystemStats(models.Model):
     system_id = models.ForeignKey('System')
     date_last = models.DateTimeField()
     load_avg01 = models.FloatField(null=True)
@@ -102,6 +103,7 @@ class MemoryCPUDailySystemStats(models.Model):
     memory_kilobyte = models.PositiveIntegerField(null=True)
     swap_percent = models.FloatField(null=True)
     swap_kilobyte = models.PositiveIntegerField(null=True)
+    rule_id = models.ForeignKey(AggregationPeriod)
 
     @classmethod
     def create(cls,

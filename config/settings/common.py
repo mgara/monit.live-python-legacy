@@ -38,7 +38,6 @@ THIRD_PARTY_APPS = (
     'crispy_forms',  # Form layouts
     'allauth',  # registration
     'allauth.account',  # registration
-    'allauth.socialaccount',  # registration
 )
 
 # Apps specific for this project go here.
@@ -51,7 +50,8 @@ LOCAL_APPS = (
     'widget_tweaks',
     'django_filters',
     'pagination',
-    'bootstrap_pagination'
+    'bootstrap_pagination',
+    'ordered_model'
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -235,6 +235,10 @@ AUTHENTICATION_BACKENDS = (
 ACCOUNT_AUTHENTICATION_METHOD = 'username'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = False
+#ACCOUNT_SIGNUP_FORM_CLASS = "djangomonitcollector.users.forms.MySignUpForm"
+
+ACCOUNT_ADAPTER = 'djangomonitcollector.users.models.MyAccountAdapter'
+
 
 # Custom user app defaults
 # Select the correct user model
@@ -249,7 +253,7 @@ AUTOSLUG_SLUGIFY_FUNCTION = 'slugify.slugify'
 INSTALLED_APPS += ('djangomonitcollector.taskapp.celery.CeleryConfig',)
 # if you are not using the django database broker (e.g. rabbitmq, redis, memcached), you can remove the next line.
 #INSTALLED_APPS += ('kombu.transport.django',)
-BROKER_URL = env("CELERY_BROKER_URL", default='amqp://dmc:va2root@172.16.5.133:5672')
+BROKER_URL = env("CELERY_BROKER_URL", default='amqp://dmc:va2root@localhost:5672')
 # CELERY SETTINGS
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -272,4 +276,3 @@ ENABLE_MANUAL_APPROVAL = False
 NUMBER_OF_TRANSITIONS_PER_FLAPPING_PERIOD = 2
 
 SERVICE_FLAPPING_PERIOD = 60
-

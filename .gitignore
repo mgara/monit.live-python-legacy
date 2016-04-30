@@ -70,3 +70,6 @@ staticfiles/
 
 
 *migrations/
+
+
+._*

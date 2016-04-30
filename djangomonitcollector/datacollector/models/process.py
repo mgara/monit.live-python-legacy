@@ -5,6 +5,7 @@ from pytz import timezone
 from service import Service
 from ..lib.utils import get_value
 from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
+from ..models import AggregationPeriod
 
 
 class Process(Service):
@@ -101,12 +102,13 @@ class MemoryCPUProcessStats(models.Model):
             )
 
 
-class MemoryCPUProcessDailyStats(models.Model):
+class MemoryCPUProcessAggregatedStats(models.Model):
     process_id = models.ForeignKey('Process')
     date_last = models.DateTimeField()
     cpu_percent = models.FloatField(null=True)
     memory_percent = models.FloatField(null=True)
     memory_kilobyte = models.PositiveIntegerField(null=True)
+    rule_id = models.ForeignKey(AggregationPeriod)
 
     @classmethod
     def create(

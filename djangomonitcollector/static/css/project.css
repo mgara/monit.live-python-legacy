@@ -19,17 +19,6 @@
     color:#ed5565;
 }
 
-/*Fade all the DIV when user hovers on any div*/
-.row:hover .column{
-  zoom: 1;
-  filter: alpha(opacity=45);
-  opacity: 0.45;
-  -webkit-transition: opacity .5s ease-in-out;
-  -moz-transition: opacity .5s ease-in-out;
-  -ms-transition: opacity .5s ease-in-out;
-  -o-transition: opacity .5s ease-in-out;
-  transition: opacity .5s ease-in-out;
-}
 
 
 .row .column:hover{
@@ -44,6 +33,3 @@
   opacity: 1;
 }
 
-.link:hover {
-    cursor: pointer;
-}

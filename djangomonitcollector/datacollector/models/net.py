@@ -6,6 +6,7 @@ from pytz import timezone
 from service import Service
 from ..lib.utils import get_value, get_string, get_int
 from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
+from ..models import AggregationPeriod
 
 
 # type = 8
@@ -80,14 +81,13 @@ class Net(Service):
         return net
 
 
-
     @classmethod
     def get_by_name(cls, server, name):
         service, created = cls.objects.get_or_create(server=server, name=name)
         return service
 
 
-class NetDailyStats(models.Model):
+class NetAggregatedStats(models.Model):
     net_id = models.ForeignKey('Net')
     date_last = models.DateTimeField()
     download_packet = models.IntegerField(null=True)
@@ -96,6 +96,7 @@ class NetDailyStats(models.Model):
     upload_packet = models.IntegerField(null=True)
     upload_bytes = models.IntegerField(null=True)
     upload_errors = models.IntegerField(null=True)
+    rule_id = models.ForeignKey(AggregationPeriod)
 
     @classmethod
     def create(cls,

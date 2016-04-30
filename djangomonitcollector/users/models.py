@@ -6,12 +6,40 @@ import random
 import uuid
 import socket
 
+from django import forms
 from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from djangomonitcollector.datacollector.lib.utils import TIMEZONES_CHOICES
+
+from allauth.account.adapter import DefaultAccountAdapter
+from allauth.utils import get_user_model
+
+
+
+class MyAccountAdapter(DefaultAccountAdapter):
+    def is_open_for_signup(self, request):
+        return False
+
+
+    def clean_email(self, email):
+        """
+        Validates an email value. You can hook into this if you want to
+        (dynamically) restrict what email addresses can be chosen.
+        """
+        if not email.endswith("@vantrix.com"):
+            raise forms.ValidationError("Must be a vantrix address")
+        return email
+
+    def new_user(self, request):
+        """
+        Instantiates a new User instance.
+        """
+        user = get_user_model()()
+        #user.is_active = False
+        return user
 
 
 class Organisation(models.Model):

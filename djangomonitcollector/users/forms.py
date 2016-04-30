@@ -3,6 +3,8 @@ from __future__ import absolute_import, unicode_literals
 
 from django import forms
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm, AdminPasswordChangeForm
+
+from allauth.account.forms import SignupForm
 from django.utils.translation import ugettext as _
 
 from .models import User, Organisation, INSPINIA_SKINS
@@ -14,6 +16,9 @@ class MyUserChangeForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):
         model = User
 
+
+class MySignUpForm(SignupForm):
+    pass
 
 class MyUserCreationForm(UserCreationForm):
     error_message = UserCreationForm.error_messages.update({
