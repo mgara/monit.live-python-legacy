@@ -12,6 +12,9 @@
     <a class="nav-link" href="{% url 'ui:server_alerts' server.id %}"><i class="fa fa-bell"></i>Active Alerts <span
     class="label label-{{ alerts_count|status_alert }} pull-right">{{ alerts_count }}</span></a>
   </li>
+   <li class="nav-item">
+    <a class="nav-link" href="{% url 'ui:server_kpis' server.id %}"><i class="fa fa-bar-chart"></i> Key Performance Indicators</a>
+  </li>
   <li class="nav-item">
         <a class="nav-link scroll" href="#processes"><i class="fa fa-bullseye"></i> Processes</a>
     </li>
@@ -309,7 +312,7 @@ $(function() {
         axisLabelColor: '#BBB',
         axisLineColor: '#BBB',
         colors: graph_colors,
-
+        fillGraph: true,
         zoomCallback: function() { // (minDate, maxDate)
             set_linewidth(graph_load, data_load);
         },
@@ -330,6 +333,7 @@ $(function() {
         labels: ['Time', 'user', 'system', 'wait'],
         axisLabelColor: '#CCC',
         axisLineColor: '#CCC',
+        fillGraph: true,
         colors: graph_colors,
         zoomCallback: function() { // (minDate, maxDate)
             set_linewidth(graph_cpu, data_cpu);
@@ -361,6 +365,16 @@ $(function() {
 
     });
 
+    var gs = []
+        gs.push(graph_mem)
+        gs.push(graph_cpu)
+        gs.push(graph_load)
+
+    var sync = Dygraph.synchronize(gs, {
+          range: false,
+          selection:true,
+          zoom:true,
+        });
 
     //set_linewidth(graph_mem, data_mem);
     window.intervalId = setInterval(function() {
@@ -370,18 +384,24 @@ $(function() {
                 var date_of_last_data_received = data_cpu[data_cpu.length - 1][0]
                 var date_of_just_received_data = new Date(JSON.parse(data.date) * 1000);
                 if (date_of_just_received_data > date_of_last_data_received) {
-
                     data_load.push([date_of_just_received_data, JSON.parse(data.load_avg01), JSON.parse(data.load_avg05), JSON.parse(data.load_avg15)]);
+                    data_load.shift()
+                    date_window =  [data_load[0][0], date_of_just_received_data]
                     graph_load.updateOptions({
-                        'file': data_load
+                        'file': data_load,
+                        'dateWindow': date_window
                     });
                     data_cpu.push([date_of_just_received_data, JSON.parse(data.cpu_user), JSON.parse(data.cpu_system), JSON.parse(data.cpu_wait)]);
+                    data_cpu.shift()
                     graph_cpu.updateOptions({
-                        'file': data_cpu
+                        'file': data_cpu,
+                        'dateWindow': date_window
                     });
                     data_mem.push([date_of_just_received_data, JSON.parse(data.memory_percent), JSON.parse(data.memory_kilobyte) / 1.e6, JSON.parse(data.swap_percent), JSON.parse(data.swap_kilobyte) / 1.e6]);
+                    data_mem.shift()
                     graph_mem.updateOptions({
-                        'file': data_mem
+                        'file': data_mem,
+                        'dateWindow': date_window
                     });
                 }}
         });
@@ -389,8 +409,11 @@ $(function() {
 
     window.intervalId = setInterval(function() {
         $.post("{% url 'ui:load_system_table' server.id %}", function(data) {
-            $("#server_table").replaceWith(data.table_html);
+            if ($("#process_table").length){
+                $("#process_table").replaceWith(data.table_html);
+            }
         });
+
     }, update_period);
 
     chart_cpu = new Highcharts.Chart({
@@ -401,6 +424,16 @@ $(function() {
             plotShadow: false,
             backgroundColor:'rgba(255, 255, 255, 0.1)'
         },
+         colors: [
+            '#f8ac59',
+            '#1ab394',
+            '#d1dade',
+            '#1c84c6',
+            '#a3e1d4',
+            '#ed5565',
+            '#1ab394',
+            '#d1dade',
+        ],
         title: {
             text: 'CPU<br>Usage',
             align: 'center',
@@ -521,7 +554,7 @@ $(function() {
     socket.on('dmc', function(msg) {
         var data = msg.data;
         // var cpu_system_last=['System', data.cpu_system_last];
-        console.log(data);
+
         if (null != data.cpu_wait_last) {
             var cpu_wait_last = ['Wait', data.cpu_wait_last];
             var cpu_user_last = ['User', data.cpu_user_last];
@@ -541,7 +574,12 @@ $(function() {
             var graph_data = [used_disk, free_disk]
             chart_disk.series[0].setData(graph_data, true);
             chart_disk.redraw();
-        }});
+            }
+        }
+    );
+
+
+
 });
 
   var hashTagActive = "";

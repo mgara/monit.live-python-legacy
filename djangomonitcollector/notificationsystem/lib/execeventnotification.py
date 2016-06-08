@@ -36,7 +36,7 @@ class ExecEventNotification(EventSettingsInterface):
 
         exec_command = self.extra_params['exec_command']
         subprocess.call(
-            exec_command, stdout=OUTPUT_PLUGIN, stderr=ERR_PLUGIN, shell=True)
+            exec_command, stdout=OUTPUT_PLUGIN, stderr=ERR_PLUGIN, shell=False)
 
     def finalize(self, event_object):
         # put whatever you want to be done after the process command

@@ -52,6 +52,7 @@ def disconnect_request():
 
 @socketio.on('connect', namespace='/dmc')
 def test_connect():
+    print "Client CONNECTED"
     logging.info('client [{}] connected'.format(flask.request.sid))
     emit('dmc', {'data': {'event_type': 'connected'}})
 

@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load extra_tags %}
+
+
+{% block submenu %}
+    <li><a href="{% url 'ui:server' server.id %}"> Back to Server </a></li>
+{% endblock %}
+
+
+{% block content %}
+    {% if process_found %}
+
+
+
+    <div class="row clearfix">
+
+        <div class="page-header">
+            <h1>Net <b>{{net.name}}</b> on <small>{{ server.localhostname }}</small>
+            </h1>
+        </div>
+
+
+        <div class="row clearfix marginTop">
+            <div class="col-md-12 column">
+                {% include "ui/includes/net_table.html" %}
+            </div>
+        </div>
+        <div class="divider"></div>
+
+        <div class="row clearfix">
+                <div id="graph_packets" class="graph" style="width:100%"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="row clearfix">
+                <div id="graph_bytes" class="graph" style="width:100%"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="row clearfix">
+                <div id="graph_errors" class="graph" style="width:100%"></div>
+        </div>
+        <div class="divider"></div>
+
+        <div class="row">
+            <p class="helper"> Zoom: click-drag --- Pan: shift-click-drag --- Restore zoom level: double-click</p>
+
+        </div>
+
+    </div>
+  <script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
+    <script src="{% static 'js/dygraph-combined.js' %}"></script>
+    <script src="{% static 'js/csrf.js' %}"></script>
+
+    <script>
+        $(document).ready(function () {
+                {% if request.session.is_dst %}
+            var dst_delta =3600
+                  {% else %}
+            var dst_delta= 0 // 1h
+                {% endif %}
+
+            var point_size = 1;
+            var stroke_width = 3;
+            var draw_point = false;
+            var graph_colors =  ["#1ab394", "#ed5565", "#f8ac59", "#1c84c6"];
+            var fillGraph = true;
+
+            var update_period = 1000 *{{monit_update_period}};
+            var data_packets = [];
+            var data_bytes = [];
+            var data_errors = [];
+            var gs = []
+
+            var dates = {{date_last}};
+            var y1 = {{download_packet}};
+            var y2 = {{upload_packet}};
+
+            var y3 = {{download_bytes}};
+            var y4 = {{upload_bytes}};
+
+            var y5 = {{download_errors}};
+            var y6 = {{upload_errors}};
+
+            var i;
+            for (i = 0; i < dates.length; i++)
+                data_packets.push([new Date((dates[i]-dst_delta) * 1000.), y1[i], y2[i]]);
+            for (i = 0; i < dates.length; i++)
+                data_bytes.push([new Date((dates[i]-dst_delta) * 1000.), y3[i], y4[i]]);
+            for (i = 0; i < dates.length; i++)
+                data_errors.push([new Date((dates[i]-dst_delta) * 1000.), y5[i], y6[i]]);
+
+
+            function formatBytes(bytes,decimals) {
+               if(bytes == 0) return '0 Byte';
+               var k = 1024; // or 1024 for binary
+               var dm = decimals + 1 || 3;
+               var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+               var i = Math.floor(Math.log(bytes) / Math.log(k));
+               return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            }
+
+            function formatValue(v) {
+               return formatBytes(v,2)
+            }
+
+
+
+            var graph_packets = new Dygraph(document.getElementById("graph_packets"), data_packets,
+                    {
+                        legend: 'always', // show always
+                        labelsDivWidth: '140', // default 250
+                        labelsSeparateLines: true,
+                        ylabel: 'Packets',
+                        xlabel: 'Time',
+                        rollPeriod: 10,
+                        drawPoints: draw_point,
+                        pointSize: point_size,
+                        strokeWidth: stroke_width,
+                        labels: ['Time','Download', 'Upload'],
+                        axisLabelColor: '#CCC',
+                        axisLineColor: '#CCC',
+                        title: 'Downloaded Packets/Uploaded Packets',
+                        //plotter: barChartPlotter,
+                        colors: graph_colors,
+                        fillGraph: fillGraph,
+                        zoomCallback: function () { // (minDate, maxDate)
+                            set_linewidth(graph_packets, data_packets);
+                        },
+                    });
+            set_linewidth(graph_packets, data_packets);
+
+            var graph_bytes = new Dygraph(document.getElementById("graph_bytes"), data_bytes,
+                    {
+                        legend: 'always', // show always
+                        labelsDivWidth: '140', // default 250
+                        labelsSeparateLines: true,
+                        ylabel: 'Bytes',
+                        xlabel: 'Time',
+                        rollPeriod: 10,
+                        drawPoints: draw_point,
+                        pointSize: point_size,
+                        strokeWidth: stroke_width,
+                        title: 'Downloaded Bytes/Uploaded Bytes',
+                        labels: ['Time','Download', 'Upload'],
+                        axisLabelColor: '#CCC',
+                        axisLineColor: '#CCC',
+                        yValueFormatter: formatValue,
+                        colors: graph_colors,
+                        fillGraph: fillGraph,
+                       // plotter: barChartPlotter,
+                        zoomCallback: function () { // (minDate, maxDate)
+                            set_linewidth(graph_bytes, data_bytes);
+                        },
+                    });
+            set_linewidth(graph_bytes, data_bytes);
+
+            var graph_errors = new Dygraph(document.getElementById("graph_errors"), data_errors,
+                    {
+                        legend: 'always', // show always
+                        labelsDivWidth: '140', // default 250
+                        labelsSeparateLines: true,
+                        ylabel: 'Errors',
+                        xlabel: 'Time',
+                        rollPeriod: 10,
+                        drawPoints: draw_point,
+                        pointSize: point_size,
+                        strokeWidth: stroke_width,
+                        title: 'Downloaded Errors/Uploaded Errors',
+                        labels: ['Time','Download', 'Upload'],
+                        axisLabelColor: '#CCC',
+                        axisLineColor: '#CCC',
+                        colors: graph_colors,
+                        fillGraph: fillGraph,
+                        zoomCallback: function () { // (minDate, maxDate)
+                            set_linewidth(graph_errors, data_errors);
+                        },
+                    });
+            set_linewidth(graph_errors, data_errors);
+            gs.push(graph_packets);
+            gs.push(graph_bytes);
+            gs.push(graph_errors);
+            var sync = Dygraph.synchronize(gs, {
+                  range: false,
+                });
+
+            /* It sucks that these things aren't objects, and we need to store state in window.
+            window.intervalId = setInterval(function () {
+                $.post("{% url 'ui:load_network_data' server.id net.name %}", function (data) {
+                    var date = new Date(JSON.parse(data.date) * 1000.);
+                    var last_received_data = data_cpu[data_cpu.length - 1][0]
+                    if (date > last_received_data) {
+                        data_cpu.push([date, JSON.parse(data.cpu_percenttotal)]);
+                        graph_cpu.updateOptions({'file': data_cpu});
+
+                        data_mem.push([date, JSON.parse(data.memory_percenttotal), JSON.parse(data.memory_kilobytetotal) / 1.e6]);
+                        graph_mem.updateOptions({'file': data_mem});
+                    }
+                });
+
+            }, update_period);*/
+
+            // smaller points if the data array is too big
+            function set_linewidth(graph, data) {
+                var range = graph.xAxisRange();
+                var yrange = graph.yAxisRange();
+                console.log(yrange)
+                var data_points = 0;
+                for (var i = 0; i < data.length; i++) {
+                    var x = data[i][0];
+                    //if (x > minDate && x < maxDate)
+                    if (x > range[0] && x < range[1])
+                        data_points++;
+                }
+                var new_opts = {};
+                if (data_points > 2000) {
+                    new_opts.pointSize = 0.5;
+                    new_opts.strokeWidth = 0.33;
+                }
+                else if (data_points > 900) {
+                    new_opts.pointSize = 1;
+                    new_opts.strokeWidth = 0.5;
+                } else {
+                    new_opts.pointSize = 3;
+                    new_opts.strokeWidth = 1.;
+                }
+                graph.updateOptions(new_opts);
+            }
+
+            function barChartPlotter(e) {
+                var ctx = e.drawingContext;
+                var points = e.points;
+                var y_bottom = e.dygraph.toDomYCoord(0);  // see http://dygraphs.com/jsdoc/symbols/Dygraph.html#toDomYCoord
+
+                // This should really be based on the minimum gap
+                var bar_width = 2/3 * (points[1].canvasx - points[0].canvasx);
+                ctx.fillStyle = e.color;
+
+                // Do the actual plotting.
+                for (var i = 0; i < points.length; i++) {
+                    var p = points[i];
+                    var center_x = p.canvasx;  // center of the bar
+
+                    ctx.fillRect(center_x - bar_width / 2, p.canvasy,
+                            bar_width, y_bottom - p.canvasy);
+                    ctx.strokeRect(center_x - bar_width / 2, p.canvasy,
+                            bar_width, y_bottom - p.canvasy);
+                }
+            }
+        });
+    </script>
+    {% csrf_token %}
+    {% else %}
+        <div class="row clearfix">
+            <div class="col-md-12 column">
+                <p>Something went wrong. Process not found.</p>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}

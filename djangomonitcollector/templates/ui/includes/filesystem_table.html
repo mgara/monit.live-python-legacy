@@ -13,7 +13,7 @@
         <tbody>
         {% for fs in filesystems %}
             <tr>
-                <td>{{ fs.name }}</td>
+                <td>{{ fs.name|clean_service_name }}</td>
                 <td><span class="label label-{{ fs.status|status_tr_class:fs.monitor }}">{{ fs.status|status_to_string:fs }}</span></td>
                 <td>{% autoescape off %}{{ fs|fs_percent_bar }}{% endautoescape %}</td>
                 <td>{% autoescape off %}{{ fs|fs_percent_bar_inode }}{% endautoescape %}</td>

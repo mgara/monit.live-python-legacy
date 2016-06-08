@@ -1,4 +1,6 @@
 {% load extra_tags %}
+
+
 <div id="dashboard_table" class="table-responsive">
     <table class="table table-hover table-hover table-striped table-bordered">
         <thead>
@@ -12,23 +14,24 @@
                 <th>CPU (user)</th>
                 <th>Memory</th>
                 <th>Last data received</th>
-                <th>Alerts</th>
-                <th>Processes</th>
-                <th>Settings {{ server.disable_monitoring }}</th>
+                <th class="text-center"><i class="fa fa-bell"></i></th>
+                <th class="text-center"><i class="fa fa-gears"></i></th>
+                <th class="text-center"><i class="fa fa-wrench"></i></th>
             </tr>
         </thead>
         <tbody>
-            {% for hg in host_groups %}
+
+            {% for hg in hgs %}
                 <tr>
                     <td colspan="12">
-                        <h3> Host Group : <span class="text-navy">{{ hg.display_name }}  </span><a class="label label-default"><i class="fa fa-edit"></i></a></h3>
+                        <h3> Host Group : <span class="text-navy">{{ hg }}</span></h3>
                     </td>
                 </tr>
                 {% for server in servers %}
                   {% if hg == server.host_group %}
                     {% if not monitoring_enabled  %}
 
-                            <tr data-toggle="tooltip" data-placement="top" title="{{ server.platform }}" class="link" onclick="document.location = '{% url 'ui:server' server.id %}';"  >
+                            <tr class="link" onclick="document.location = '{% url 'ui:server' server.id %}';"  >
                                 <td>{{ server.server_up|server_status_to_css_class|safe}}</td>
                                 <td>{{ server.localhostname }}</td>
                                 <td>{{ server.external_ip }}</td>
@@ -38,9 +41,12 @@
                                 <td>{% autoescape off %}{{ server.system.cpu_user_last|percent_to_bar }}{% endautoescape %}</td>
                                 <td>[{{ server.system.memory_kilobyte_last|kb_formatting }}] {% autoescape off %}{{  server.system.memory_percent_last|percent_to_bar }}{% endautoescape %}</td>
                                 <td><span class="label label-{{ server.system.date_last|time_class }}">{{ server.system.date_last|timestamp_to_date }} </span>
-                                <td><a href="{% url 'ui:server_alerts' server.id %}" ><span class="label label-{{ server.alerts|status_alert }}">{{server.alerts }}</span></a></td>
-                                <td><span class="label label-success">{{server.processes }}</span></td>
-                                <td><a class="btn btn-xs btn-primary" href="{% url 'ui:server_show' server.id %}"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a></td>
+                                <td class="text-center"><a href="{% url 'ui:server_alerts' server.id %}" ><span class="label label-{{ server.alerts|status_alert }}">{{server.alerts }}</span></a></td>
+                                <td class="text-center"><span class="label label-success">{{server.processes }}</span></td>
+                                <td class="text-center">
+                                    <a class="btn btn-xs btn-info" href="{% url 'ui:server_show' server.id %}"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a>
+                                    <a class="btn btn-xs btn-info" href="{% url 'ui:server_kpis' server.id %}"><span class="fa fa-bar-chart" aria-hidden="true"></span></a>
+                                </td>
                             </tr>
 
                         {% else %}
@@ -67,7 +73,8 @@
 </div>
 
 <script>
-
+  $(document).ready(function() {
    $('[data-toggle="tooltip"]').tooltip()
+});
 
 </script>

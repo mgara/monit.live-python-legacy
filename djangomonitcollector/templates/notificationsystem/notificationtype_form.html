@@ -1,53 +1,268 @@
 {% extends "base.html" %}
-{% load static %}{% load i18n %}
-
+{% load static %}
+{% load i18n %}
+{% load widget_tweaks %}
 {% load staticfiles %}
 {% load extra_tags %}
 {% load crispy_forms_tags %}
 {% block page_title %} {% if object.id%} Update Notification <small class="text-navy"> {{ object.notification_label }}</small>{% else %} New Notification {% endif %}{% endblock %}
 
+{% block head %}
+    <link href="{% static 'css/bootstrap-taginput.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap-select.min.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
-
-
+    <div class="container">
             <form id="notification_type_form" class="forn-horizontal" method="post" action="">
                 {% csrf_token %}
-                {{ form|crispy }}
-                <div id="extra_params_container"></div>
-                <hr class="divider"/>
+                <div class="form-group">
+                    <div class="row ">
+                        <div class="col-md-2 control-label">
+                            {{ form.notification_label.label_tag|title }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.notification_label|add_class:"form-control"}}
+                        </div>
+                        {% if form.notification_label.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.notification_label.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row ">
+                        <div class="col-md-2 control-label">
+                            {{ form.notification_message.label_tag|title }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.notification_message|add_class:"form-control"}}
+                        </div>
+                        {% if form.notification_message.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.notification_message.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row ">
+                        <div class="col-md-2 control-label">
+                            {{ form.notification_enabled.label_tag|title }}
+                        </div>
+                        <div class="col-md-5">
+                            {{ form.notification_enabled|add_class:"i-checks"}}
+                        </div>
+                        {% if form.notification_enabled.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.notification_enabled.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row ">
+                        <div class="col-md-2 control-label">
+                            {{ form.notification_host_group.label_tag|title }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.notification_host_group|add_class:"form-control"}}
+                            <span class="help-block m-b-none">{{ form.notification_host_group.help_text}}</span>
+                        </div>
+
+                        {% if form.notification_host_group.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.notification_host_group.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row ">
+                        <div class="col-md-2 control-label">
+                            {{ form.notification_server.label_tag|title }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.notification_server|add_class:"form-control"}}
+                             <span class="help-block m-b-none">{{ form.notification_server.help_text}}</span>
+                        </div>
+                        {% if form.notification_server.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.notification_server.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row ">
+                        <div class="col-md-2 control-label">
+                            {{ form.notification_service.label_tag|title }}
+                        </div>
+                        <div class="col-md-5 ">
+                            {{ form.notification_service}}
+                        </div>
+                        {% if form.notification_service.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.notification_service.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row ">
+                        <div class="col-md-2 control-label">
+                            {{ form.notification_type.label_tag|title }}
+                        </div>
+                        <div class="col-md-5 ">
+                            {{ form.notification_type}}
+                        </div>
+                        {% if form.notification_type.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.notification_type.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row ">
+                        <div class="col-md-2 control-label">
+                            {{ form.notification_state.label_tag|title }}
+                        </div>
+                        <div class="col-md-5 ">
+                            {{ form.notification_state}}
+                        </div>
+                        {% if form.notification_state.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.notification_state.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row ">
+                        <div class="col-md-2 control-label">
+                            {{ form.notification_action.label_tag|title }}
+                        </div>
+                        <div class="col-md-5 ">
+                            {{ form.notification_action}}
+                        </div>
+                        {% if form.notification_action.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.notification_action.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row ">
+                        <div class="col-md-2 control-label">
+                            {{ form.notification_class.label_tag|title }}
+                        </div>
+                        <div class="col-md-5 ">
+                            {{ form.notification_class}}
+                        </div>
+                        {% if form.notification_class.errors %}
+                            <div class="col-md-3 error">
+                                {{ form.notification_class.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div id="extra_params_container" class="extra_params_class"></div>
+                <div class="hr-line-dashed"></div>
                 <div class="control-group">
                     <div class="form-controls">
-                        <button type="submit" class="btn">Create</button>
+                        <button type="submit" class="btn btn-primary"> {% if object.id%} Update {% else %} Create {% endif %}</button>
                     </div>
                 </div>
 
             </form>
-
-
         <script language="javascript">
             // Submit post on submit
             $('#id_notification_class').on("change", function (event) {
                 get_plugin_form($(this).val());
             });
-
-            $(function(){
-                 get_plugin_form($('#id_notification_class').val());
-            })
-
         </script>
-
+</div>
 {% endblock content %}
 
 {% block customjs %}
+    <script src="{% static 'js/bootstrap-select.min.js' %}"></script>
     <script src="{% static 'js/jquery.multiselect.js' %}"></script>
+    <script src="{% static 'js/bootstrap-taginput.js' %}"></script>
 
     <script language="JavaScript">
+     $(document).ready(function(){
 
-    $('#id_notification_service').multiSelect({});
-    $('#id_notification_type').multiSelect({});
-    $('#id_notification_action').multiSelect({});
-    $('#id_notification_state').multiSelect({});
+        select_size = $('#id_notification_class option').length;
+        $('#id_notification_class').selectpicker({
+            style: 'btn-primary',
+            size: select_size
+        });
 
+        get_plugin_form($('#id_notification_class').val());
+
+        $('#id_notification_service').multiSelect({cssClass:"multiselect"});
+        $('#id_notification_type').multiSelect({cssClass:"multiselect"});
+        $('#id_notification_action').multiSelect({cssClass:"multiselect"});
+        $('#id_notification_state').multiSelect({cssClass:"multiselect"});
+
+        //   If we are updating the object
+        {% if object.id %}
+
+            var toType = function(obj) {
+              return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
+            }
+
+            //  We will grap the details of the rule on the fly cause it's a complex object.
+            $.ajax({
+                 url: "{% url 'n:get_notification_details' %}", // the endpoint
+                 type: "POST", // http method
+                 data: {
+                     "notification_id": '{{object.id}}'
+                 },
+                 // handle a successful response
+                 success: function(data) {
+                    $('#id_notification_service').multiSelect('deselect_all');
+                    $('#id_notification_type').multiSelect('deselect_all');
+
+                    obj = JSON.parse(data)[0].fields
+
+                    if (obj.notification_service.length > 0){
+                        var services = JSON.parse(obj.notification_service);
+                        $('#id_notification_service').multiSelect('select',services);
+                    }
+                    if (obj.notification_type.length > 0){
+                        var types = JSON.parse(obj.notification_type);
+                        $('#id_notification_type').multiSelect('select',types);
+                    }
+                 },
+                 // handle a non-successful response
+                 error: function(xhr, errmsg, err) {
+                    if ($('#results').length){
+                         $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                         " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                    }
+                     console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                 }
+             });
+        {% endif %}
+
+
+
+
+        $('#id_notification_server').tagsinput({
+        });
+        $('#id_notification_host_group').tagsinput({
+        });
+           $('#id_notification_enabled').iCheck({
+                    checkboxClass: 'icheckbox_square-green',
+                    radioClass: 'iradio_square-green',
+                });
+
+
+    });
 
     function getCookie(name) {
         var cookieValue = null;

@@ -41,8 +41,7 @@
                                     <script language="javascript">
                                     // Submit post on submit
                                     $('#ack-{{ monit_event.id }}').on("click", function (event) {
-                                    event_id = $(this).data("id");
-                                    ack(event_id);
+                                    ack({{ monit_event.id }});
                                     return false
                                     });
                                     </script>

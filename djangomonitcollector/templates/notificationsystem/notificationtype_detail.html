@@ -12,11 +12,10 @@
 
 {% endblock %}
 {% block page_title %} Notification
-                <small class="text-navy">{{ object.notification_label }}</small> {% endblock %}
-
-
+                <small class="text-navy">{{ object.notification_label }}</small>
+{% endblock %}
 {% block content %}
-
+    <div class="container">
 
     <div class="ibox">
         <div class="ibox-content">
@@ -25,10 +24,18 @@
             <div class="row">
                 <a class="btn btn-outline btn-danger pull-right" href="{% url 'n:notification_mute_all' object.id %}">Apply "{{ object.notification_label}}" on previous alerts</a>
                 </div>
-                                <div class="hr-line-dashed">
-
+                <div class="hr-line-dashed">
             {% endif %}
             </div>
+
+                {% if object.notification_server %}
+                    <p><span class="text-uppercase"> if Server in:  </span> <span
+                            class="lead">{{ object.notification_server|parse_comma_seperated_list | safe }}</span></p>
+                {% endif %}
+                {% if object.notification_host_group|check_size %}
+                    <p><span class="text-uppercase"> if Host Group in:  </span> <span
+                            class="lead">{{ object.notification_host_group|parse_comma_seperated_list | safe }}</span></p>
+                {% endif %}
                 {% if object.notification_service|check_size %}
                     <p><span class="text-uppercase"> if Services in:  </span> <span
                             class="lead">{{ object.notification_service|parse_service_list | safe }}</span></p>
@@ -75,18 +82,19 @@
                         <span class="label label-danger">OFF</span>
                     {% endif %}
                 </h5> </span></p>
-        </div>
-    </div>
+<div class="hr-line-dashed"></div>
     <!-- Action buttons -->
     <div class="row">
 
-        <div class="col-sm-12 ">
+        <div class="col-sm-12">
             <a class="btn btn-primary" href="{% url 'n:notificationtype_update' object.id %}">Update</a>
             <a class="btn btn-warning" href="{% url 'n:notificationtype_activation' object.id %}">{{object.notification_enabled|status_to_label}}</a>
             <a class="btn btn-danger pull-right" href="{% url 'n:notificationtype_delete'  object.id %}">Delete</a>
         </div>
     </div>
-
+    </div>
+</div>
+</div>
 {% endblock content %}
 {% block customjs %}
 

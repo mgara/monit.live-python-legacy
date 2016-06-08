@@ -8,7 +8,7 @@
 <div class="container">
   <div class="row">
     <div class="col-md-5">
-                    <h4><i class="fa fa-user"></i>{{ object.name }}</h4>
+                    <h1 class="text-navy"><i class="fa fa-user"></i>{{ object.name }}</h1>
                 {% if object.first_name %}
                     <h4>Firstname : </h4>
                     <p>{{ object.first_name }}</p>
@@ -29,6 +29,15 @@
                     <h4>Organisation Manager :</h4>
                     <p>{{ object.organisation_manager|boolean_widget|safe }}</p>
                 {% endif %}
+
+                    <h4>Host Groups:</h4>
+                    <p>{% for hg in object.host_groups.all %}
+                        <span  class="label label-default"> {{ hg}}</span>
+                        {% empty %}
+                         No host groups assigned, contact organisation Manager
+                    {% endfor %}
+                    </p>
+
             </div>
         </div>
 

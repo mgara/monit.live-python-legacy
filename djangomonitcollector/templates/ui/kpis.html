@@ -1,0 +1,708 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load extra_tags %}
+{% block head %}
+    <link href="{% static 'css/plugins/c3/c3.min.css' %}" rel="stylesheet">
+
+{% endblock %}
+{% block page_title %} Key Performance Indicators  <br/> Server : <small class="text-navy">{{ server.localhostname }}</small> <br/> IP : <small class="text-navy">{{ server.external_ip }}</small> {% endblock %}
+
+{% block submenu %}
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'ui:server_alerts' server.id %}"><i class="fa fa-bell"></i>Active Alerts <span
+    class="label label-{{ alerts_count|status_alert }} pull-right">{{ alerts_count }}</span></a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'ui:server_show' server.id %}"><i class="fa fa-wrench"></i> Server Settings</a>
+  </li>
+{% endblock %}
+{% block content %}
+  <div class="row clearfix text-center">
+
+<div id="kpis" class="btn-group" data-toggle="buttons">
+  <label class="btn btn-primary btn-outline">
+    <input type="checkbox" autocomplete="off" id="system"> System
+  </label>
+    <label class="btn btn-primary btn-outline">
+    <input type="checkbox" autocomplete="off" id="network"> Network
+  </label>
+  <label class="btn btn-primary btn-outline">
+    <input type="checkbox" autocomplete="off" id="filesystem"> FileSystems
+  </label>
+</div>
+
+
+<div id="periods" class="btn-group" data-toggle="buttons">
+  <label class="btn btn-primary btn-outline ">
+    <input type="radio" id="1h" autocomplete="off"> 1h
+  </label>
+   <label class="btn btn-primary btn-outline ">
+    <input type="radio" id="3h" autocomplete="off"> 3h
+  </label>
+  <label class="btn btn-primary btn-outline active">
+    <input type="radio" id="1d" autocomplete="off"> 1d
+  </label>
+    <label class="btn btn-primary btn-outline">
+    <input type="radio" id="1w" autocomplete="off"> 1w
+  </label>
+      <label class="btn btn-primary btn-outline">
+    <input type="radio" id="1m" autocomplete="off"> 1m
+  </label>
+       <label class="btn btn-primary btn-outline">
+    <input type="radio" id="1y" autocomplete="off"> 1y
+  </label>
+
+  <label class="btn btn-primary btn-outline">
+    <input type="radio" id="max" autocomplete="off"> max
+  </label>
+</div>
+
+
+</div>
+  <div class="row clearfix top-buffer">
+
+    <div class="ibox float-e-margins ui-draggable ui-droppable">
+       <div class="ibox-title"> <h5>System Load</h5>
+            <div class="ibox-tools">
+                <a class="collapse-link">
+                    <i class="fa fa-chevron-up"></i>
+                </a>
+            </div>
+       </div>
+       <div class="ibox-content">
+            <div id="graph_load" class="graph" style="width:100%;">
+
+            </div>
+          </div>
+    </div>
+
+   <div class="ibox float-e-margins ui-draggable ui-droppable">
+   <div class="ibox-title"> <h5>CPU Usage</h5>
+        <div class="ibox-tools">
+        <a class="collapse-link">
+            <i class="fa fa-chevron-up"></i>
+        </a>
+    </div>
+   </div>
+   <div class="ibox-content">
+        <div id="graph_cpu" class="graph" style="width:100%;"></div>
+        </div>
+      </div>
+   <div class="ibox float-e-margins ui-draggable ui-droppable">
+   <div class="ibox-title"> <h5>System Memory</h5>
+        <div class="ibox-tools">
+        <a class="collapse-link">
+            <i class="fa fa-chevron-up"></i>
+        </a>
+    </div>
+   </div>
+   <div class="ibox-content">
+        <div id="graph_mem" class="graph" style="width:100%;"></div>
+        </div>
+      </div>
+
+    {% for nic in server.net_set.all %}
+       <div class="ibox float-e-margins ui-draggable ui-droppable">
+
+   <div class="ibox-title"> <h5> Network traffic: <b class="text-info">{{nic.name}}</b></h5>
+        <div class="ibox-tools">
+        <a class="collapse-link">
+            <i class="fa fa-chevron-up"></i>
+        </a>
+    </div>
+   </div>
+   <div class="ibox-content">
+        <div id="network_graph_packets_{{nic.name}}" class="graph" style="width:100%;">
+
+        </div>
+          <div id="network_graph_bytes_{{nic.name}}" class="graph" style="width:100%;">
+
+          </div>
+          <div id="network_graph_errors_{{nic.name}}" class="graph" style="width:100%;">
+
+          </div>
+        </div>
+      </div>
+
+    {% endfor %}
+
+
+    {% for fs in server.filesystem_set.all %}
+       <div class="ibox float-e-margins ui-draggable ui-droppable">
+
+   <div class="ibox-title"> <h5> Filesystem Usage: <b class="text-info">{{fs.name|clean_service_name}}</b></h5>
+        <div class="ibox-tools">
+        <a class="collapse-link">
+            <i class="fa fa-chevron-up"></i>
+        </a>
+    </div>
+   </div>
+   <div class="ibox-content">
+        <div id="fs_graph_blocks_usage_{{fs.name}}" class="graph" style="width:100%;">
+
+        </div>
+        <div id="fs_graph_blocks_percent_{{fs.name}}" class="graph" style="width:100%;">
+
+        </div>
+        <div id="fs_graph_inode_usage_{{fs.name}}" class="graph" style="width:100%;">
+
+        </div>
+        <div id="fs_graph_inode_percent_{{fs.name}}" class="graph" style="width:100%;">
+
+        </div>
+        </div>
+      </div>
+
+    {% endfor %}
+
+</div>
+
+    {% csrf_token %}
+  {% endblock %}
+  {% block customjs %}
+    <script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
+    <script src="{% static 'js/dygraph-combined.js' %}"></script>
+    <script src="{% static 'js/csrf.js' %}"></script>
+    <script>
+$(function() {
+
+    // server side code
+    var update_period = 1000 * {{monit_update_period}};
+
+    // client side code will be consolidated in one file
+    var gs = []
+
+    // init parameters
+    var point_size = 1;
+    var stroke_width = 0.5;
+    var rollperiod = 0;
+    var draw_point = false;
+    var isStacked = false;
+    var errorbars = false;
+    var graph_colors = ["#1ab394", "#ed5565", "#f8ac59", "#1c84c6"];
+
+
+    {% if request.session.is_dst %}
+    var dst_delta =3600
+          {% else %}
+    var dst_delta= 0 // 1h
+        {% endif %}
+
+
+    function set_linewidth(graph, data) {
+        var range = graph.xAxisRange();
+        var data_points = 0;
+        for (var i = 0; i < data.length; i++) {
+            var x = data[i][0];
+            //if (x > minDate && x < maxDate)
+            if (x > range[0] && x < range[1])
+                data_points++;
+        }
+
+        var new_opts = {};
+        if (data_points > 2000) {
+            new_opts.pointSize = 0.5;
+            new_opts.strokeWidth = stroke_width;
+        } else if (data_points > 900) {
+            new_opts.pointSize = 1;
+            new_opts.strokeWidth = 1.5;
+        } else {
+            new_opts.pointSize = 1.5;
+            new_opts.strokeWidth = 1;
+        }
+        graph.updateOptions(new_opts);
+    }
+
+    var draw_filesystem_graphs_for_fs=function(name,data){
+        var dates = JSON.parse(data[0]);
+        var blocks_percent = data[1];
+
+        if (blocks_percent.length==0){
+          document.getElementById("fs_graph_blocks_usage_"+name).innerHTML =  "<div class=\"text-center\">No Data Available: Resource not monitored or Monitoring not supported</div>"
+
+          return
+        }
+
+        var blocks_usage = data[2];
+        var inode_percent = data[3];
+        var inode_usage = data[4];
+
+        var data_blocks_usage = []
+        var data_blocks_percent = []
+        var data_inode_usage = []
+        var data_inode_percent = []
+
+        for (i = 0; i < dates.length; i++)
+            data_blocks_usage.push([new Date((dates[i]-dst_delta) * 1000.), blocks_usage[i]]);
+
+        for (i = 0; i < dates.length; i++)
+            data_blocks_percent.push([new Date((dates[i]-dst_delta) * 1000.), blocks_percent[i]]);
+
+        for (i = 0; i < dates.length; i++)
+            data_inode_usage.push([new Date((dates[i]-dst_delta) * 1000.), inode_usage[i]]);
+
+        for (i = 0; i < dates.length; i++)
+            data_inode_percent.push([new Date((dates[i]-dst_delta) * 1000.), inode_percent[i]]);
+
+
+        var g1 = new Dygraph(document.getElementById("fs_graph_blocks_usage_"+name), data_blocks_usage, {
+            rollPeriod: rollperiod,
+            legend: 'always', // show always
+            labelsDivWidth: '140', // default 250
+            labelsSeparateLines: true,
+            ylabel: 'Blocks Gb',
+            xlabel: 'Time',
+            drawPoints: draw_point,
+            errorBars: errorbars,
+            pointSize: point_size,
+            strokeWidth: stroke_width,
+            stackedGraph: isStacked,
+            labels: ['Time', 'Blocks Usage'],
+            axisLabelColor: '#BBB',
+            axisLineColor: '#BBB',
+            fillGraph: true,
+            colors: graph_colors,
+
+            zoomCallback: function() { // (minDate, maxDate)
+                set_linewidth(g1, data_blocks_usage);
+            },
+
+        });
+
+        var g2 = new Dygraph(document.getElementById("fs_graph_blocks_percent_"+name), data_blocks_percent, {
+            rollPeriod: rollperiod,
+            legend: 'always', // show always
+            labelsDivWidth: '140', // default 250
+            labelsSeparateLines: true,
+            ylabel: 'Blocks %',
+            xlabel: 'Time',
+            drawPoints: draw_point,
+            errorBars: errorbars,
+            pointSize: point_size,
+            strokeWidth: stroke_width,
+            stackedGraph: isStacked,
+            labels: ['Time', 'Blocks Percent'],
+            axisLabelColor: '#BBB',
+            axisLineColor: '#BBB',
+            fillGraph: true,
+            colors: graph_colors,
+
+            zoomCallback: function() { // (minDate, maxDate)
+                set_linewidth(g1, data_blocks_percent);
+            },
+
+        });
+
+        var g3 = new Dygraph(document.getElementById("fs_graph_inode_usage_"+name), data_inode_usage, {
+            rollPeriod: rollperiod,
+            legend: 'always', // show always
+            labelsDivWidth: '140', // default 250
+            labelsSeparateLines: true,
+            ylabel: 'Inodes',
+            xlabel: 'Time',
+            drawPoints: draw_point,
+            errorBars: errorbars,
+            pointSize: point_size,
+            strokeWidth: stroke_width,
+            stackedGraph: isStacked,
+            labels: ['Time', 'Inode Usage'],
+            axisLabelColor: '#BBB',
+            axisLineColor: '#BBB',
+            fillGraph: true,
+            colors: graph_colors,
+
+            zoomCallback: function() { // (minDate, maxDate)
+                set_linewidth(g3, data_inode_usage);
+            },
+
+        });
+
+        var g4 = new Dygraph(document.getElementById("fs_graph_inode_percent_"+name), data_inode_percent, {
+            rollPeriod: rollperiod,
+            legend: 'always', // show always
+            labelsDivWidth: '140', // default 250
+            labelsSeparateLines: true,
+            ylabel: 'Inodes %',
+            xlabel: 'Time',
+            drawPoints: draw_point,
+            errorBars: errorbars,
+            pointSize: point_size,
+            strokeWidth: stroke_width,
+            stackedGraph: isStacked,
+            labels: ['Time', 'Inode Percent'],
+            axisLabelColor: '#BBB',
+            axisLineColor: '#BBB',
+            fillGraph: true,
+            colors: graph_colors,
+
+            zoomCallback: function() { // (minDate, maxDate)
+                set_linewidth(g4, data_inode_percent);
+            },
+
+        });
+
+        gs.push(g1)
+        gs.push(g2)
+        gs.push(g3)
+        gs.push(g4)
+
+        var sync = Dygraph.synchronize(gs, {
+          range: false,
+          selection:true,
+        });
+    }
+    var draw_network_graphs_for_nic=function(name,data){
+        var dates = JSON.parse(data[0]);
+        var download_packets = data[1];
+
+        if (download_packets.length==0){
+          document.getElementById("network_graph_packets_"+name).innerHTML = "<div class=\"text-center\">No Data Available: Resource not monitored or Monitoring not supported</div>"
+
+          return
+        }
+
+        var download_bytes = data[2];
+        var download_errors = data[3];
+
+        var upload_packets = data[4];
+        var upload_bytes = data[5];
+        var upload_errors = data[6];
+
+        var data_packets = [];
+        var data_bytes = [];
+        var data_errors = [];
+
+        for (i = 0; i < dates.length; i++)
+            data_packets.push([new Date((dates[i]-dst_delta) * 1000.), download_packets[i], upload_packets[i]]);
+
+        for (i = 0; i < dates.length; i++)
+            data_bytes.push([new Date((dates[i]-dst_delta) * 1000.), download_bytes[i], upload_bytes[i]]);
+
+        for (i = 0; i < dates.length; i++)
+            data_errors.push([new Date((dates[i]-dst_delta) * 1000.), download_errors[i], upload_errors[i]]);
+
+        var g1 = new Dygraph(document.getElementById("network_graph_packets_"+name), data_packets, {
+            rollPeriod: rollperiod,
+            legend: 'always', // show always
+            labelsDivWidth: '140', // default 250
+            labelsSeparateLines: true,
+            ylabel: 'Packets',
+            xlabel: 'Time',
+            drawPoints: draw_point,
+            errorBars: errorbars,
+            pointSize: point_size,
+            strokeWidth: stroke_width,
+            stackedGraph: isStacked,
+            labels: ['Time', 'Downloaded Packets', 'Uploaded Packets'],
+            axisLabelColor: '#BBB',
+            axisLineColor: '#BBB',
+            fillGraph: true,
+            colors: graph_colors,
+
+            zoomCallback: function() { // (minDate, maxDate)
+                set_linewidth(g1, data_packets);
+            },
+
+        });
+
+        var g2 = new Dygraph(document.getElementById("network_graph_bytes_"+name), data_bytes, {
+            rollPeriod: rollperiod,
+            legend: 'always', // show always
+            labelsDivWidth: '140', // default 250
+            labelsSeparateLines: true,
+            ylabel: 'Bytes',
+            xlabel: 'Time',
+            drawPoints: draw_point,
+            errorBars: errorbars,
+            pointSize: point_size,
+            strokeWidth: stroke_width,
+            stackedGraph: isStacked,
+            labels: ['Time', 'Downloaded Bytes', 'Uploaded Bytes'],
+            axisLabelColor: '#BBB',
+            axisLineColor: '#BBB',
+            fillGraph: true,
+            colors: graph_colors,
+
+            zoomCallback: function() { // (minDate, maxDate)
+                set_linewidth(g2, data_bytes);
+            },
+
+        });
+        var g3 = new Dygraph(document.getElementById("network_graph_errors_"+name), data_errors, {
+            rollPeriod: rollperiod,
+            legend: 'always', // show always
+            labelsDivWidth: '140', // default 250
+            labelsSeparateLines: true,
+            ylabel: 'Errors',
+            xlabel: 'Time',
+            drawPoints: draw_point,
+            errorBars: errorbars,
+            pointSize: point_size,
+            strokeWidth: stroke_width,
+            stackedGraph: isStacked,
+            labels: ['Time', 'Download Errors', 'Upload Errors'],
+            axisLabelColor: '#BBB',
+            axisLineColor: '#BBB',
+            fillGraph: true,
+            colors: graph_colors,
+
+            zoomCallback: function() { // (minDate, maxDate)
+                set_linewidth(g3, data_errors);
+            },
+
+        });
+
+        gs.push(g1)
+        gs.push(g2)
+        gs.push(g3)
+    var sync = Dygraph.synchronize(gs, {
+          range: false,
+          selection:true,
+        });
+
+    }
+
+    function draw_system_graphs(data){
+
+          var data_load = []
+          var data_mem = []
+          var data_cpu = []
+          console.log(data)
+          var dates = data[0];
+          var load_avg01 = data[1];
+          var load_avg05 = data[2]
+          var load_avg15 = data[3]
+
+          var cpu_user = data[4];
+          var cpu_system = data[5];
+          var cpu_wait = data[6];
+
+          var memory_percent = data[7];
+          var memory_kilobyte = data[8];
+
+          var swap_percent = data[9];
+          var swap_kilobyte = data[10];
+
+          console.log(dates)
+          for (i = 0; i < dates.length; i++)
+            data_load.push([new Date((dates[i]-dst_delta) * 1000.), load_avg01[i], load_avg05[i], load_avg15[i]]);
+
+          for (i = 0; i < dates.length; i++)
+            data_mem.push([new Date((dates[i]-dst_delta) * 1000.), memory_percent[i], memory_kilobyte[i] / 1.e6, swap_percent[i], swap_kilobyte[i] / 1.e6]);
+
+          for (i = 0; i < dates.length; i++)
+            data_cpu.push([new Date((dates[i]-dst_delta) * 1000.), cpu_user[i], cpu_system[i], cpu_wait[i]]);
+
+        var graph_load = new Dygraph(document.getElementById("graph_load"), data_load, {
+            rollPeriod: rollperiod,
+            legend: 'always', // show always
+            labelsDivWidth: '140', // default 250
+            labelsSeparateLines: true,
+            ylabel: 'Load average',
+            xlabel: 'Time',
+            drawPoints: draw_point,
+            errorBars: errorbars,
+            pointSize: point_size,
+            strokeWidth: stroke_width,
+            stackedGraph: isStacked,
+            labels: ['Time', 'load 1 min', 'load 5 min', 'load 15 min'],
+            axisLabelColor: '#BBB',
+            axisLineColor: '#BBB',
+            fillGraph: true,
+            colors: graph_colors,
+
+            zoomCallback: function() { // (minDate, maxDate)
+                set_linewidth(graph_load, data_load);
+            },
+
+        });
+        var graph_cpu = new Dygraph(document.getElementById("graph_cpu"), data_cpu, {
+            rollPeriod: rollperiod,
+            legend: 'always', // show always
+            labelsDivWidth: '140', // default 250
+            labelsSeparateLines: true,
+            ylabel: 'CPU usage (in %)',
+            xlabel: 'Time',
+            drawPoints: draw_point,
+            errorBars: errorbars,
+            pointSize: point_size,
+            strokeWidth: stroke_width,
+            stackedGraph: isStacked,
+            labels: ['Time', 'user', 'system', 'wait'],
+            axisLabelColor: '#CCC',
+            axisLineColor: '#CCC',
+            fillGraph: true,
+            colors: graph_colors,
+            zoomCallback: function() { // (minDate, maxDate)
+                set_linewidth(graph_cpu, data_cpu);
+            },
+
+        });
+        // set_linewidth(graph_cpu, data_cpu);
+        var graph_mem = new Dygraph(document.getElementById("graph_mem"), data_mem, {
+            rollPeriod: rollperiod,
+            legend: 'always', // show always
+            labelsDivWidth: '140', // default 250
+            labelsSeparateLines: true,
+            ylabel: 'Memonry usage (in % or GB)',
+            xlabel: 'Time',
+            errorBars: errorbars,
+            drawPoints: draw_point,
+            pointSize: point_size,
+            strokeWidth: stroke_width,
+            stackedGraph: isStacked,
+            //showRoller: true,  // to average over values (?)
+            //valueRange: [0.0, ymax],
+            labels: ['Time', 'memory in %', 'memory in GB', 'swap in %', 'swap in GB'],
+            axisLabelColor: '#CCC',
+            axisLineColor: '#CCC',
+            colors: graph_colors,
+            zoomCallback: function() { // (minDate, maxDate)
+                set_linewidth(graph_mem, data_mem);
+            },
+
+        });
+
+        gs.push(graph_load);
+        gs.push(graph_cpu);
+        gs.push(graph_mem);
+
+        var sync = Dygraph.synchronize(gs, {
+              range: false,
+              selection:true,
+            });
+    }
+
+    $("#periods :input").change(function() {
+        active = $(this).parent().hasClass("active")
+       $.ajax({
+               url: "{% url 'ui:set_stats_period'%}", // the endpoint
+               type: "POST", // http method
+               data: {
+                   "period": this.id
+               },
+               // handle a successful response
+               success: function(result) {
+                  console.log(result)
+               },
+               // handle a non-successful response
+               error: function(xhr, errmsg, err) {
+
+                  if ($('#results').length){
+                       $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                       " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                  }
+
+                   console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+               }
+          });
+    });
+
+    $("#kpis :input").change(function() {
+        active = $(this).parent().hasClass("active")
+        if(this.id=="filesystem"){
+            $.ajax({
+                 url: "{% url 'ui:get_filesystem_usage' server.id %}", // the endpoint
+                 type: "POST", // http method
+                 data: {
+                     "kpi": "filesystem"
+                 },
+                 // handle a successful response
+                 success: function(result) {
+                    jQuery.each(result.res, function(i, data) {
+                        draw_filesystem_graphs_for_fs(i,data);
+                    });
+                 },
+                 // handle a non-successful response
+                 error: function(xhr, errmsg, err) {
+
+                    if ($('#results').length){
+                         $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                         " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                    }
+
+                     console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                 }
+            });
+
+        }
+
+        if(this.id=="system"){
+            $.ajax({
+                 url: "{% url 'ui:get_system_usage' server.id %}", // the endpoint
+                 type: "POST", // http method
+                 data: {
+                     "kpi": "system"
+                 },
+
+                 // handle a successful response
+                 success: function(result) {
+                    draw_system_graphs(result.res);
+                 },
+
+                 // handle a non-successful response
+                 error: function(xhr, errmsg, err) {
+
+                    if ($('#results').length){
+                         $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                         " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                    }
+
+                     console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                 }
+            });
+        }
+
+        if(this.id=="network"){
+
+            $.ajax({
+                 url: "{% url 'ui:get_network_usage' server.id %}", // the endpoint
+                 type: "POST", // http method
+                 data: {
+                     "kpi": "network"
+                 },
+                 // handle a successful response
+                 success: function(result) {
+                    jQuery.each(result.res, function(i, data) {
+                        draw_network_graphs_for_nic(i,data);
+                    });
+                 },
+                 // handle a non-successful response
+                 error: function(xhr, errmsg, err) {
+
+                    if ($('#results').length){
+                         $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                         " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                    }
+
+                     console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                 }
+            });
+
+        }
+    });
+
+    var hashTagActive = "";
+    $(".scroll").click(function (event) {
+        if(hashTagActive != this.hash) { //this will prevent if the user click several times the same link to freeze the scroll.
+            event.preventDefault();
+            //calculate destination place
+            var dest = 0;
+            if ($(this.hash).offset().top > $(document).height() - $(window).height()) {
+                dest = $(document).height() - $(window).height();
+            } else {
+                dest = $(this.hash).offset().top - 65;
+            }
+            //go to destination
+            $('html,body').animate({
+                scrollTop: dest
+            }, 200, 'swing');
+            hashTagActive = this.hash;
+        }
+    });
+
+});
+
+    </script>
+    <script src="{% static 'js/server.js' %}"></script>
+  {% endblock customjs %}

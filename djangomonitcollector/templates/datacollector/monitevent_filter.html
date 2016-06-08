@@ -9,7 +9,8 @@
 {% load extra_tags %}
 {% block title %} Events Dashboard {% endblock %}
 {% block page_title %}Events Dashboard {% endblock %}
-{% block content %}
+{% block head %}
+    <link href="{% static 'css/plugins/bootstrap-markdown/bootstrap-markdown.min.css' %}" rel="stylesheet">
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 
 <style type="text/css" media="print">
@@ -27,6 +28,8 @@
     opacity: 1;
    }
 </style>
+{% endblock %}
+{% block content %}
                 {% autopaginate filter.qs 10 as filter_list %}
 
             <div class="ibox float-e-margins" id="ibox_filter">
@@ -119,26 +122,28 @@
                                     {% for monit_event in filter_list %}
                                         <tr id="event-{{ monit_event.id }}" class="{% if monit_event.alarm_raised and not monit_event.cleared_by %}danger {% else %} fade_me {% endif %}">
                                             <td>{{ monit_event.server.localhostname }}</td>
-                                            <td><small><span class="label label-warning" >{{ monit_event.id }}<span></small> {{ monit_event.event_message }}
+                                            <td>
+                                                <small><span class="label label-warning" >{{ monit_event.id }}<span></small> {{ monit_event.event_message }}
+                                                <div class="hr-line-dashed"></div>
+
+                                                <a type="button" event-id="{{monit_event.id }}" class="view-event-comments label label-{{ monit_event.moniteventcomment_set.all|length|status_alert}}"><i class="fa fa-comment-o"></i>  <span>{{ monit_event.moniteventcomment_set.all|length}} </span> </a>
+                                                <a type="button" class="view-event-details label label-default" event-id="{{  monit_event.id }}" href="#" onclick="return false;"><i class="fa fa-eye"></i> View</a>
+
                                             </td>
                                             <td>{{ monit_event.event_time|time_diff|format_timedelta }}</td>
-                                            <td><b>{{ monit_event.event_id|event_status_to_string }}</b><br/><b> <span class="label label-{{ monit_event.event_state|event_state_to_style }}">{{ monit_event.event_state|event_state_to_string }}</b></span></td>
+                                            <td><b>{{ monit_event.event_id|event_status_to_string }}</b><br/><b><span class="label label-{{ monit_event.event_state|event_state_to_style }}">{{ monit_event.event_state|event_state_to_string }}</b></span></td>
                                             <td>{{ monit_event.event_type|type_to_string }}<br/><b>{{ monit_event.service}} </b></td>
                                             <td>{{ monit_event.event_action|action_to_string }}</td>
                                             <td>{% if monit_event.event_state == 1  %} {{ monit_event.alarm_raised|to_icon|safe }} {% else %} - {% endif%}</td>
                                             <td>{% if monit_event.event_state == 1  %} {{ monit_event.is_duplicate_of|to_btns|safe }} {% else %} - {% endif%}</td>
                                             <td>{% if monit_event.event_state == 1 and monit_event.cleared_by  %} {{ monit_event.cleared_by|to_btn|safe }} {% else %} - {% endif%}</td>
                                             <td>{% if monit_event.event_state == 0  %} {{ monit_event.cleared_alarms|to_btns|safe }} {% else %} - {% endif%}</td>
-
                                     </tr>
-                                    <script language="javascript">
-                                    // Submit post on submit
-                                    $('#ack-{{ monit_event.id }}').on("click", function (event) {
-                                    event_id = $(this).data("id");
-                                    ack(event_id);
-                                    return false
-                                    });
-                                    </script>
+                                         <script type="text/javascript">
+
+
+
+                                        </script>
                                 {% endfor %}
                             </tbody>
                                                    <tfoot>
@@ -165,17 +170,66 @@
                 </div>
             </div>
 
+<div class="modal inmodal" id="event_modal" tabindex="-1" role="dialog" aria-hidden="true"></div>
 {% endblock %}
 {% block customjs %}
+
+
+    <!-- Bootstrap markdown -->
+    <script src="{% static 'js/plugins/bootstrap-markdown/bootstrap-markdown.js' %}"></script>
+    <script src="{% static 'js/plugins/bootstrap-markdown/markdown.js' %}"></script>
+
 
  <script type="text/javascript">
 
 
 
     $(document).ready(function() {
+
+
         if(window.localStorage) {
         localStorageSupport = true
         }
+
+         if (localStorageSupport){
+                localStorage.removeItem("notifications_count", 0);
+                $('#notification_count').hide()
+        }
+
+        var view_event = function(event_id,view_comment){
+            $.ajax({
+                 url: "{% url 'n:get_event_details' %}", // the endpoint
+                 type: "POST", // http method
+                 data: {
+                     "event_id": event_id,
+                     "comments_window": view_comment,
+                 },
+                 // handle a successful response
+                 success: function(json) {
+                     html = json
+                     $('#event_modal').html(html)
+                     $('#event_modal').modal('show')
+                 },
+                 // handle a non-successful response
+                 error: function(xhr, errmsg, err) {
+                     $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                         " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                     console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                 }
+             });
+        }
+
+        $('.view-event-details').click(function(){
+              var event_id= $(this).attr( "event-id" );
+              view_event(event_id,"false");
+        })
+
+        $('.view-event-comments').click(function(){
+              var event_id= $(this).attr( "event-id" );
+              view_event(event_id,"true");
+        })
+
+
 
         $('.collapse-link').click(function (){
             style = $("#filter_properties").css("display");
@@ -228,28 +282,7 @@
          }
      });
 
-     // AJAX for posting
-     var ack = function(event_id) {
-         $.ajax({
-             url: "{% url 'ui:ack_event' %}", // the endpoint
-             type: "POST", // http method
-             data: {
-                 "event_id": event_id
-             },
-             // handle a successful response
-             success: function(json) {
-                 event_id = json.event_id
-                 element_selector = "#event-element-" + event_id
-                 $(element_selector).fadeOut(150)
-             },
-             // handle a non-successful response
-             error: function(xhr, errmsg, err) {
-                 $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
-                     " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-                 console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-             }
-         });
-     };
+
 
      function getParameterByName(name, url) {
     if (!url) url = window.location.href;
@@ -298,5 +331,8 @@
     }
     $('#filter-details').html(ibox_header)
 });
+
+
+
         </script>
     {% endblock customjs %}

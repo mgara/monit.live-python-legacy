@@ -27,12 +27,4 @@ class SettingsForm(forms.ModelForm):
             'email_settings_authentication',
             'email_login',
             'email_password',
-            'rabbit_mq_enable_socket_io',
-            'rabbit_mq_broker_url',
-            'loggin_level',
-            'logging_logging_file',
-            'logging_enable_rsyslog',
-            'logging_rsyslog_server'
         ]
-
-

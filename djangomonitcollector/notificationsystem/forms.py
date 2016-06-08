@@ -5,6 +5,7 @@ from os import listdir
 from os.path import isfile, join
 
 from django import forms
+from django.utils.translation import ugettext as _
 
 from models import NotificationType
 
@@ -30,9 +31,10 @@ EVENT_STATUS_CHOICES = (
     (262144, 'PID'),
     (524288, 'PPID'),
     (1048576, 'heartbeat'),
-    (16777216, 'link mode/speed'),
     (2097152, 'status'),
-    (4194304, 'uptime')
+    (4194304, 'uptime'),
+    (16777216, 'link mode/speed'),
+
 )
 
 EVENT_STATE_CHOICES = (
@@ -85,8 +87,6 @@ def get_class_name_and_extra_params(classname):
 '''
 Return a tuple that contains the class name and the actual name that we want to display in the form
 '''
-
-
 def get_notification_plugins_classes():
     classes_list = get_notification_plugins()
     classes_tuple = list()
@@ -108,6 +108,17 @@ def get_notification_plugins():
 
 class NotificationTypeForm(forms.ModelForm):
     notification_service = forms.CharField(required=False)
+
+    notification_host_group = forms.CharField(
+        required=False,
+        help_text=_('Tags, Apply notification to this list of host groups (wildcards are permitted)')
+        )
+
+    notification_server = forms.CharField(
+        required=False,
+        help_text=_('Tags, Apply notification to this list of servers (wildcards are permitted)')
+        )
+
     notification_type = forms.MultipleChoiceField(
         choices=EVENT_STATUS_CHOICES, required=False)
     notification_action = forms.MultipleChoiceField(
@@ -120,6 +131,8 @@ class NotificationTypeForm(forms.ModelForm):
     class Meta:
         model = NotificationType
         fields = [
+            'notification_host_group',
+            'notification_server',
             'notification_label',
             'notification_enabled',
             'notification_message',
@@ -128,12 +141,19 @@ class NotificationTypeForm(forms.ModelForm):
             'notification_action',
             'notification_state',
             'notification_class',
-            'notification_user',
         ]
 
+    def null_or_empty(self, item, data_dict):
+        if item in data_dict:
+            if data_dict[item][0]:
+                return False
+        return True
+
     def save(self, force_insert=False, force_update=False, commit=True):
+
         nt = super(NotificationTypeForm, self).save(commit=False)
         data_dict = dict(self.data.iterlists())
+
         if 'notification_service' in data_dict:
             notification_services = data_dict['notification_service']
             service_array = json.dumps(notification_services)
@@ -149,6 +169,12 @@ class NotificationTypeForm(forms.ModelForm):
 
         if 'notification_state' not in data_dict:
             nt.notification_state = ""
+
+        if self.null_or_empty('notification_host_group', data_dict):
+            nt.notification_host_group = ""
+
+        if self.null_or_empty('notification_server', data_dict):
+            nt.notification_server = ""
 
         notification_class = self.cleaned_data['notification_class']
         k, plugin_fields = get_class_name_and_extra_params(

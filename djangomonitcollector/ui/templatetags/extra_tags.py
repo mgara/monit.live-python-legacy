@@ -17,6 +17,16 @@ except:
 
 
 @register.filter
+def clean(value):
+    return str(value).replace('-', '_')
+
+
+@register.filter
+def clean_service_name(value):
+    return value.replace("_/", "_").replace("___", "__").replace("__", "_").replace("_", "/")
+
+
+@register.filter
 def format_timedelta(value, time_format="{days} days, {hours2}:{minutes2}:{seconds2}"):
 
     if hasattr(value, 'seconds'):
@@ -43,13 +53,13 @@ def format_timedelta(value, time_format="{days} days, {hours2}:{minutes2}:{secon
     days -= years * 365
 
     if days > 0:
-        time_format = "{days} days, {hours2}:{minutes2}:{seconds2} ago"
+        time_format = "{days} days, {hours2}:{minutes2} ago"
     else:
         if hours > 0:
-            time_format = "{hours2}h {minutes2}m {seconds2}s ago"
+            time_format = "{hours2}h {minutes2}m ago"
         else:
             if minutes > 0:
-                time_format = "{minutes2}m {seconds2}s ago"
+                time_format = "{minutes2}m ago"
             else:
                 if seconds > 20:
                     time_format = "{seconds2}s ago"
@@ -72,6 +82,9 @@ def format_timedelta(value, time_format="{days} days, {hours2}:{minutes2}:{secon
         'days_total': days_total,
         'years_total': years_total,
     })
+
+
+
 
 
 @register.filter
@@ -195,9 +208,9 @@ def time_str(uptime):
 @register.filter
 def status_alert(alert_counts):
     if not alert_counts:
-        return "primary"
+        return ""
     if int(alert_counts) == 0:
-        return "sucess"
+        return ""
     return "danger"
 
 
@@ -379,7 +392,8 @@ def event_state_to_string(state):
         2: 'Change',
         3: 'Link mode not changed',
         4: 'Host Down',
-        10: 'Critical',
+        10: 'Info',
+        11: 'Critical',
     }
     return state_dic[state_int]
 

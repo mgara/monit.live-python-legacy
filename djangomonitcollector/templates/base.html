@@ -5,7 +5,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Monit Collector &middot; {% block title %}{{ request.resolver_match.url_name|get_title }}{% endblock title %}</title>
+    <title>Vantrix Monit Collector &middot; {% block title %}{{ request.resolver_match.url_name|get_title }}{% endblock title %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -25,11 +25,14 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <link href="{% static 'css/multiselect.css' %}" rel="stylesheet">
     <link href="{% static 'css/plugins/dataTables/datatables.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/plugins/iCheck/custom.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
-    <link href="{% static 'css/project.css' %}" rel="stylesheet">
 
     {%  block head %}
 {% endblock head %}
+
+    <link href="{% static 'css/project.css' %}" rel="stylesheet">
+
 </head>
 <body class="fixed-sidebar fixed-nav fixed-nav-basic {{ request.user.inspinia_skin}}">
 <div id="wrapper">
@@ -41,9 +44,9 @@
                         <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                             <span class="clear">
                                 <span class="block m-t-xs">
-                                    <strong class="font-bold">Kairos Monit Collector v0.9b </strong>
+                                    <h1><span class="font-bold">VMC</span><h6> v0.8b</h6>
                                     </span>
-                                    <span class="text-muted text-xs block">User : <b>{{ request.user|title }}</b>|{{ request.user.organisation|title}}</span>
+                                    <span class="text-muted text-xs block"> <i class="fa fa-user"></i> <b>{{ request.user|title }}</b>|<i class="fa fa-building-o"></i> {{ request.user.organisation|title}}</span>
                             </span>
                         </a>
                     </div>
@@ -85,7 +88,7 @@
                     <div class="row wrapper border-bottom white-bg page-heading animated fadeInUp">
                         <div class="col-lg-12">
                             <h2>{% block page_header %}{% endblock %}</h2>
-                            <ol class="breadcrumb">
+                            <ol class="col-lg-8 breadcrumb">
                                 <li>
                                     <a href="{% url 'ui:dashboard' %}">Home</a>
                                 </li>
@@ -130,49 +133,97 @@
                 <script src="{% static 'js/plugins/toastr/toastr.min.js' %}"></script>
                 <script src="{% static 'js/plugins/pace/pace.min.js' %}"></script>
                 <script src="{% static 'js/plugins/dataTables/datatables.min.js' %}"></script>
+                <script src="{% static 'js/plugins/iCheck/icheck.min.js' %}"></script>
                 <script src="{% static 'js/inspinia.js' %}"></script>
                 <script src="{% static 'js/jquery.printElement.min.js' %}"></script>
+                <script src="{% static 'js/synchronizer.js' %}"></script>
+                <script type="text/javascript">
+
+
+                        $(document).ready(function() {
+
+                            //  Check if the browser supports local storage
+                            if (window.localStorage) {
+                                localStorageSupport = true
+                            }
+
+                        var alerts_sockets = io('/organisation_events_{{ request.user.organisation.id|clean }}');
+                        alerts_sockets.on('dmc', function(msg) {
+                            var data = msg.data;
+
+                            if ( $( "#event_table" ).length ) {
+
+                                $.ajax({
+                                     url: "{% url 'n:get_event_row' %}", // the endpoint
+                                     type: "POST", // http method
+                                     data: {
+                                         "event_id": data.event.id
+                                     },
+                                     // handle a successful response
+                                     success: function(json) {
+                                        // Simple bottom row removal
+                                         $('#event_table tr:last').remove();
+                                        data_row_html = json.row
+                                         $("#event_table tbody").prepend(data_row_html);
+
+                                     },
+                                     // handle a non-successful response
+                                     error: function(xhr, errmsg, err) {
+                                        if ($('#results').length){
+                                             $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                                             " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                                        }
+
+                                         console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                                     }
+                                 });
+
+                                }else{
+                                    if (localStorageSupport){
+                                        notifications_count = localStorage.getItem("notifications_count")
+                                        new_notification_count = 0
+                                        if (notifications_count){
+                                            new_notification_count = parseInt(notifications_count)
+                                        }
+                                            new_notification_count+= 1
+                                            localStorage.setItem("notifications_count", new_notification_count);
+                                            $('#notification_count').html(new_notification_count)
+                                            $('#notification_count').addClass("label label-danger")
+                                    }
+
+
+                                }
+                         }
+
+                        );
+                             if (localStorageSupport){
+                                        notifications_count = localStorage.getItem("notifications_count")
+                                        if (notifications_count){
+                                            new_notification_count = parseInt(notifications_count)
+                                            $('#notification_count').html(new_notification_count)
+                                            $('#notification_count').addClass("label label-danger")
+                                        }
+
+                                    }
+
+                        });
+                </script>
                 {% if messages %}
                     {% for message in messages %}
                         <script type="text/javascript">
                         $(function () {
-                        toastr.options = {
-                        closeButton: true,
-                        progressBar: true,
-                        showMethod: 'slideDown',
-                        timeOut: 4000
-                        };
-                        toastr.{% if message.tags %}{{ message.tags }}{% else %}sucess{% endif %}('','{{ message }}')
+                            toastr.options = {
+                                closeButton: true,
+                                progressBar: true,
+                                showMethod: 'slideDown',
+                                timeOut: 4000
+                            };
+
+                            toastr.{% if message.tags %}{{ message.tags }}{% else %}sucess{% endif %}('','{{ message }}')
                         });
                         </script>
                     {% endfor %}
                 {% endif %}
-
-                        <script type="text/javascript">
-                        $(document).ready(function() {
-                            if(window.localStorage) {
-                            localStorageSupport = true
-                        }
-
-                       $('.navbar-minimalize').click(function (){
-                                side_menu_collapsed =  $("body").hasClass('mini-navbar');
-                                console.log(side_menu_collapsed)
-                                if (side_menu_collapsed)
-                                    localStorage.setItem("side-menu",'off');
-                                else
-                                    localStorage.setItem("side-menu",'on');
-                            })
-
-                            if (localStorageSupport){
-                                side_menu_status = localStorage.getItem("side-menu")
-                                if (side_menu_status=="off"){
-                                    $("body").addClass('mini-navbar');
-                                }
-                            }
-
-                        })
-
-                            </script>
                 <!-- Latest compiled and minified JavaScript -->
                 <!-- Your stuff: Third-party javascript libraries go here -->
                 <!-- place project specific Javascript in this file -->

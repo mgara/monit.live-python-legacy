@@ -23,7 +23,7 @@ def parse_service_list(data):
     output = '<ul style="list-style: none; ">'
     for service in service_list:
         output = '{0}<li > <h5> <span class="label label-info" >{1}</span></h5> </li>'.format(
-            output, service)
+            output, service.replace("_/", "_").replace("___", "__").replace("__", "_").replace("_", "/"))
     return "{0}</ul>".format(output)
 
 
@@ -56,3 +56,13 @@ def from_value(value, list_of_items):
     for _type in list_of_items:
         if _type[0] == value:
             return _type[1]
+
+
+@register.filter
+def parse_comma_seperated_list(comma_seperated_list):
+    service_list = comma_seperated_list.split(',')
+    output = '<ul style="list-style: none; ">'
+    for service in service_list:
+        output = '{0}<li > <h5> <span class="label label-info" >{1}</span></h5> </li>'.format(
+            output, service)
+    return "{0}</ul>".format(output)

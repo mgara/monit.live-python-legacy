@@ -42,6 +42,26 @@ urlpatterns = [
             regex=r'^notificationtype/list/$',
             view=views.NotificationTypeListView.as_view(),
             name='notificationtype_list'
-    )
+    ),
+    url(
+            regex=r'^event/get_row/$',
+            view=views.get_event_row,
+            name='get_event_row'
+    ),
+    url(
+            regex=r'^event/get/$',
+            view=views.get_event_details,
+            name='get_event_details'
+    ),
+    url(
+            regex=r'^notification/get/$',
+            view=views.get_notification_details,
+            name='get_notification_details'
+    ),
+    url(
+            regex=r'^postcomment/$',
+            view=views.postcomment,
+            name='postcomment'
+    ),
 
 ]

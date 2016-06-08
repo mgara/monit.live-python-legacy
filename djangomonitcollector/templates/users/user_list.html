@@ -17,6 +17,7 @@
                     <th> Firstname</th>
                     <th> Lastname </th>
                     <th> Last Login</th>
+                    <th> Host Groups</th>
                     {% if request.user.is_superuser %}
                     <th>Organisation</th>
                     <th>Organisation Manager</th>
@@ -32,7 +33,16 @@
                         </td>
                         <td>{{ user.first_name }}</td>
                         <td>{{ user.last_name }}</td>
-                        <td>{{ user.last_login }}</td>
+                        <td>{{ user.last_login }} <b>{{ user.last_login|time_diff|format_timedelta }}</b></td>
+                        <td>
+
+                            {% for hg in user.host_groups.all %}
+                        <span  class="label label-default"> {{ hg}}</span>
+                        {% empty %}
+                         No host groups assigned
+                    {% endfor %}
+
+                        </td>
                         {% if request.user.is_superuser %}
                         <td>{{ user.organisation }}</td>
                         <td> {% if not user.is_superuser %}{{ user.organisation_manager|boolean_widget|safe }}{% endif %}</td>

@@ -1,0 +1,17 @@
+{% load extra_tags %}
+<li>
+    <div class="dropdown-messages-box">
+        <a href="http://monit-collector.vantrix.com/ui/intellievent/#{{ monit_event.id }}" class="pull-left">
+            <span class="label label-{{ monit_event.event_state|event_state_to_style }}">{{ monit_event.event_state|event_state_to_string }}</b></span>
+        </a>
+        <div>
+            <small class="pull-right">{{ monit_event.event_time|time_diff|format_timedelta }}</small>
+            <strong>{{ monit_event.event_type|type_to_string }}<br/><b>{{ monit_event.service}} </b> <br>
+            <small class="text-muted">{{ monit_event.server.localhostname }}</small>
+        </div>
+    </div>
+</li>
+
+
+
+

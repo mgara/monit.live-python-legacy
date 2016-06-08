@@ -18,6 +18,8 @@ class NotificationType(models.Model):
     notification_user = models.ForeignKey(User)
     organisation = models.ForeignKey(Organisation)
 
+    notification_server = models.CharField(null=True, max_length=255)
+    notification_host_group = models.CharField(null=True, max_length=255)
     notification_service = models.CharField(null=True, max_length=255)
     notification_type = models.CharField(null=True, max_length=255)
     notification_state = models.CharField(null=True, max_length=255)

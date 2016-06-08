@@ -3,46 +3,117 @@
 {% load staticfiles %}
 {% block title %}Dashboard{% endblock %}
 {% block page_title %} Dashboard {% endblock %}
-
+{% block head %}
+    <link href="{% static 'css/plugins/chosen/chosen.css' %}" rel="stylesheet">
+    <link href="{% static 'css/plugins/ladda/ladda-themeless.min.css' %}" rel="stylesheet">
+{% endblock %}
 {% block content %}
-  <div class="row clearfix">
-    <div class="column">
-      {% if server_found %}
-        <p>
-          <div class="ibox float-e-margins p-a-2">
-            <div class="ibox-title">
-              <h5>Active Instances</h5>
-            </div>
-            <div class="ibox-content">
-              {% include 'ui/includes/dashboard_table.html' %}
-            </div>
+  <div class="container">
+  <div class="widget style1">
+  <div class="col-lg-2"></div>
+   <select  data-placeholder="Display Filter..."  class="col-lg-6 chosen-select" multiple="">
+            {% for hg in all_hgs %}
+              <option value="{{hg.id}}">{{hg.slug}}</option>
+            {% endfor %}
+
+            </select>
+            <button class="ladda-button btn btn-primary"  data-style="zoom-in"><i class="fa fa-filter"></i></button>
+</div>
+  </div>
+  <div class="row">
+    <div class="hr-line-dashed"></div>
+    {% if server_found %}
+      <p>
+        <div class="ibox float-e-margins p-a-2">
+          <div class="ibox-title">
+            <h5>Active Instances</h5>
           </div>
-        </p>
-      {% else %}
-        <p></p>
-        <div class="container">
-          <div class="row">
-            <div class="col-md-5">
-              <h2 class="text-navy">{% trans "No servers were found in the database." %}</h2>
-              <p>{% blocktrans %}In monit configuration file set the mmonit url to http://SERVER_IP/COLLECTOR_KEY/[HOST_GROUP] {% endblocktrans %}</p>
-            </div>
+          <div class="ibox-content">
+            {% include 'ui/includes/dashboard_table.html' %}
           </div>
         </div>
-        {%  if error %}
-        <p class="alert alert-danger">{{ error }}</p>
-      {% endif %}
+      </p>
+    {% else %}
+      <p></p>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-5">
+            <h2 class="text-navy">{% trans "No servers were found in the database." %}</h2>
+            <p>{% blocktrans %}In monit configuration file set the mmonit url to http://SERVER_IP/COLLECTOR_KEY/[HOST_GROUP] {% endblocktrans %}</p>
+          </div>
+        </div>
+      </div>
+      {%  if error %}
+      <p class="alert alert-danger">{{ error }}</p>
     {% endif %}
-  </div>
+  {% endif %}
 </div>
 <script src="{% static 'js/jquery-2.1.4.min.js'%}"></script>
 <script src="{% static 'js/csrf.js'%}"></script>
+<script src="{% static 'js/plugins/chosen/chosen.jquery.js' %}"></script>
+
+<script src="{% static 'js/plugins/ladda/spin.min.js'%}"></script>
+<script src="{% static 'js/plugins/ladda/ladda.min.js'%}"></script>
+<script src="{% static 'js/plugins/ladda/ladda.jquery.min.js' %}"></script>
+
 <script>
 $(document).ready(function () {
-window.intervalId = setInterval(function() {
-  $.post("{% url 'ui:load_dashboard_table' %}", function(data) {
-  $( "#dashboard_table" ).replaceWith( data.table_html );
-  });
+
+  window.intervalId = setInterval(function() {
+    $.post("{% url 'ui:load_dashboard_table' %}", function(data) {
+    $( "#dashboard_table" ).replaceWith( data.table_html );
+    });
   }, 5000);
+
+  var l = $( '.ladda-button' ).ladda();
+  l.click(function() {
+
+    // Start loading
+    l.ladda( 'start' );
+
+
+    var foo = [];
+    $('.chosen-select :selected').each(function(i, selected){
+      foo[i] = $(selected).text();
+    });
+
+    console.log(foo)
+
+    $.ajax({
+       url: "{% url 'ui:update_hgs' %}", // the endpoint
+       type: "POST", // http method
+       data: {
+           user_hgs: JSON.stringify(foo)
+       },
+       // handle a successful response
+       success: function(json) {
+           $.post("{% url 'ui:load_dashboard_table' %}", function(data) {
+          $( "#dashboard_table" ).replaceWith( data.table_html );
+          });
+           l.ladda('stop');
+
+       },
+       // handle a non-successful response
+       error: function(xhr, errmsg, err) {
+           l.ladda('stop');
+           $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+               " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+           console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+       }
+   });
+  });
+
+
+  //  Select the actual selected list by the user
+  {% for hg in request.user.host_groups.all %}
+        $(".chosen-select option").each(function(){
+          if ($(this).text() == '{{hg.slug}}')
+            $(this).attr("selected","selected");
+        });
+  {% endfor %}
+
+ $(".chosen-select").chosen();
+
 });
 </script>
 {% endblock %}

@@ -35,6 +35,11 @@ urlpatterns = [
             name='server_show'
     ),
     url(
+            regex=r'^server/kpis/(?P<pk>\d+)/$',
+            view=views.serverkpis,
+            name='server_kpis'
+    ),
+    url(
             regex=r'^server/(?P<pk>\d+)/alerts/list/$',
             view=views.EventListView.as_view(),
             name='server_alerts'
@@ -48,6 +53,16 @@ urlpatterns = [
             regex=r'^server/(?P<server_id>\w+)/process/(?P<process_name>[^/]+)/$',
             view=views.process,
             name='process'
+    ),
+    url(
+            regex=r'^server/(?P<server_id>\w+)/filesystem/(?P<filesystem_id>[^/]+)/$',
+            view=views.filesystem,
+            name='filesystem'
+    ),
+    url(
+            regex=r'^server/(?P<server_id>\w+)/network/(?P<network_name>[^/]+)/$',
+            view=views.network,
+            name='network'
     ),
     url(
             regex=r'^confirm_delete/(?P<server_id>\d+)/$',
@@ -69,6 +84,11 @@ urlpatterns = [
             regex=r'^load_process_data/(?P<server_id>\d+)/(?P<process_name>[^/]+)/$',
             view=views.load_process_data,
             name='load_process_data'
+    ),
+    url(
+            regex=r'^load_network_data/(?P<server_id>\d+)/(?P<net_name>[^/]+)/$',
+            view=views.load_network_data,
+            name='load_network_data'
     ),
     url(
             regex=r'^load_dashboard_table/$',
@@ -124,5 +144,33 @@ urlpatterns = [
         view=views.AggreationDelete.as_view(),
         name='delete_aggregation'
 
-    )
+    ),
+    url(
+        regex=r'update_hgs/$',
+        view=views.update_user_hgs,
+        name='update_hgs'
+    ),
+    url(
+        regex=r'get_network_usage/(?P<pk>.*)/$',
+        view=views.get_network_usage,
+        name='get_network_usage'
+    ),
+    url(
+        regex=r'set_stats_period/$',
+        view=views.set_stats_period,
+        name='set_stats_period'
+    ),
+    url(
+        regex=r'get_filesystem_usage/(?P<pk>.*)/$',
+        view=views.get_filesystem_usage,
+        name='get_filesystem_usage'
+    ),
+
+    url(
+        regex=r'get_system_usage/(?P<pk>.*)/$',
+        view=views.get_system_usage,
+        name='get_system_usage'
+    ),
+
+
 ]

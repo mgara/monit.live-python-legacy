@@ -1,0 +1,15 @@
+  {% load extra_tags %}
+  <tr id="event-{{ monit_event.id }}" class="{% if monit_event.alarm_raised and not monit_event.cleared_by %}danger {% else %} fade_me {% endif %}">
+                                            <td>{{ monit_event.server.localhostname }}</td>
+                                            <td><small><span class="label label-warning" >{{ monit_event.id }}<span></small> {{ monit_event.event_message }}
+                                            </td>
+                                            <td>{{ monit_event.event_time|time_diff|format_timedelta }}</td>
+                                            <td><b>{{ monit_event.event_id|event_status_to_string }}</b><br/><b> <span class="label label-{{ monit_event.event_state|event_state_to_style }}">{{ monit_event.event_state|event_state_to_string }}</b></span></td>
+                                            <td>{{ monit_event.event_type|type_to_string }}<br/><b>{{ monit_event.service}} </b></td>
+                                            <td>{{ monit_event.event_action|action_to_string }}</td>
+                                            <td>{% if monit_event.event_state == 1  %} {{ monit_event.alarm_raised|to_icon|safe }} {% else %} - {% endif%}</td>
+                                            <td>{% if monit_event.event_state == 1  %} {{ monit_event.is_duplicate_of|to_btns|safe }} {% else %} - {% endif%}</td>
+                                            <td>{% if monit_event.event_state == 1 and monit_event.cleared_by  %} {{ monit_event.cleared_by|to_btn|safe }} {% else %} - {% endif%}</td>
+                                            <td>{% if monit_event.event_state == 0  %} {{ monit_event.cleared_alarms|to_btns|safe }} {% else %} - {% endif%}</td>
+
+                                    </tr>

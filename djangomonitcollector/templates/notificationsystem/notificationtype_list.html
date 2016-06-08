@@ -11,6 +11,7 @@
 
 {% block content %}
 
+<div class="container">
     <div class="row">
 
         {% if object_list %}
@@ -42,18 +43,21 @@
                 {% endfor %}
             </table>
         {% else %}
-               <p></p>
-        <div class="container">
-          <div class="row">
-            <div class="col-md-5">
-              <h2><span class="text-navy">{% trans "No Configured Notifications Yet." %}</span></h2>
-              <p>{% blocktrans %} Go to : Notification Center -> Create New Notification{% endblocktrans %}</p>
+            <div class="container">
 
+               <div class="row">
+                    <p>  <h2><span class="text-navy">{% trans " There are no notification rules configured Yet" %}</span></h2>
+
+                </div>
+                 <div class="hr-line-dashed"></div>
+                    <div class="row clearfix">
+                        <a href="{% url 'n:notificationtype_create' %}" class="btn btn-primary">{% trans "New Notification Rule" %}</a>
+                    </div>
             </div>
           </div>
         </div>
         {% endif %}
-
+</div>
     </div>
     <script language="javascript">
         function toggle(source) {

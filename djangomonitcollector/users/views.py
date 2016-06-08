@@ -45,7 +45,6 @@ class UserListView(LoginRequiredMixin, ListView):
                 return self.model.objects.filter(organisation=org, is_superuser=False)
 
 
-
 class UserCreate(LoginRequiredMixin, CreateView):
     model = User
     form_class = MyUserCreationForm
@@ -60,7 +59,15 @@ class UserCreate(LoginRequiredMixin, CreateView):
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
  #   form_class = MyUserChangeForm
-    fields = ['first_name', 'last_name', 'email', 'inspinia_skin', 'organisation_manager','user_timezone']
+    fields = [
+        'first_name',
+        'last_name',
+        'email',
+        'inspinia_skin',
+        'organisation_manager',
+        'user_timezone',
+        'host_groups'
+    ]
 
     def dispatch(self, *args, **kwargs):
         if self.request.method == "GET":
@@ -68,7 +75,6 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
                 self.fields.append('organisation')
 
         return super(UserUpdateView, self).dispatch(*args, **kwargs)
-
 
     def form_invalid(self, form):
         print form.__dict__
@@ -80,7 +86,7 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
         # It should return an HttpResponse.
         if self.request.user.organisation_manager:
             if self.request.user.id == form.instance.id:
-                form.instance.organisation_manager =  True
+                form.instance.organisation_manager = True
 
         return super(UserUpdateView, self).form_valid(form)
 

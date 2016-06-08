@@ -68,8 +68,6 @@ mailhog
 
 staticfiles/
 
-
 *migrations/
-
 
 ._*

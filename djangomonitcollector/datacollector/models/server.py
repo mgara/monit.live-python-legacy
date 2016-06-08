@@ -5,14 +5,14 @@ import datetime
 import importlib
 import logging
 import re
-
+import json
 from datetime import timedelta
 from pytz import timezone
 from threading import Thread
 
 from django.conf import settings
 from django.db import models
-from djangomonitcollector.users.models import Organisation
+from djangomonitcollector.users.models import Organisation, User
 from djangomonitcollector.datacollector.lib.event_mappings import \
     type_to_string,\
     event_status_to_string,\
@@ -20,7 +20,7 @@ from djangomonitcollector.datacollector.lib.event_mappings import \
     action_to_string
 
 
-from djangomonitcollector.ui.models import HostGroup
+from djangomonitcollector.users.models import HostGroup
 from ..lib.event_mappings import EVENT_STATE_CHOICES, EVENT_ID_CHOICES, EVENT_TYPE_CHOICES, EVENT_ACTION_CHOICES
 
 from .file import File
@@ -31,7 +31,7 @@ from .platform import Platform
 from .process import Process
 from .program import Program
 from .service import Service
-from .system import System
+from .system import System, to_queue
 from .url import Host
 from ..lib.utils import \
     remove_old_services, \
@@ -174,8 +174,6 @@ class Server(models.Model):
 
 class ServiceGroup(models.Model):
     slug = models.CharField(max_length=40)
-    #  Can't use foreignKey at this point because you can by
-    #  choice not to assign a service to a service group
     belongs_to = models.ForeignKey(Server)
     display_name = models.CharField(max_length=40, null=True)
 
@@ -190,6 +188,8 @@ class ServiceGroup(models.Model):
 
     def __unicode__(self):
         return self.display_name
+
+
 
 
 class MonitEvent(models.Model):
@@ -211,6 +211,9 @@ class MonitEvent(models.Model):
     is_ack = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return self.__str__()
 
     @classmethod
     def create(cls, xml_doc, server):
@@ -245,7 +248,6 @@ class MonitEvent(models.Model):
         event_obj.event_message = event_message
         event_obj.event_time = event_time
 
-
         #  Check if we received Monit Stopped Event
         event_obj = cls.update_server_running_status(event_obj, server)
 
@@ -258,21 +260,22 @@ class MonitEvent(models.Model):
                 dups = []
                 for e in duplicates:
                     dups.append(e.id)
+                    break
                 event_obj.is_duplicate_of = "{}".format(dups)
 
             #  If alarm is error type :
             if not found:
                 found, active = cls.check_active_alarms(event_obj)
-                if not found:
-                    event_obj.alarm_raised = True
-                    event_obj.is_active = True
-                else:
+                if found:
                     event_obj.alarm_raised = True
                     event_obj.is_active = False
+                else:
+                    event_obj.alarm_raised = True
+                    event_obj.is_active = True
 
         event_obj.save()
 
-        # We received a clear alarm
+        #  We received a clear alarm
         if event_obj.event_state == 0:
             found, to_be_cleared = cls.check_for_events_in_time_window(
                 event_obj
@@ -293,15 +296,11 @@ class MonitEvent(models.Model):
         #  TODO: List all flapping services and recheck their flapping status.
         cls.detect_service_flapping(event_obj, server)
 
-
-
-        #  Process event into notifications
-        thread = Thread(target=process_event, args=(event_obj,))
-        thread.start()
+        process_event(event_obj)
         return event_obj
 
     @classmethod
-    def check_for_events_in_time_window(cls, event_obj, threshold=3600):
+    def check_for_events_in_time_window(cls, event_obj, threshold=86400):
         d = timedelta(seconds=threshold)
         now = event_obj.event_time
         lower_bound = now - d
@@ -320,19 +319,27 @@ class MonitEvent(models.Model):
         return found, events
 
     @classmethod
-    def check_active_alarms(cls, event_obj):
+    def check_active_alarms(cls, event_obj, threshold=86400):
+        utc = timezone('UTC')
+        td = timedelta(seconds=threshold)
+        utc_now = datetime.datetime.utcnow()
+        utc_now = utc_now.replace(tzinfo=utc)
+        lower_bound = utc_now - td
+
         #  We received error alarm, we will check for old duplicates in the raised ones.
+        #  Only check acknowledged alarms int he last period (configurable)
         events = cls.objects.filter(
             server=event_obj.server,
             service=event_obj.service,
             event_type=event_obj.event_type,
             event_id=event_obj.event_id,
             is_active=True,
+            is_ack=False,
+            event_time__gte=lower_bound
         )
 
         found = events.exists()
         return found, events
-
 
     @classmethod
     def update_server_running_status(cls, event_obj, server):
@@ -357,6 +364,7 @@ class MonitEvent(models.Model):
         try:
             server_tz = timezone("UTC")
             now = datetime.datetime.utcnow().replace(tzinfo=server_tz)
+
             # Between 0 and 86399 inclusive
             flapping_period = timedelta(
                 seconds=settings.SERVICE_FLAPPING_PERIOD)
@@ -396,63 +404,45 @@ class MonitEvent(models.Model):
         event_object.is_ack = True
         event_object.save()
 
+    def to_dict(self):
+        event_dict = dict()
+        event_dict["id"] = self.id
+        event_dict["server"] = self.server.localhostname
+        event_dict["service"] = self.service.name.replace('___', '/').replace('__', '_').replace('_', '/')
+        event_dict["message"] = self.event_message
+        # Strings
+        event_dict["state"] = event_status_to_string(self.event_id)
+        event_dict["event"] = event_state_to_string(self.event_state)
+        event_dict["action"] = action_to_string(self.event_action)
+        event_dict["type"] = type_to_string(self.event_type)
+        # Id
+        event_dict["state_id"] = self.event_state
+        event_dict["event_id"] = self.event_id
+        event_dict["action_id"] = self.event_action
+        event_dict["type_id"] = int(self.event_type)
+
+        return event_dict
+
     def __str__(self):
-        return "Monit Event For {0}".format(self.service)
+        return json.dumps(self.to_dict())
 
 
-def process_event(event_object):
-    org = event_object.server.organisation
+class MonitEventComment(models.Model):
+    event = models.ForeignKey(MonitEvent)
+    user = models.ForeignKey(User)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    content = models.TextField()
 
-    mute_notifications = list()
-    remaining_notifications = list()
-    for nt in org.notificationtype_set.all():
-        if "mute" in nt.notification_class.lower():
-            #  These are mute rules
-            mute_notifications.append(nt)
-        else:
-            #  The rest.
-            remaining_notifications.append(nt)
-
-    for nt in mute_notifications:
-        if nt.notification_enabled:
-            name_matches = check_item(
-                event_object.service.name, nt.notification_service)
-            state_matches = check_item(
-                event_object.event_state, nt.notification_state)
-            action_matches = check_item(
-                event_object.event_action, nt.notification_action)
-            type_matches = check_item(
-                event_object.event_type, nt.notification_type)
-            messages_matches = True if re.search(
-                nt.notification_message, event_object.event_message) else False
-
-            if name_matches and state_matches and action_matches and type_matches and messages_matches:
-                MonitEvent.mute(event_object)
-
-    if not event_object.is_ack:
-        for nt in remaining_notifications:
-                if nt.notification_enabled:
-                    name_matches = check_item(
-                        event_object.service.name, nt.notification_service)
-                    state_matches = check_item(
-                        event_object.event_state, nt.notification_state)
-                    action_matches = check_item(
-                        event_object.event_action, nt.notification_action)
-                    type_matches = check_item(
-                        event_object.event_type, nt.notification_type)
-                    messages_matches = True if re.search(
-                        nt.notification_message, event_object.event_message) else False
-
-                    if name_matches and state_matches and action_matches and type_matches and messages_matches:
-                        notification_handler_module = importlib.import_module(
-                            "djangomonitcollector.notificationsystem.lib.{0}".format(nt.notification_class.lower()))
-                        class_ = getattr(
-                            notification_handler_module, nt.notification_class)
-                        notification_class_instance = class_()
-                        notification_class_instance.set_event(event_object)
-                        notification_class_instance.set_extra_params(
-                            nt.notification_plugin_extra_params)
-                        notification_class_instance.process()
+    @classmethod
+    def create(cls, user, event, comment):
+        comment_obj = cls(
+            event=event,
+            user=user,
+            content=comment
+        )
+        comment_obj.save()
+        return comment_obj
 
 
 def check_item(item, string_list_of_items):
@@ -471,6 +461,100 @@ def check_item(item, string_list_of_items):
             return True
         return False
     return True
+
+
+def check_host_group_match(hg, host_groups_comma_seperated):
+    '''
+    This function checks if a host group (hg) matches the comma seperated list of
+    masks.
+    '''
+    #  If we actually have a list
+    if host_groups_comma_seperated:
+        masks = host_groups_comma_seperated.split(',')
+        for mask in masks:
+            #  We check both slug and the display name
+            if re.search(mask, hg.slug):
+                return True
+            if re.search(mask, hg.display_name):
+                return True
+        #  The only case the function return False is when we don't find any match !
+        return False
+    #  We return True if we don't have list
+    return True
+
+
+def check_server_name_match(server_name, server_names_comma_seperated):
+    if server_names_comma_seperated:
+        masks = server_names_comma_seperated.split(',')
+        for mask in masks:
+            if re.search(
+                    mask, server_name):
+                return True
+        return False
+    return True
+
+
+def process_event(event_object):
+    org = event_object.server.organisation
+    server_name = event_object.server.localhostname
+    hg = event_object.server.host_group
+
+    mute_notifications = list()
+    remaining_notifications = list()
+    for nt in org.notificationtype_set.all():
+        if "mute" in nt.notification_class.lower():
+            #  These are mute rules
+            mute_notifications.append(nt)
+        else:
+            #  The rest.
+            remaining_notifications.append(nt)
+
+    for nt in mute_notifications:
+        if nt.notification_enabled:
+            hg_matches = check_host_group_match(hg, nt.notification_host_group)
+            server_matches = check_server_name_match(server_name, nt.notification_server)
+            name_matches = check_item(
+                event_object.service.name, nt.notification_service)
+            state_matches = check_item(
+                event_object.event_state, nt.notification_state)
+            action_matches = check_item(
+                event_object.event_action, nt.notification_action)
+            type_matches = check_item(
+                event_object.event_type, nt.notification_type)
+            messages_matches = True if re.search(
+                nt.notification_message, event_object.event_message) else False
+
+            if name_matches and state_matches and action_matches and type_matches and messages_matches and hg_matches and server_matches:
+                broadcast_muted_event_to_websocket_channel(event_object)
+                MonitEvent.mute(event_object)
+
+    if not event_object.is_ack:
+        broadcast_event_to_websocket_channel(event_object)
+        for nt in remaining_notifications:
+                if nt.notification_enabled:
+                    hg_matches = check_host_group_match(hg, nt.notification_host_group)
+                    server_matches = check_server_name_match(server_name, nt.notification_server)
+                    name_matches = check_item(
+                        event_object.service.name, nt.notification_service)
+                    state_matches = check_item(
+                        event_object.event_state, nt.notification_state)
+                    action_matches = check_item(
+                        event_object.event_action, nt.notification_action)
+                    type_matches = check_item(
+                        event_object.event_type, nt.notification_type)
+                    messages_matches = True if re.search(
+                        nt.notification_message, event_object.event_message) else False
+
+                    if name_matches and state_matches and action_matches and type_matches and messages_matches and hg_matches and server_matches:
+                        notification_handler_module = importlib.import_module(
+                            "djangomonitcollector.notificationsystem.lib.{0}".format(nt.notification_class.lower()))
+                        class_ = getattr(
+                            notification_handler_module, nt.notification_class)
+                        notification_class_instance = class_()
+                        notification_class_instance.set_event(event_object)
+                        notification_class_instance.set_extra_params(
+                            nt.notification_plugin_extra_params)
+                        notification_class_instance.process()
 
 
 def get_service_by_name(server, event_type, service_name):
@@ -505,3 +589,19 @@ def get_service_by_name(server, event_type, service_name):
         return Net.get_by_name(server, service_name)
 
     return System.get_by_server(server)
+
+
+def broadcast_muted_event_to_websocket_channel(event_object):
+    response = dict()
+    response['channel'] = "organisation_muted_events_{0}".format(str(event_object.server.organisation.id).replace('-', '_'))
+    response['event'] = event_object.to_dict()
+    response_str = json.dumps(response)
+    to_queue(response_str)
+
+
+def broadcast_event_to_websocket_channel(event_object):
+    response = dict()
+    response['channel'] = "organisation_events_{0}".format(str(event_object.server.organisation.id).replace('-', '_'))
+    response['event'] = event_object.to_dict()
+    response_str = json.dumps(response)
+    to_queue(response_str)
