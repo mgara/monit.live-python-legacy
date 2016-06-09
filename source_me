@@ -10,3 +10,4 @@ export IO_PORT=8000
 export DJANGO_ALLOWED_HOST=192.168.0.7
 export DJANGO_SETTINGS_MODULE=config.settings.production
 export DATABASE_URL=postgres://kokoro:WdOKanaoF@localhost/monit_collector_production
+export DJANGO_MAILGUN_API_KEY=key-bdb881a67abf769b3fff0800565c5168

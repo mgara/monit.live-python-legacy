@@ -34,7 +34,7 @@ INSTALLED_APPS += ("djangosecure", )
 # ------------------------------------------------------------------------------
 # Hosts/domain names that are valid for this site
 # See https://docs.djangoproject.com/en/1.6/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['10.209.105.12'])
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['kairos.mgara.com'])
 # END SITE CONFIGURATION
 
 INSTALLED_APPS += ("gunicorn", )
@@ -47,15 +47,21 @@ STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 # EMAIL
 # ------------------------------------------------------------------------------
 DEFAULT_FROM_EMAIL = env('DJANGO_DEFAULT_FROM_EMAIL',
-                         default='djangomonitcollector <platform@vantrix.com>')
+                         default='Kairos <kairos@mgara.com>')
 
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 25
-DEFAULT_FROM_EMAIL = 'platform@vantrix.com'
+#EMAIL_HOST = 'localhost'
+#EMAIL_PORT = 25
 
-EMAIL_SUBJECT_PREFIX = env("DJANGO_EMAIL_SUBJECT_PREFIX", default='[djangomonitcollector] ')
+EMAIL_SUBJECT_PREFIX = env("DJANGO_EMAIL_SUBJECT_PREFIX", default='[Kairos] ')
 SERVER_EMAIL = env('DJANGO_SERVER_EMAIL', default=DEFAULT_FROM_EMAIL)
 
+
+# Anymail with Mailgun
+INSTALLED_APPS += ("anymail", )
+ANYMAIL = {
+    "MAILGUN_API_KEY": env('DJANGO_MAILGUN_API_KEY'),
+}
+EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"
 
 # TEMPLATE CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -102,7 +108,7 @@ LOGGING = {
         'file': {
             'level': 'ERROR',
             'class': 'logging.FileHandler',
-            'filename': '/var/log/vantrix/monit-collector/monit_collector.log',
+            'filename': '/var/log/kairos/kairos.log',
         },
     },
     'loggers': {
