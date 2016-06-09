@@ -24,7 +24,7 @@ class EmailEventNotification(EventSettingsInterface):
                 self.server
         )
 
-        send_mail(subject, "{0}".format(self.get_event_summary()), 'platform@vantrix.com',
+        send_mail(subject, "{0}".format(self.get_event_summary()), 'kairos@mgara.com',
                   [to], fail_silently=False)
 
     def finalize(self, event_object):

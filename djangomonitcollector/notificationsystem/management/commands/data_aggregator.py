@@ -9,25 +9,25 @@ from pytz import timezone
 from djangomonitcollector.datacollector.models.aggregation_periods import AggregationPeriod
 
 from djangomonitcollector.datacollector.models import\
-Process,\
-Net,\
-System,\
-FileSystem
+    Process,\
+    Net,\
+    System,\
+    FileSystem
 
 from djangomonitcollector.datacollector.models import\
-MemoryCPUProcessAggregatedStats,\
-FsAndDiskAggregatedUsageStats,\
-MemoryCPUAggregatedSystemStats,\
-NetAggregatedStats
+    MemoryCPUProcessAggregatedStats,\
+    FsAndDiskAggregatedUsageStats,\
+    MemoryCPUAggregatedSystemStats,\
+    NetAggregatedStats
 
 
 from djangomonitcollector.datacollector.models import\
-FsAndDiskUsageStats,\
-MemoryCPUProcessStats,\
-MemoryCPUSystemStats,\
-NetStats
+    FsAndDiskUsageStats,\
+    MemoryCPUProcessStats,\
+    MemoryCPUSystemStats,\
+    NetStats
 
-FILENAME = '/var/log/vantrix/monit_collector_data_aggregator.log'
+FILENAME = '/var/log/kairos/monit_collector_data_aggregator.log'
 FORMAT = '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
 
 
@@ -70,32 +70,36 @@ class Command(BaseCommand):
             if (aggregation_rule.period == 2):
                 aggregation_rule.hours = 24*aggregation_rule.number_of_period
             elif (aggregation_rule.period == 3):
-                aggregation_rule.hours = 31*24*aggregation_rule.number_of_period
+                aggregation_rule.hours = 31*24 * \
+                    aggregation_rule.number_of_period
             elif (aggregation_rule.period == 4):
-                aggregation_rule.hours = 365*24*aggregation_rule.number_of_period
+                aggregation_rule.hours = 365*24 * \
+                    aggregation_rule.number_of_period
             else:
                 aggregation_rule.hours = aggregation_rule.number_of_period
 
-            aggregation_tuple = (aggregation_rule.hours, aggregation_rule.granularity, aggregation_rule.id)
+            aggregation_tuple = (
+                aggregation_rule.hours, aggregation_rule.granularity, aggregation_rule.id)
             sorted_aggregation.append(aggregation_tuple)
         sorted_aggregation = sorted(
             sorted_aggregation,
             key=lambda aggregation: aggregation[0]
-            )
+        )
 
         oldnow = datetime.utcnow().replace(tzinfo=utc_tz)
         now = oldnow.replace(second=0, microsecond=0)
 
-        self.logger.info("Started Aggregation Job At [{}] -> [{}]".format(oldnow, now))
-        self.logger.debug("Configured [{}] Aggregation Periods:".format(len(sorted_aggregation)))
+        self.logger.info(
+            "Started Aggregation Job At [{}] -> [{}]".format(oldnow, now))
+        self.logger.debug(
+            "Configured [{}] Aggregation Periods:".format(len(sorted_aggregation)))
 
         for aggregation_rule in sorted_aggregation:
             self.logger.debug("[{}] hours -> Rolling Period : [{}] ".format(
                 aggregation_rule[0],
                 timedelta(seconds=aggregation_rule[1])
-                )
             )
-
+            )
 
         '''
         Process,\
@@ -119,9 +123,6 @@ class Command(BaseCommand):
         all_process = Process.objects.all()
         all_system = System.objects.all()
 
-
-
-
         for aggregation_rule in sorted_aggregation:
             td = timedelta(hours=aggregation_rule[0])
             date_limit = now - td
@@ -142,11 +143,12 @@ class Command(BaseCommand):
             _inode_usage = []
 
             for fs in all_fs:
-                self.logger.info("Applying Aggregation for Filesystem [{}]".format(fs.name))
+                self.logger.info(
+                    "Applying Aggregation for Filesystem [{}]".format(fs.name))
                 fs_stat_objects = FsAndDiskUsageStats.objects.filter(
                     date_last__lt=date_limit,
                     fs_id=fs
-                    )
+                )
 
                 data_len = len(fs_stat_objects)
                 if data_len == 0:
@@ -184,17 +186,15 @@ class Command(BaseCommand):
                                 init = inode_usage
                                 print inode_usage
 
-
-
                         #  FsAndDiskAggregatedUsageStats.create()
-                    #if j == 9:
+                    # if j == 9:
                     #    return
 
                 fs_stat_objects = FsAndDiskAggregatedUsageStats.objects.filter(
                     date_last__lt=date_limit,
                     fs_id=fs,
                     rule_id=rule_id
-                    )
+                )
 
 
 def median(array):

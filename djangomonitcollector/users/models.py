@@ -28,8 +28,8 @@ class MyAccountAdapter(DefaultAccountAdapter):
         Validates an email value. You can hook into this if you want to
         (dynamically) restrict what email addresses can be chosen.
         """
-        if not email.endswith("@vantrix.com"):
-            raise forms.ValidationError("Must be a vantrix address")
+        #  if not email.endswith("@vantrix.com"):
+        #      raise forms.ValidationError("Must be a vantrix address")
         return email
 
     def new_user(self, request):
