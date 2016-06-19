@@ -14,7 +14,7 @@
     <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
     <!-- Your stuff: Third-party css libraries go here -->
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
     <link href="{% static 'font-awesome/css/font-awesome.css' %}" rel="stylesheet">
     <link href="{% static 'css/plugins/toastr/toastr.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/animate.css' %}" rel="stylesheet">
@@ -28,10 +28,11 @@
     <link href="{% static 'css/plugins/iCheck/custom.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
 
+    <link href="{% static 'css/project.css' %}" rel="stylesheet">
+
     {%  block head %}
 {% endblock head %}
 
-    <link href="{% static 'css/project.css' %}" rel="stylesheet">
 
 </head>
 <body class="fixed-sidebar fixed-nav fixed-nav-basic {{ request.user.inspinia_skin}}">
@@ -39,18 +40,7 @@
     <nav class="navbar-default navbar-static-side" role="navigation">
         <div class="sidebar-collapse">
             <ul class="nav metismenu" id="side-menu">
-                <li class="nav-header">
-                    <div class="dropdown profile-element">
-                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                            <span class="clear">
-                                <span class="block m-t-xs">
-                                    <h1><span class="font-bold">καιρός</span><h6> v0.9b</h6>
-                                    </span>
-                                    <span class="text-muted text-xs block"> <i class="fa fa-user"></i> <b>{{ request.user|title }}</b>|<i class="fa fa-building-o"></i> {{ request.user.organisation|title}}</span>
-                            </span>
-                        </a>
-                    </div>
-                </li>
+
 
                     {% if request.user.is_authenticated %}
                         {% if request.user.is_superuser %}

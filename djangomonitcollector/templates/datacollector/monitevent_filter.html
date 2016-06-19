@@ -106,9 +106,9 @@
                         <table class="table table-striped table-bordered table-hover" id="event_table">
                             <thead>
                                 <tr>
+                                    <th></th>
                                     <th>Server</th>
                                     <th>Message</th>
-                                    <th class="col-sm-1">Date </th>
                                     <th>Event</th>
                                     <th>Type</th>
                                     <th>Monit Action</th>
@@ -120,19 +120,30 @@
                                 </thead>
                                 <tbody>
                                     {% for monit_event in filter_list %}
-                                        <tr id="event-{{ monit_event.id }}" class="{% if monit_event.alarm_raised and not monit_event.cleared_by %}danger {% else %} fade_me {% endif %}">
-                                            <td>{{ monit_event.server.localhostname }}</td>
-                                            <td>
-                                                <small><span class="label label-warning" >{{ monit_event.id }}<span></small> {{ monit_event.event_message }}
-                                                <div class="hr-line-dashed"></div>
 
-                                                <a type="button" event-id="{{monit_event.id }}" class="view-event-comments label label-{{ monit_event.moniteventcomment_set.all|length|status_alert}}"><i class="fa fa-comment-o"></i>  <span>{{ monit_event.moniteventcomment_set.all|length}} </span> </a>
-                                                <a type="button" class="view-event-details label label-default" event-id="{{  monit_event.id }}" href="#" onclick="return false;"><i class="fa fa-eye"></i> View</a>
+                                        <tr id="event-{{ monit_event.id }}" class="{% if monit_event.alarm_raised and not monit_event.cleared_by %}danger {% else %} fade_me {% endif %}">
+                                            <td class="text-center"><small><span class="label" >{{ monit_event.id }}<span></small></td>
+                                            <td><a class="text-success" target="_blank" href="{% url 'ui:server' monit_event.server.id %}" >{{ monit_event.server.localhostname }}</a></td>
+                                            <td>
+
+
+                                            <div class="media-body ">
+                            <small class="pull-right text-danger">{{ monit_event.event_time|time_diff|format_timedelta }}</small>
+                            <p class="m-b-xs">
+                                 {{ monit_event.event_message }}
+                            </p>
+                            <small>   <a type="button" event-id="{{monit_event.id }}" class="view-event-comments label label-{{ monit_event.moniteventcomment_set.all|length|status_alert}}"><i class="fa fa-comment-o"></i>  <span>{{ monit_event.moniteventcomment_set.all|length}} </span> </a>
+                                                <a type="button" class="view-event-details label label-default" event-id="{{  monit_event.id }}" href="#" onclick="return false;"><i class="fa fa-eye"></i> View</a></small>
+                        </div>
+
+
+
+
+
 
                                             </td>
-                                            <td>{{ monit_event.event_time|time_diff|format_timedelta }}</td>
                                             <td><b>{{ monit_event.event_id|event_status_to_string }}</b><br/><b><span class="label label-{{ monit_event.event_state|event_state_to_style }}">{{ monit_event.event_state|event_state_to_string }}</b></span></td>
-                                            <td>{{ monit_event.event_type|type_to_string }}<br/><b>{{ monit_event.service}} </b></td>
+                                            <td>{{ monit_event.event_type|type_to_string }}<br/><strong>{{ monit_event.service}} </strong></td>
                                             <td>{{ monit_event.event_action|action_to_string }}</td>
                                             <td>{% if monit_event.event_state == 1  %} {{ monit_event.alarm_raised|to_icon|safe }} {% else %} - {% endif%}</td>
                                             <td>{% if monit_event.event_state == 1  %} {{ monit_event.is_duplicate_of|to_btns|safe }} {% else %} - {% endif%}</td>
@@ -148,9 +159,9 @@
                             </tbody>
                                                    <tfoot>
                                 <tr>
+                                    <th></th>
                                     <th>Server</th>
                                     <th>Message</th>
-                                    <th>Date </th>
                                     <th>Event</th>
                                     <th>Type</th>
                                     <th>Monit Action</th>

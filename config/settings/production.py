@@ -108,7 +108,7 @@ LOGGING = {
         'file': {
             'level': 'ERROR',
             'class': 'logging.FileHandler',
-            'filename': '/var/log/kairos/kairos.log',
+            'filename': './logs/kairos.log',
         },
     },
     'loggers': {

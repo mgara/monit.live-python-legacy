@@ -4,7 +4,7 @@ import ast
 from pytz import timezone
 
 from braces.views import LoginRequiredMixin
-
+from urlparse import urlparse
 from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.core.urlresolvers import reverse
@@ -166,11 +166,6 @@ def server(request, server_id):
         'monit_update_period': server.monit_update_period,
         'monitoring_enabled': (server.disable_monitoring or server.user.settings.general_auto_add_unknown_servers)
     })
-
-    # except Exception  as e:
-    #     error_details = e.message
-    # return render(request, 'ui/dashboard.html', {'server_found': False,
-    # 'error': error_details})
 
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
@@ -510,7 +505,17 @@ class SettingsUpdateView(LoginRequiredMixin, UpdateView):
     model = Settings
     form_class = SettingsForm
 
+    def get_context_data(self, **kwargs):
+        o = urlparse(self.request.build_absolute_uri())
+        context = super(SettingsUpdateView, self).get_context_data(**kwargs)
+        context['scheme'] = o.scheme
+        context['port'] = o.port
+        context['base_url'] = "{}://{}".format(o.scheme, o.netloc)
+
+        return context
+
     def get_success_url(self):
+
         settings_id = self.request.user.organisation.settings.id
         return reverse(
             "ui:settings_update",
@@ -536,21 +541,16 @@ class EventListView(LoginRequiredMixin, ListView):
         context = super(EventListView, self).get_context_data(**kwargs)
 
         server_id = self.kwargs['pk']
-        server = Server.objects.get(id=int(server_id))
+        server = Server.objects.get(id=server_id)
         context['server'] = server
         context['alerts_count'] = server.monitevent_set.filter(
             is_active=True, is_ack=False).count()
         return context
 
 
-@user_passes_test(validate_user, login_url='/accounts/login/')
-def configuration(request):
-    return render(request, 'ui/settings.html')
-
-
-#  ajax call
-# this is called when you click on the acknowledge button in the server
-# events page.
+#   Ajax call
+#   This is called when you click on the acknowledge button in the server
+#   events page.
 def ack_event(request):
     event_id = request.POST['event_id']
     try:
@@ -570,7 +570,7 @@ def ack_event(request):
     return JsonResponse(res)
 
 
-#  ajax call
+#  Ajax call
 #  Update user hostgroups from the dashboard call
 def update_user_hgs(request):
     current_user = request.user

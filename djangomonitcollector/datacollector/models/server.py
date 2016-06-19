@@ -5,6 +5,9 @@ import datetime
 import importlib
 import logging
 import re
+import hashlib
+import random
+
 import json
 from datetime import timedelta
 from pytz import timezone
@@ -40,11 +43,13 @@ from ..lib.utils import \
     get_string, \
     TIMEZONES_CHOICES
 
+
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
 
 class Server(models.Model):
+    id = models.CharField(primary_key=True, max_length=40)
 
     organisation = models.ForeignKey(Organisation)
     host_group = models.ForeignKey(HostGroup)
@@ -64,6 +69,12 @@ class Server(models.Model):
     server_up = models.BooleanField(default=True)
     uptime = models.IntegerField(null=True)
     last_data_received = models.DateTimeField(null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.id = hashlib.sha1(str(random.random())).hexdigest()
+
+        super(Server, self).save(*args, **kwargs)
 
     @classmethod
     def update(cls, xmldoc, monit_id, org, external_ip, host_group):

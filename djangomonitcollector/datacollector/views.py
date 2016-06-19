@@ -6,12 +6,10 @@ from django.conf import settings
 from django.http import HttpResponseNotAllowed
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
 from djangomonitcollector.users.models import CollectorKey, Organisation
-
 from django.views.generic import ListView, UpdateView, CreateView
-
 from models.server import Server
+from django.core.urlresolvers import reverse
 
 # import the logging library
 import logging
@@ -28,9 +26,16 @@ class OrganisationUpdateView(LoginRequiredMixin, UpdateView):
     model = Organisation
     fields = '__all__'
 
+    def get_success_url(self):
+        return reverse('datacollector:organisations')
+
 
 class OrganisationCreateView(LoginRequiredMixin, CreateView):
     model = Organisation
+    fields = '__all__'
+
+    def get_success_url(self):
+        return reverse('datacollector:organisations')
 
 
 class CollectorKeyError(Exception):
@@ -60,7 +65,13 @@ def collect_data(xml_str, ck, ip_addr, host_group):
     multi_tenant = settings.ENABLE_MULTI_TENANT
     # try:
     if multi_tenant:
-        ckobj = CollectorKey.objects.get(pk=ck)
+        try:
+            ckobj = CollectorKey.objects.get(pk=ck)
+        except CollectorKey.DoesNotExist:
+            raise CollectorKeyError("No Such Key Error {0}".format(ck))
+        except ValueError:
+            raise CollectorKeyError("Wrong Key Format {0}".format(ck))
+
         if ckobj:
             if ckobj.is_enabled:
                 Server.update(
@@ -74,6 +85,7 @@ def collect_data(xml_str, ck, ip_addr, host_group):
                 raise CollectorKeyError("Key Not Active {0}".format(ck))
         else:
             raise CollectorKeyError("No Such Key Error {0}".format(ck))
+
     else:
 
         default_org = Organisation.getdefault()
@@ -88,6 +100,11 @@ def collect_data(xml_str, ck, ip_addr, host_group):
     return True, "OK"
 
 
+
+#  API Calls
+'''
+Entry point for the collector
+'''
 @csrf_exempt
 def collector(request, url_params):
     host_group = None
@@ -97,21 +114,23 @@ def collector(request, url_params):
     else:
         collector_key = url_params
 
-
-    # only allow POSTs
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
+
     data = request.body
     ip_addr = get_client_ip(request)
-    collected, status = collect_data(data, collector_key, ip_addr, host_group)
+    try:
+        collected, status = collect_data(data, collector_key, ip_addr, host_group)
+    except CollectorKeyError as e:
+        collected = False
+        status = e.message
     if not collected:
-        # log
         response = JsonResponse(
             {
                 'error': status,
-                'status': '500'
+                'status': '400'
             },
-            status=500)
+            status=400)
 
         return response
     return JsonResponse({'message': '200 OK'})
@@ -150,7 +169,7 @@ def list_servers(request):
 
 @csrf_exempt
 def delete_server(request, url_params):
-    # only allow POSTs
+
     if request.method != 'DELETE':
         return HttpResponseNotAllowed(['DELETE'])
 

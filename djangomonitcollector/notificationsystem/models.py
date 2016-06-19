@@ -44,3 +44,12 @@ class NotificationType(models.Model):
 
         super(NotificationType, self).save(*args, **kwargs)
 
+
+class EventType(models.Model):
+    id = models.CharField(primary_key=True, max_length=40)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.id = hashlib.sha1(str(random.random())).hexdigest()
+
+        super(EventType, self).save(*args, **kwargs)

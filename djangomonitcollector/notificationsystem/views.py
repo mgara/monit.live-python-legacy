@@ -82,7 +82,6 @@ def get_user_services(org):
     '''
     This function returns the list of the services assigned to the current user
     '''
-
     user_servers = Server.objects.filter(organisation=org)
     service_list = tuple()
 
@@ -222,6 +221,7 @@ def get_notification_plugin_form(request):
         }
 
     return JsonResponse(res, status=res['code'])
+
 
 def get_component(_id, _label, _value='', _choices=None):
     prefix = '<div id="div_id_{0}" class="form-group has-warning">' \
@@ -368,12 +368,12 @@ def get_comment_html(comment, user):
     toolbox = ""
     if user == comment.user:
         toolbox = "<div  role=\"group\" aria-label=\"First group\"> \
-        <button class=\"btn btn-circle btn-danger pull-right btn-delete\" comment-id=\"{0}\"><i class=\"fa fa-trash\"></i></button>\
+        <button class=\"btn btn-circle btn-danger pull-right btn-delete\" onclick=\"alert('dd')\" comment-id=\"{0}\"><i class=\"fa fa-trash\"></i></button>\
                 <button type=\"button\" class=\"btn btn-circle btn-primary pull-right btn-edit\" comment-id=\"{0}\"><i class=\"fa fa-edit\"></i></button>\
             </div>".format(comment.id)
 
     #  Disabled for now cause the button are not working
-    toolbox =""
+    #toolbox =""
     return " <div class=\"row clearfix list-group-item\" id=\"comment-{0}\">\
                             <div class=\"col-md-12 list-group-item-text\">\
                              <b>{1}</b> added a comment -  {2}\

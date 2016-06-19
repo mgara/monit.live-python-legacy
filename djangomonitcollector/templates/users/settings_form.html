@@ -5,174 +5,314 @@
 {% load staticfiles %}
 {% load extra_tags %}
 {% block page_title %} Settings {% endblock %}
-
 {% block submenu %}
     <li class="nav-item">
-        <a class="nav-link" href="#general"><i class="fa fa-bullseye"></i> General</a>
+        <a class="nav-link" href="#general_tab"><i class="fa fa-bullseye"></i> {% trans "General" %}</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="#flapping"><i class="fa fa-bullseye"></i> Service Flapping Config </a>
+        <a class="nav-link" href="#collector_key_tab"><i class="fa fa-bullseye"></i>{% trans "Collector Keys" %}</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="#email"><i class="fa fa-bullseye"></i> Email Configuration</a>
+        <a class="nav-link" href="#email_tab"><i class="fa fa-bullseye"></i>{% trans "Email Configuration" %}</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="#snmp"><i class="fa fa-bullseye"></i> SNMP Configuration</a>
+        <a class="nav-link" href="#snmp_tab"><i class="fa fa-bullseye"></i>{% trans "SNMP Configuration" %}</a>
     </li>
 {% endblock %}
 {% block head %}
+    <link href="{% static 'css/plugins/sweetalert/sweetalert.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Abel' rel='stylesheet' type='text/css'>
+    <style>
+    .top-buffer { margin-top:20px; }
+    </style>
 {% endblock %}
 {% block content %}
-<div class="container">
-              <div class="row">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                    <div>
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active"><a href="#general_tab" aria-controls="general_tab" role="tab" data-toggle="tab">General</a></li>
+                            <li role="presentation"><a href="#collector_key_tab" aria-controls="collector_key_tab" role="tab" data-toggle="tab">Collector Keys</a></li>
+                            <li role="presentation"><a href="#snmp_tab" aria-controls="snmp_tab" role="tab" data-toggle="tab">SNMP Settings</a></li>
+                        </ul>
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="general_tab">
+                                <div class="row container top-buffer">
+                                    <form class="form-horizontal" method="post">
+                                        {% csrf_token %}
+                                        <div class="ibox float-e-margins">
+                                            <div class="ibox-title">
+                                                <h5>General</h5>
+                                            </div>
+                                            <div class="ibox-content">
+                                                <div class="form-group {% if form.general_auto_add_unknown_servers.errors %} has-error{% endif %}">
+                                                    <div class="row ">
+                                                        <div class="col-md-4 control-label">
+                                                            {{ form.general_auto_add_unknown_servers.label_tag }}
+                                                        </div>
+                                                        <div class="col-md-4 ">
+                                                            {{ form.general_auto_add_unknown_servers}}
+                                                        </div>
+                                                        {% if form.name.errors %}
+                                                            <div class="col-md-4 error">
+                                                                {{ form.general_auto_add_unknown_servers.errors }}
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                <div class="form-group {% if form.general_default_timezone_for_servers.errors %} has-error{% endif %}">
+                                                    <div class="row">
+                                                        <div class="col-md-4 control-label">
+                                                            {{ form.general_default_timezone_for_servers.label_tag }}
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            {{ form.general_default_timezone_for_servers|add_class:"form-control" }}
+                                                        </div>
+                                                        {% if form.name.errors %}
+                                                            <div class="col-md-4 error">
+                                                                {{ form.general_default_timezone_for_servers.errors }}
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                <div class="col-md-8">
+                                        <div class="ibox float-e-margins">
+                                            <div class="ibox-title">
+                                                <h5>Flapping Configuration</h5>
+                                            </div>
+                                            <div class="ibox-content">
 
-    <form class="form-horizontal" method="post">
-        {% csrf_token %}
+                                                <div class="form-group {% if form.flapping_threshold.errors %} has-error{% endif %}">
+                                                    <div class="row">
+                                                        <div class="col-md-4 control-label">
+                                                            {{ form.flapping_threshold.label_tag }}
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            {{ form.flapping_threshold|add_class:"form-control" }}
+                                                        </div>
+                                                        {% if form.name.errors %}
+                                                            <div class="col-md-4 error">
+                                                                {{ form.flapping_threshold.errors }}
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                <div class="form-group {% if form.flapping_time_window.errors %} has-error{% endif %}">
+                                                    <div class="row">
+                                                        <div class="col-md-4 control-label">
+                                                            {{ form.flapping_time_window.label_tag }}
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            {{ form.flapping_time_window|add_class:"form-control" }}
+                                                        </div>
+                                                        {% if form.flapping_time_window.errors %}
+                                                            <div class="col-md-4 error">
+                                                                {{ form.flapping_time_window.errors }}
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            </div>
+                                            <div class="hr-line-dashed"></div>
 
-        <div class="ibox float-e-margins">
-            <div class="ibox-title">
-                <h5>General</h5>
-            </div>
-            <div class="ibox-content">
-                <div class="form-group {% if form.general_auto_add_unknown_servers.errors %} has-error{% endif %}">
-                    <div class="row ">
-                        <div class="col-md-2 control-label">
-                            {{ form.general_auto_add_unknown_servers.label_tag }}
-                        </div>
-                        <div class="col-md-5 ">
-                            {{ form.general_auto_add_unknown_servers}}
-                        </div>
-                        {% if form.name.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.general_auto_add_unknown_servers.errors }}
+                                            <div class="control-group">
+                                                <div class="controls">
+                                                    <button type="submit" class="btn btn-primary">Update</button>
+                                                </div>
+                                            </div>
+                                    </form>
+                                </div>
                             </div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="form-group {% if form.general_default_timezone_for_servers.errors %} has-error{% endif %}">
-                    <div class="row">
-                        <div class="col-md-2 control-label">
-                            {{ form.general_default_timezone_for_servers.label_tag }}
-                        </div>
-                        <div class="col-md-5">
-                            {{ form.general_default_timezone_for_servers|add_class:"form-control" }}
-                        </div>
-                        {% if form.name.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.general_default_timezone_for_servers.errors }}
+                            <div role="tabpanel" class="tab-pane" id="collector_key_tab">
+                                <div class="row container top-buffer">
+
+                                    <div class="col-sm-12">
+
+                                        <p>Before Configuring your monit you must create at least one Collector Key <br/>
+                                        set your mmonit url to : http://KAIROS_URL/dc/collector/COLLECTOR_KEY/[HOST_GROUP/]</p>
+                                        <div class="hr-line-dashed"></div>
+
+                                            <div class="row ">
+
+                                                <div class="col-sm-12 ">
+                                             <h2 class="text-navy">{% trans "M/Monit URL" %}</h2>
+
+                                                <div class="input-group m-b"><span class="input-group-btn">
+                                                        <button data-toggle="tooltip" data-placement="top" title="" data-original-title="Copy mmonit URL to Clipboard" type="button" class="btn btn-primary"><i class="fa fa-clipboard"></i></button> </span> <input type="text" id="mmonit_url" placeholder="Click on The Use button to generate a mmonit url" class="form-control">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                             <div class="hr-line-dashed"></div>
+                                             <h2 class="text-navy">{% trans "Collector Keys" %}</h2>
+
+
+                                            <div class="row ">
+
+                                                <div class="col-sm-12 ">
+                                                    <button class="btn btn-primary" id="new_key" type="button" data-toggle="tooltip" data-placement="top" title="" data-original-title="New" >New Collector Key</button>
+                                                </div>
+                                            </div>
+                                            <div class="row top-buffer">
+
+                                            <ul class="list-group" id="collector_keys_ul">
+
+                                            </ul>
+                                            </div>
+
+                                                <div class="row">
+                                                    <div id="result"></div>
+                                                </div>
+                                            </div>
+                                    </div>
+                                </div>
+                            <div role="tabpanel" class="tab-pane" id="snmp_tab">
+
+                                <h2 class="text-navy">{% trans "SNMP Managers" %}</h2>
+
                             </div>
-                        {% endif %}
-                    </div>
+                        </div>
                 </div>
             </div>
         </div>
-        <div class="ibox float-e-margins">
-            <div class="ibox-title">
-                <h5>Flapping Configuration</h5>
-            </div>
-            <div class="ibox-content">
-                <div class="form-group {% if form.flapping_threshold.errors %} has-error{% endif %}">
-                    <div class="row">
-                        <div class="col-md-2 control-label">
-                            {{ form.flapping_threshold.label_tag }}
-                        </div>
-                        <div class="col-md-5">
-                            {{ form.flapping_threshold|add_class:"form-control" }}
-                        </div>
-                        {% if form.name.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.flapping_threshold.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="form-group {% if form.flapping_time_window.errors %} has-error{% endif %}">
-                    <div class="row">
-                        <div class="col-md-2 control-label">
-                            {{ form.flapping_time_window.label_tag }}
-                        </div>
-                        <div class="col-md-5">
-                            {{ form.flapping_time_window|add_class:"form-control" }}
-                        </div>
-                        {% if form.flapping_time_window.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.flapping_time_window.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="ibox float-e-margins">
-            <div class="ibox-title">
-                <h5>SNMP Configuration</h5>
-            </div>
-            <div class="ibox-content">
-                <div class="form-group {% if form.snmp_version.errors %} has-error{% endif %}">
-                    <div class="row">
-                        <div class="col-md-2 control-label">
-                            {{ form.snmp_version.label_tag }}
-                        </div>
-                        <div class="col-md-5">
-                            {{ form.snmp_version|add_class:"form-control" }}
-                        </div>
-                        {% if form.snmp_version.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.snmp_version.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="form-group {% if form.snmp_managers.errors %} has-error{% endif %}">
-                    <div class="row">
-                        <div class="col-md-2 control-label">
-                            {{ form.snmp_managers.label_tag }}
-                        </div>
-                        <div class="col-md-5">
-                            {{ form.snmp_managers|add_class:"form-control" }}
-                        </div>
-                        {% if form.snmp_managers.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.snmp_managers.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <hr/>
-        <div class="control-group">
-            <div class="controls">
-                <button type="submit" class="btn btn-primary">Update</button>
-            </div>
-        </div>
-    </form>
-    </div>
-    </div>
     </div>
 {% endblock %}
 {% block javascript %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
-    <script type="text/javascript">
-    $(document).ready(function(){
+<script src="{% static 'js/plugins/sweetalert/sweetalert.min.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
+<script type="text/javascript">
+          $(document).ready(function() {
 
 
-    $('#id_snmp_version').selectpicker({
-        style: 'btn-primary',
-        size: 3
-    });
-    $('#id_email_use_ssl').selectpicker({
-        style: 'btn-primary',
-        size: 3
-    });
-    $('#id_loggin_level').selectpicker({
-        style: 'btn-primary',
-        size: 6
-    });
-    });
+              $('#id_snmp_version').selectpicker({
+                  style: 'btn-primary',
+                  size: 3
+              });
+              $('#id_email_use_ssl').selectpicker({
+                  style: 'btn-primary',
+                  size: 3
+              });
+              $('#id_loggin_level').selectpicker({
+                  style: 'btn-primary',
+                  size: 6
+              });
+          });
+
+
+          $(function() {
+              create(false);
+          });
+
+          var use=function(btn){
+            var collector_key=$(btn).attr("data-key");
+            var url = "{{base_url}}";
+            $("#mmonit_url").val(url+"/dc/collector/"+collector_key+"/")
+          }
+
+          var delete_key=function(btn){
+               var collector_key=$(btn).attr("data-key")
+                    swal({
+                        title: "Are you sure?",
+                        text: "Your will not be able to push data to the collector with servers using this CK",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Yes",
+                        cancelButtonText: "Cancel",
+                        closeOnConfirm: false,
+                        closeOnCancel: true
+                        },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                 $.ajax({
+                                      url: "{% url 'users:delete_collector_key' %}", // the endpoint
+                                      type: "POST", // http method
+                                      data: {
+                                          "ck": collector_key
+                                      },
+                                      // handle a successful response
+                                      success: function(json) {
+                                        if(json.status == "OK"){
+                                           $("#"+json.ck).fadeOut()
+                                           $("#mmonit_url").val("")
+                                           swal("Deleted!", "The CK has been deleted.", "success");
+                                        }
+                                      },
+                                      // handle a non-successful response
+                                      error: function(xhr, errmsg, err) {
+                                          $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                                              " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                                          console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                                      }
+                                    });
+
+                            }
+                        });
+          }
+
+          // Submit post on submit
+          $('#new_key').on("click", function(event) {
+              create(true);
+          });
+
+
+          // AJAX for posting
+          function create(create) {
+              $.ajax({
+                  url: "{% url 'users:new_collector_key' %}", // the endpoint
+                  type: "POST", // http method
+                  data: {
+                      "create": create
+                  },
+                  // handle a successful response
+                  success: function(json) {
+                      $("#collector_keys_ul").html(json.data); // log the returned json to the console
+                  },
+
+                  // handle a non-successful response
+                  error: function(xhr, errmsg, err) {
+                      $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                          " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                      console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                  }
+              });
+          };
+
+          function getCookie(name) {
+              var cookieValue = null;
+              if (document.cookie && document.cookie != '') {
+                  var cookies = document.cookie.split(';');
+                  for (var i = 0; i < cookies.length; i++) {
+                      var cookie = jQuery.trim(cookies[i]);
+                      // Does this cookie string begin with the name we want?
+                      if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                          break;
+                      }
+                  }
+              }
+              return cookieValue;
+          }
+          var csrftoken = getCookie('csrftoken');
+
+          function csrfSafeMethod(method) {
+              // these HTTP methods do not require CSRF protection
+              return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+          }
+          $.ajaxSetup({
+              beforeSend: function(xhr, settings) {
+                  if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                      xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                  }
+              }
+          });
+
     </script>
-{% endblock %}
+{% endblock javascript %}

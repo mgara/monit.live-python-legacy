@@ -22,7 +22,7 @@ app.config['SECRET_KEY'] = os.getenv('APP_SECRET')
 socketio = SocketIO(app)
 
 
-FILENAME = '/var/log/vantrix/monit_collector_io.log'
+FILENAME = '../logs/kairos_io.log'
 FORMAT = '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
 
 

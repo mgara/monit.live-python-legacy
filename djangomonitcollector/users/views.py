@@ -8,7 +8,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.urlresolvers import reverse
-from django.http import JsonResponse, HttpResponseNotFound
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.generic import DetailView,\
     ListView,\
@@ -18,7 +18,7 @@ from django.views.generic import DetailView,\
     DeleteView
 
 from .models import User, CollectorKey
-from .forms import MyUserCreationForm, MyUserChangeForm, CustomPasswordChangeForm
+from .forms import MyUserCreationForm, CustomPasswordChangeForm
 
 
 class UserRedirectView(LoginRequiredMixin, RedirectView):
@@ -58,7 +58,7 @@ class UserCreate(LoginRequiredMixin, CreateView):
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
- #   form_class = MyUserChangeForm
+    #  form_class = MyUserChangeForm
     fields = [
         'first_name',
         'last_name',
@@ -138,15 +138,30 @@ def UpdatePasswordForUser(request, pk):
     })
 
 
+def delete_collector_key(request):
+    ck = request.POST['ck']
+    Collector_key_instance = CollectorKey.objects.get(pk=ck)
+    CollectorKey.delete(Collector_key_instance)
+
+    res = {
+            'status': "OK",
+            'ck': ck
+        }
+    return JsonResponse(res)
+
+
 def new_collector_key(request):
     org = request.user.organisation
     create = request.POST['create']
     if create in ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']:
         create = True
+    else:
+        create = False
+
     try:
 
-        if create == True:
-            org.collectorkey_set.all().delete()
+        if create:
+            #  org.collectorkey_set.all().delete()
             CollectorKey.create(uuid.uuid4(), org)
         html = ""
         organisation_keys = org.collectorkey_set.all()
@@ -166,6 +181,11 @@ def new_collector_key(request):
 
 
 def build_collector_key_view(ck):
-    res = ' <li class="list-group-item">\
-    {0}</li>'.format(ck.collector_key)
+    res = ' <li class="list-group-item" id="{0}">\
+    <h2 style="font-family: \'Abel\', cursive;"><span class="btn btn-circle \
+    btn-danger" data-toggle="tooltip" data-placement="left" title="" data-original-title="Delete" onclick="delete_key(this)" data-key="{0}" ><i class="\
+    fa fa-trash"></i></span><span class="btn btn-circle \
+    btn-info" data-toggle="tooltip" data-placement="left" title="" data-original-title="Use" onclick="use(this)" data-key="{0}" ><i class="\
+    fa fa-check" ></i></span> {0}  \
+    </h2></li>'.format(ck.collector_key)
     return res

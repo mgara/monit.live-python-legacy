@@ -4,121 +4,26 @@
 {% block title %}{{ organisation.name }}{% endblock %}
 
 {% block content %}
+    <div class="container">
+
 <div class="row clearfix">
 
         <div class="page-header">
-            <h1>{{ organisation.name|title }}</h1>
+            {% if object.id %}<h1>{{ organisation.name|title }}</h1> {% else %}<h1>New Organisation</h1>{% endif %}
         </div>
 
-    <form class="form-horizontal" method="post" action="{% url 'datacollector:update_organisation' organisation.id %}">
+    <form class="form-horizontal" method="post" action="">
         {% csrf_token %}
         {{ form|crispy }}
         <div class="control-group">
           <div class="controls">
-            <button type="submit" class="btn btn-primary">Update</button>
+            <button type="submit" class="btn btn-primary">{% if object.id %}Update{% else %}New{% endif %}
+</button>
           </div>
         </div>
     </form>
-    <div class="hr-line-dashed"></div>
-      <form id="new_collector_key_form" action="{% url 'users:new_collector_key' %}" class="email_list" method="post">
-            <div class="row">
-                <div class="col-sm-12">
-                    <h2><span class="text-navy">Collector Key</span></h2>
-                    <p class="lead">Before Configuring your monit you must create at least one Collector Key</p>
-                    <p>set your mmonit url to : http://DJANGO_MONIT_URL/dc/collector/COLLECTOR_KEY</p>
 
-                    {% csrf_token %}
-                    <fieldset class="blockLabels">
-
-                        <div class="ctrlHolder">
-                            <div class="col-sm-5">
-                                <ul class="list-group" id="collector_keys_ul">
-
-                                </ul>
-                            </div>
-                        </div>
-                    </fieldset>
-
-
-                    <div class="row">
-
-                        <div class="col-sm-12 ">
-                            <button class="btn btn-primary" type="submit">New Collector Key</button>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div id="result"></div>
-                    </div>
-                </div>
-            </div>
-        </form>
+</div>
 </div>
 {% endblock %}
-{% block ajaxcalls %}
-    <script>
 
-        $(function () {
-            create(false);
-        });
-        // Submit post on submit
-        $('#new_collector_key_form').on("submit", function (event) {
-            event.preventDefault();
-            console.log("form submitted!")  // sanity check
-            create(true);
-        });
-
-
-        // AJAX for posting
-        function create(create) {
-            console.log("create post is working!") // sanity check
-            $.ajax({
-                url: "{% url 'users:new_collector_key' %}", // the endpoint
-                type: "POST", // http method
-                data: {"create": create},
-                // handle a successful response
-                success: function (json) {
-                    $("#collector_keys_ul").html(json.data); // log the returned json to the console
-                    console.log("success"); // another sanity check
-                },
-
-                // handle a non-successful response
-                error: function (xhr, errmsg, err) {
-                    $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
-                            " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-                    console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-                }
-            });
-        }
-        ;
-
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie != '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = jQuery.trim(cookies[i]);
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        var csrftoken = getCookie('csrftoken');
-
-        function csrfSafeMethod(method) {
-            // these HTTP methods do not require CSRF protection
-            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-        }
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            }
-        });
-
-    </script>
-{% endblock ajaxcalls %}

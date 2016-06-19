@@ -78,7 +78,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '/var/log/vantrix/monit-collector/monit_collector.log',
+            'filename': './logs/kairos_main_app.log',
         },
     },
     'loggers': {

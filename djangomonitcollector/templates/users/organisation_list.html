@@ -2,32 +2,39 @@
 {% load static %}{% load i18n %}
 {% block title %}Organisations{% endblock %}
 {% block page_title %} Organisations List {% endblock %}
-
 {% block content %}
     <div class="container">
-
-    <div class="row clearfix">
-    <table class="table table-hover table-hover table-striped table-bordered">
-        <thead>
-        <tr>
-            <th> Organisation Name</th>
-            <th> Is Active</th>
-            <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for organisation in organisation_list %}
-            <tr>
-            <td>
-            <a href="{% url 'datacollector:update_organisation' organisation.id %}" >
-            {{ organisation.name }}</a>
-            </td>
-            <td></td>
-            <td></td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</div>
-</div>
+        <div class="row clearfix">
+            <table class="table table-hover table-hover table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th> Organisation Name</th>
+                        <th> Is Active</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for organisation in organisation_list %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'datacollector:update_organisation' organisation.id %}" >
+                                {{ organisation.name }}</a>
+                            </td>
+                            <td>
+                            {{ organisation.is_active }}</td>
+                            <td></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="hr-line-dashed"></div>
+        <div class="row">
+            <div class="control-group">
+                <div class="form-controls">
+                    <a class="btn btn-primary" href="{% url 'datacollector:new_organisation' %}">New</a>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}

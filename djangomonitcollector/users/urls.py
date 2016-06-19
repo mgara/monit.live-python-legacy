@@ -17,6 +17,11 @@ urlpatterns = [
             view=views.new_collector_key,
             name='new_collector_key'
     ),
+    url(
+            regex=r'delck/$',
+            view=views.delete_collector_key,
+            name='delete_collector_key'
+        ),
 
     # URL pattern for the UserListView
     url(

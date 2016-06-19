@@ -56,8 +56,6 @@ EVENT_ACTION_CHOICES = (
 '''
 Check if file is valid : is an actual file and its name doesn't match the pattern (Exclusion list)
 '''
-
-
 def validate_file(classes_path, f):
     excluded_files = (
         '__init__.py', 'ieventnotification.py', 'parameter.py', '.pyc')
@@ -72,8 +70,6 @@ def validate_file(classes_path, f):
 '''
 Get the class name and the extra parameters field
 '''
-
-
 def get_class_name_and_extra_params(classname):
     # TODO: read the module from settings ?
     notification_handler_module = importlib.import_module(
@@ -82,6 +78,7 @@ def get_class_name_and_extra_params(classname):
     for k in module_attrs.keys():
         if k.lower() == classname:
             return k, module_attrs[k].extra_params
+
 
 
 '''

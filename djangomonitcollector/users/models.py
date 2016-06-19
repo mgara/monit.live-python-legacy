@@ -11,6 +11,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+from django.contrib import admin
 
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.utils import get_user_model
@@ -37,7 +38,7 @@ class MyAccountAdapter(DefaultAccountAdapter):
         Instantiates a new User instance.
         """
         user = get_user_model()()
-        #user.is_active = False
+        #  user.is_active = False
         return user
 
 
@@ -50,7 +51,7 @@ class Organisation(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('organisation:view', kwargs={'id': self.id})
+        return reverse('datacollector:update_organisation', kwargs={'pk': self.id})
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -63,6 +64,9 @@ class Organisation(models.Model):
     def getdefault(cls):
         org, created = cls.objects.get_or_create(name="default")
         return org
+
+
+admin.site.register(Organisation)
 
 
 class HostGroup(models.Model):
@@ -171,14 +175,6 @@ SECURITY_PROTOCOL = (
     ('None', 'None'),
     ('SSL', 'SSL'),
     ('TLS', 'TLS'),
-)
-
-LOGGING_LEVEL = (
-    ('info', 'Info'),
-    ('warning', 'Warning'),
-    ('error', 'Error'),
-    ('critical', 'Critical'),
-    ('debug', 'Debug'),
 )
 
 

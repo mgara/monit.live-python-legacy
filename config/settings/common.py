@@ -92,8 +92,8 @@ FIXTURE_DIRS = (
 
 # EMAIL CONFIGURATION
 # ------------------------------------------------------------------------------
-EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 # MANAGER CONFIGURATION
@@ -109,19 +109,11 @@ MANAGERS = ADMINS
 # DATABASE CONFIGURATION
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
-# DATABASES = {
-#    # Raises ImproperlyConfigured exception if DATABASE_URL not in os.environ
-#    'default':
-#    env.db("DATABASE_URL", default="postgres://localhost/djangomonitcollector"),
-#
-# }
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'djangomonitcollector',
-        'USER': 'kokoro',
-    }
+    # Raises ImproperlyConfigured exception if DATABASE_URL not in os.environ
+    'default':
+    env.db("DATABASE_URL", default="postgres://localhost/monit_collector_production"),
+
 }
 
 
@@ -267,7 +259,7 @@ ADMIN_URL = r'^admin/'
 # Your common stuff: Below this line define 3rd party library settings
 
 # Enable multi tenant django
-ENABLE_MULTI_TENANT = False
+ENABLE_MULTI_TENANT = True
 
 # Require manual intervention when new server
 ENABLE_MANUAL_APPROVAL = False

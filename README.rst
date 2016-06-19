@@ -12,10 +12,12 @@ Check cookie-cutter django application settings_.
 
 .. _settings: http://cookiecutter-django.readthedocs.org/en/latest/settings.html
 
+
 Installation
 ^^^^^^^^^^^^
 
 .. note::  Installation steps are meant for CentOS 7.
+
 
 Requirements:
 
@@ -23,7 +25,18 @@ Requirements:
     * rabbitmq
     * postgresql
 
+Installing required libraries
+-----------------------------
 
+1. Installing devel packages (on centos) ::
+
+    yum install zlib-devel
+    yum install libjpeg-devel
+    yum install postgresql-devel
+
+2. Upgrading pip to the required version ::
+
+    pip install pip==1.5.6 # IMPORTANT do not upgrade pip you will have further issues.
 
 Installing requirements
 -----------------------

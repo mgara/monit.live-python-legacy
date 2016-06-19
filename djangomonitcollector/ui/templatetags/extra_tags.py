@@ -28,6 +28,8 @@ def clean_service_name(value):
 
 @register.filter
 def format_timedelta(value, time_format="{days} days, {hours2}:{minutes2}:{seconds2}"):
+    if not value:
+        return "-"
 
     if hasattr(value, 'seconds'):
         seconds = value.seconds + value.days * 24 * 3600
@@ -84,11 +86,10 @@ def format_timedelta(value, time_format="{days} days, {hours2}:{minutes2}:{secon
     })
 
 
-
-
-
 @register.filter
 def time_diff(date):
+    if not date:
+        return None
     utc_dt = datetime.datetime.utcnow()
     utc_dt = utc_dt.replace(tzinfo=pytz.timezone("UTC"))
     delta = utc_dt - date
@@ -258,8 +259,9 @@ def format_number(value):
 def get_int(value):
     if value:
         return int(value)
-    return "-"
+    return None
 
+# the grey button to highlight a row in the alert table.
 @register.filter
 def to_btn(value):
     var = '{}'
