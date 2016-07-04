@@ -21,16 +21,16 @@ urlpatterns = [
         OrganisationUpdateView.as_view(),
         name='update_organisation'),
 
-    url(r'^delete/(.+)/$',
+    url(r'^delete/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         delete_server,
         name='delete_server'),
     url(
-        r'^collector/(.+)/$',
+        r'^collector/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         collector,
         name='collector'
     ),
     url(
-        r'^collector/(.+)/(?P<host_group>.+)/$',
+        r'^collector/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<host_group>.+)/$',
         collector,
         name='collector_with_host_group'
     ),

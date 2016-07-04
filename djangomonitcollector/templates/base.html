@@ -40,7 +40,19 @@
     <nav class="navbar-default navbar-static-side" role="navigation">
         <div class="sidebar-collapse">
             <ul class="nav metismenu" id="side-menu">
+  <li class="nav-header">
+                    <div class="dropdown profile-element" style="display: block;">
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="clear">
+                               <span class="block m-t-xs">
+                                   <h1  style="display: inline;"><span class="font-bold" >καιρός</span><h6 style="display: inline;"> v0.9b</h6>
+                                  </span>
 
+                                    <span class="text-muted text-xs block" style="display: block;"> {{ request.user.organisation|title}}</span>
+                            </span>
+                        </a>
+                   </div>
+                </li>
 
                     {% if request.user.is_authenticated %}
                         {% if request.user.is_superuser %}

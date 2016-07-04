@@ -9,6 +9,10 @@ SEVERITY = (
 
 
 class OverrideSeverityEventNotification(EventSettingsInterface):
+
+    PLUGIN_NAME = "Override Severity"
+    PLUGIN_ICON = "random"
+
     extra_params = {
         'severity': Parameter('severity', 'New Severity', '', SEVERITY),
     }

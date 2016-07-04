@@ -11,6 +11,9 @@ class PostEventNotification(EventSettingsInterface):
         'url': Parameter('url', 'URL'),
     }
 
+    PLUGIN_NAME = "Post2Url"
+    PLUGIN_ICON = "send"
+
     def process(self):
         url = self.extra_params['url']
         self.post(url, self.get_event_summary())

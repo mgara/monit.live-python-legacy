@@ -46,13 +46,13 @@ urlpatterns = [
 
     # URL pattern for the UserUpdateView
     url(
-            regex=r'^update/(?P<pk>\w+)/$',
+            regex=r'^update/(?P<pk>.+)/$',
             view=views.UserUpdateView.as_view(),
             name='update'
     ),
 
     url(r'^delete/(?P<username>[\w.@+-]+)/$', views.UserDeleteView.as_view(), name='delete'),
-    url(r'^update_password/(?P<pk>\w+)/$', views.UpdatePasswordForUser, name='update_password'),
+    url(r'^update_password/(?P<pk>.+)/$', views.UpdatePasswordForUser, name='update_password'),
     url(r'^update_password/$', views.UpdatePassword, name='update_password_cu'),
 
 

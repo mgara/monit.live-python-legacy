@@ -10,6 +10,9 @@ class EmailEventNotification(EventSettingsInterface):
         'subjet_prefix': Parameter('subjet_prefix', 'Subject Prefix'),
     }
 
+    PLUGIN_NAME="Email Notification"
+    PLUGIN_ICON="evelope"
+
     def __init__(self):
         pass
 

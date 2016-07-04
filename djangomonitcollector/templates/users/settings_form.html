@@ -36,6 +36,7 @@
                         <ul class="nav nav-tabs" role="tablist">
                             <li role="presentation" class="active"><a href="#general_tab" aria-controls="general_tab" role="tab" data-toggle="tab">General</a></li>
                             <li role="presentation"><a href="#collector_key_tab" aria-controls="collector_key_tab" role="tab" data-toggle="tab">Collector Keys</a></li>
+                            <li role="presentation"><a href="#api_tab" aria-controls="snmp_tab" role="tab" data-toggle="tab">API Settings</a></li>
                             <li role="presentation"><a href="#snmp_tab" aria-controls="snmp_tab" role="tab" data-toggle="tab">SNMP Settings</a></li>
                         </ul>
                         <!-- Tab panes -->
@@ -174,10 +175,16 @@
                                     </div>
                                 </div>
                             <div role="tabpanel" class="tab-pane" id="snmp_tab">
+                                <div class="row container top-buffer">
 
                                 <h2 class="text-navy">{% trans "SNMP Managers" %}</h2>
-
+                                  </div>
                             </div>
+                               <div role="tabpanel" class="tab-pane" id="api_tab">
+                                <div class="row container top-buffer">
+                                   <h2 class="text-navy">{% trans "API Keys and Settings" %}</h2>
+                                </div>
+                                </div>
                         </div>
                 </div>
             </div>

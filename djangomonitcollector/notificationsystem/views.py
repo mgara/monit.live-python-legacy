@@ -92,6 +92,7 @@ def get_user_services(org):
         items += server.program_set.all().order_by('name')
         items += server.file_set.all().order_by('name')
         items += server.net_set.all().order_by('name')
+        items += server.directory_set.all().order_by('name')
         items += server.filesystem_set.all().order_by('name')
         items += server.host_set.all().order_by('name')
         items.append(server.system)

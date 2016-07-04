@@ -63,6 +63,10 @@ class MyUserCreationForm(UserCreationForm):
         raise forms.ValidationError(self.error_messages['duplicate_username'])
 
 
+    def clean_organisation(self):
+        organisation = self.cleaned_data["organisation"]
+        return organisation
+
     def save(self, commit=True):
         password = self.cleaned_data["password1"]
         self.instance.username = self.cleaned_data["username"]
@@ -73,6 +77,7 @@ class MyUserCreationForm(UserCreationForm):
         self.instance.user_timezone = self.cleaned_data["user_timezone"]
         self.instance.inspinia_skin = self.cleaned_data["inspinia_skin"]
         self.instance.organisation_manager = self.cleaned_data["organisation_manager"]
+        self.instance.organisation = self.cleaned_data['organisation']
         if commit:
             self.instance.save()
         return self.instance

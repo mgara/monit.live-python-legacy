@@ -12,6 +12,9 @@ class SlackEventNotification(EventSettingsInterface):
 
     }
 
+    PLUGIN_NAME = "Send to Slack"
+    PLUGIN_ICON = "slack"
+
     def __init__(self):
         pass
 

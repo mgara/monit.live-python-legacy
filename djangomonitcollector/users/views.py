@@ -2,6 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import uuid
+import logging
 
 from braces.views import LoginRequiredMixin
 from django.contrib.auth import update_session_auth_hash
@@ -39,9 +40,9 @@ class UserListView(LoginRequiredMixin, ListView):
         if user.is_superuser:
             return self.model.objects.all()
         else:
-
             if user.organisation_manager:
                 org = user.organisation
+                # if the user is an organization manager, return all users that are not superusers.
                 return self.model.objects.filter(organisation=org, is_superuser=False)
 
 
@@ -51,14 +52,23 @@ class UserCreate(LoginRequiredMixin, CreateView):
     slug_field = "username"
     slug_url_kwarg = "username"
 
+    #def form_invalid(self, form):
+    #    response = super(UserCreate, self).form_invalid(form)
+    #    print "DEBUG form_invalid"
+    #    print self.__dict__
+    #    return response
+
     def form_valid(self, form):
-        form.instance.organisation = self.request.user.organisation
+        organisation = form.cleaned_data['organisation']
+        if not organisation:
+            form.cleaned_data['organisation'] = self.request.user.organisation
+
         return super(UserCreate, self).form_valid(form)
 
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
-    #  form_class = MyUserChangeForm
+
     fields = [
         'first_name',
         'last_name',
@@ -73,11 +83,11 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
         if self.request.method == "GET":
             if self.request.user.is_superuser:
                 self.fields.append('organisation')
-
+                self.fields.remove('host_groups')
         return super(UserUpdateView, self).dispatch(*args, **kwargs)
 
     def form_invalid(self, form):
-        print form.__dict__
+
         response = super(UserUpdateView, self).form_invalid(form)
         return response
 

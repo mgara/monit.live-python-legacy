@@ -21,32 +21,24 @@
 </div>
   </div>
   <div class="row">
-    <div class="hr-line-dashed"></div>
-    {% if server_found %}
-      <p>
-        <div class="ibox float-e-margins p-a-2">
-          <div class="ibox-title">
-            <h5>Active Instances</h5>
+
+      <div class="hr-line-dashed"></div>
+        <p>
+          <div class="ibox float-e-margins p-a-2">
+            <div class="ibox-title">
+              <h5>Active Instances</h5>
+            </div>
+            <div class="ibox-content">
+              {% include 'ui/includes/dashboard_table.html' %}
+            </div>
           </div>
-          <div class="ibox-content">
-            {% include 'ui/includes/dashboard_table.html' %}
-          </div>
-        </div>
-      </p>
-    {% else %}
-      <p></p>
-      <div class="container">
-        <div class="row">
-          <div class="col-md-5">
-            <h2 class="text-navy">{% trans "No servers were found in the database." %}</h2>
-            <p>{% blocktrans %}In monit configuration file set the mmonit url to http://SERVER_IP/COLLECTOR_KEY/[HOST_GROUP] {% endblocktrans %}</p>
-          </div>
-        </div>
-      </div>
+        </p>
+
       {%  if error %}
-      <p class="alert alert-danger">{{ error }}</p>
-    {% endif %}
-  {% endif %}
+        <p class="alert alert-danger">{{ error }}</p>
+      {% endif %}
+
+
 </div>
 <script src="{% static 'js/jquery-2.1.4.min.js'%}"></script>
 <script src="{% static 'js/csrf.js'%}"></script>

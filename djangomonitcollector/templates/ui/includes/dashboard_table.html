@@ -1,6 +1,5 @@
 {% load extra_tags %}
 
-
 <div id="dashboard_table" class="table-responsive">
     <table class="table table-hover table-hover table-striped table-bordered">
         <thead>
@@ -22,11 +21,13 @@
         <tbody>
 
             {% for hg in hgs %}
+
                 <tr>
                     <td colspan="12">
                         <h3> Host Group : <span class="text-navy">{{ hg }}</span></h3>
                     </td>
                 </tr>
+
                 {% for server in servers %}
                   {% if hg == server.host_group %}
                     {% if not monitoring_enabled  %}

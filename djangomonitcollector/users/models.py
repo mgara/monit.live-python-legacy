@@ -22,7 +22,7 @@ from djangomonitcollector.datacollector.lib.utils import TIMEZONES_CHOICES
 class MyAccountAdapter(DefaultAccountAdapter):
 
     def is_open_for_signup(self, request):
-        return False
+        return True
 
     def clean_email(self, email):
         """
@@ -42,10 +42,25 @@ class MyAccountAdapter(DefaultAccountAdapter):
         return user
 
 
+class OrganisationPermission(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    permission = models.CharField(_('Permission'), max_length=40)
+
+    def __str__(self):
+        return self.permission
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.id = hashlib.sha1(str(random.random())).hexdigest()
+            self.save(force_insert=True)
+        super(OrganisationPermission, self).save(*args, **kwargs)
+
+
 class Organisation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(_('Organisation Name'), null=True, max_length=100, default="Default")
     is_active = models.BooleanField(_('Is Active'), default=True)
+    permissions = models.ManyToManyField(OrganisationPermission)
 
     def __str__(self):
         return self.name
@@ -67,10 +82,11 @@ class Organisation(models.Model):
 
 
 admin.site.register(Organisation)
+admin.site.register(OrganisationPermission)
 
 
 class HostGroup(models.Model):
-    id = models.CharField(primary_key=True, max_length=40)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     slug = models.CharField(max_length=40)
     owned_by = models.ForeignKey(Organisation)
     display_name = models.CharField(
@@ -87,12 +103,12 @@ class HostGroup(models.Model):
     def __str__(self):
         if self.display_name:
             return self.display_name
-        return self.slug.title().replace("_", " ")
+        return self.slug.title().replace("_", " ").replace("-", " ")
 
     def save(self, *args, **kwargs):
         if not self.id:
             self.id = hashlib.sha1(str(random.random())).hexdigest()
-
+            self.save(force_insert=True)
         super(HostGroup, self).save(*args, **kwargs)
 
 INSPINIA_SKINS = (
@@ -105,7 +121,7 @@ INSPINIA_SKINS = (
 
 @python_2_unicode_compatible
 class User(AbstractUser):
-    id = models.CharField(primary_key=True, max_length=40)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     organisation = models.ForeignKey(Organisation)
     organisation_manager = models.BooleanField(_('Is Organisation Manager'), default=False)
     host_groups = models.ManyToManyField(HostGroup)
@@ -151,8 +167,7 @@ def validate_user(user):
 
 
 class CollectorKey(models.Model):
-    collector_key = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False)
+    collector_key = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     organisation = models.ForeignKey(Organisation)
     is_enabled = models.BooleanField(default=True)
 

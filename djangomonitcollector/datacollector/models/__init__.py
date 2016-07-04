@@ -10,8 +10,13 @@ from server import Server, MonitEvent, ServiceGroup, MonitEventComment
 from service import Service
 from system import System, MemoryCPUSystemStats, MemoryCPUAggregatedSystemStats
 from url import Host
+from events import EventStatusId, EventState, EventAction, EventServiceType
 
 __all__ = ['Directory',
+           'EventStatusId',
+           'EventState',
+           'EventAction',
+           'EventServiceType',
            'File',
            'FileSystem',
            'FsAndDiskUsageStats',

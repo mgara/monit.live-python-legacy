@@ -11,6 +11,9 @@ class ExecEventNotification(EventSettingsInterface):
         'stdr_err': Parameter('stdr_err', 'Standard Error File'),
     }
 
+    PLUGIN_NAME="Exec Notification"
+    PLUGIN_ICON="gears"
+
     def process(self):
         os.environ['MONIT_DESCRIPTION'] = str(self.event_message)
         os.environ['MONIT_SERVICE'] = str(self.event_service)

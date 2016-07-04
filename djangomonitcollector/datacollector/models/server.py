@@ -7,6 +7,7 @@ import logging
 import re
 import hashlib
 import random
+import uuid
 
 import json
 from datetime import timedelta
@@ -49,7 +50,7 @@ logger = logging.getLogger(__name__)
 
 
 class Server(models.Model):
-    id = models.CharField(primary_key=True, max_length=40)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     organisation = models.ForeignKey(Organisation)
     host_group = models.ForeignKey(HostGroup)
@@ -73,7 +74,7 @@ class Server(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             self.id = hashlib.sha1(str(random.random())).hexdigest()
-
+            self.save(force_insert=True)
         super(Server, self).save(*args, **kwargs)
 
     @classmethod

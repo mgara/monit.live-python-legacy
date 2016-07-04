@@ -102,6 +102,7 @@ def collect_data(xml_str, ck, ip_addr, host_group):
 
 
 #  API Calls
+
 '''
 Entry point for the collector
 '''

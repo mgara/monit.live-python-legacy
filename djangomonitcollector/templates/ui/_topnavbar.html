@@ -63,7 +63,7 @@
                 {% endif %}
                         <li >
                         <a class="nav-link"
-                            href="{% url 'users:detail' request.user.username %}"><i class="fa fa-user"></i> {% trans "My Profile" %}</a>
+                            href="{% url 'users:detail' request.user.username %}"><i class="fa fa-user"></i> {{ request.user|title }}</a>
                         </li>
                         <li >
                             <a class="nav-link" href="{% url 'account_logout' %}"><i class="fa fa-sign-out"></i> {% trans "Logout" %}</a>

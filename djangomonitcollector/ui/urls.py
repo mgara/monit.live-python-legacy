@@ -20,73 +20,73 @@ urlpatterns = [
         name='dashboard'
     ),
     url(
-        regex=r'^server/update/(?P<pk>\w+)/$',
+        regex=r'^server/update/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         view=views.ServerUpdateView.as_view(),
         name='server_update'
     ),
     url(
-        regex=r'^server/delete/(?P<pk>\w+)/$',
+        regex=r'^server/delete/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         view=views.ServerDeleteView.as_view(),
         name='server_delete'
     ),
     url(
-        regex=r'^server/show/(?P<pk>\w+)/$',
+        regex=r'^server/show/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         view=views.ServerShowView.as_view(),
         name='server_show'
     ),
     url(
-        regex=r'^server/kpis/(?P<pk>\w+)/$',
+        regex=r'^server/kpis/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         view=views.serverkpis,
         name='server_kpis'
     ),
     url(
-        regex=r'^server/(?P<pk>.+)/alerts/list/$',
+        regex=r'^server/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/alerts/list/$',
         view=views.EventListView.as_view(),
         name='server_alerts'
     ),
     url(
-        regex=r'^server/(?P<server_id>\w+)/$',
+        regex=r'^server/(?P<server_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         view=views.server,
         name='server'
     ),
     url(
-        regex=r'^server/(?P<server_id>\w+)/process/(?P<process_name>[^/]+)/$',
+        regex=r'^server/(?P<server_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/process/(?P<process_name>[^/]+)/$',
         view=views.process,
         name='process'
     ),
     url(
-        regex=r'^server/(?P<server_id>\w+)/filesystem/(?P<filesystem_id>[^/]+)/$',
+        regex=r'^server/(?P<server_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/filesystem/(?P<filesystem_id>[^/]+)/$',
         view=views.filesystem,
         name='filesystem'
     ),
     url(
-        regex=r'^server/(?P<server_id>\w+)/network/(?P<network_name>[^/]+)/$',
+        regex=r'^server/(?P<server_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/network/(?P<network_name>[^/]+)/$',
         view=views.network,
         name='network'
     ),
     url(
-        regex=r'^confirm_delete/(?P<server_id>\w+)/$',
+        regex=r'^confirm_delete/(?P<server_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         view=views.confirm_delete,
         name='confirm_delete'
     ),
     url(
-        regex=r'^delete_server/(?P<server_id>\w+)/$',
+        regex=r'^delete_server/(?P<server_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         view=views.delete_server,
         name='delete_server'
     ),
 
     url(
-        regex=r'^load_system_data/(?P<server_id>\w+)/$',
+        regex=r'^load_system_data/(?P<server_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         view=views.load_system_data,
         name='load_system_data'
     ),
     url(
-        regex=r'^load_process_data/(?P<server_id>\w+)/(?P<process_name>[^/]+)/$',
+        regex=r'^load_process_data/(?P<server_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<process_name>[^/]+)/$',
         view=views.load_process_data,
         name='load_process_data'
     ),
     url(
-        regex=r'^load_network_data/(?P<server_id>\w+)/(?P<net_name>[^/]+)/$',
+        regex=r'^load_network_data/(?P<server_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<net_name>[^/]+)/$',
         view=views.load_network_data,
         name='load_network_data'
     ),
@@ -96,12 +96,12 @@ urlpatterns = [
         name='load_dashboard_table'
     ),
     url(
-        regex=r'^load_system_table/(?P<server_id>\w+)/$',
+        regex=r'^load_system_table/(?P<server_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         view=views.load_system_table,
         name='load_system_table'
     ),
     url(
-        regex=r'^load_process_table/(?P<server_id>\w+)/(?P<process_name>[^/]+)/$',
+        regex=r'^load_process_table/(?P<server_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?P<process_name>[^/]+)/$',
         view=views.load_process_table,
         name='load_process_table'
     ),
