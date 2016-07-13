@@ -26,7 +26,7 @@
                                 <div class="col-md-3 list-group-item-text">
                                     <b>Event</b>
                                 </div>
-                                <div class="col-md-3 list-group-item-text">
+                                <div class="col-md-9 list-group-item-text">
                                     <span class="label label-warning" >{{ monit_event.id }}<span>
                                 </div>
                             </div>
@@ -36,7 +36,7 @@
                                 <div class="col-md-3 list-group-item-text">
                                     <b>Status</b>
                                 </div>
-                                <div class="col-md-3 list-group-item-text">
+                                <div class="col-md-9 list-group-item-text">
                                     {% if monit_event.event_state == 1  %}
                                         {% if monit_event.alarm_raised and not monit_event.cleared_by %} Raised {% elif monit_event.alarm_raised and monit_event.cleared_by %} Raised and Cleared {% else %} Duplicate {% endif %}
                                     {% endif %}
@@ -48,7 +48,7 @@
                                 <div class="col-md-3 list-group-item-text">
                                     <b>Event Type </b>
                                 </div>
-                                <div class="col-md-3 list-group-item-text">
+                                <div class="col-md-9 list-group-item-text">
                                     {{ monit_event.event_type|type_to_string }}<br/><b>{{ monit_event.service}} </b>
                                 </div>
                             </div>
@@ -58,7 +58,7 @@
                                 <div class="col-md-3 list-group-item-text">
                                     <b>Host</b>
                                 </div>
-                                <div class="col-md-3 list-group-item-text">
+                                <div class="col-md-9 list-group-item-text">
                                     {{ monit_event.server.localhostname }}
                                 </div>
                             </div>
@@ -68,7 +68,7 @@
                                 <div class="col-md-3 list-group-item-text">
                                     <b>Date </b>
                                 </div>
-                                <div class="col-md-3 list-group-item-text">
+                                <div class="col-md-9 list-group-item-text">
                                     {{ monit_event.event_time}} <br/> {{ monit_event.event_time|time_diff|format_timedelta }}
                                 </div>
                             </div>
@@ -78,7 +78,7 @@
                                 <div class="col-md-3 list-group-item-text">
                                     <b>Event ID </b>
                                 </div>
-                                <div class="col-md-3 list-group-item-text">
+                                <div class="col-md-9 list-group-item-text">
                                     {{ monit_event.event_id|event_status_to_string }}
                                 </div>
                             </div>
@@ -88,7 +88,7 @@
                                 <div class="col-md-3 list-group-item-text">
                                     <b>Event State </b>
                                 </div>
-                                <div class="col-md-3 list-group-item-text">
+                                <div class="col-md-9 list-group-item-text">
                                     <span class="label label-{{ monit_event.event_state|event_state_to_style }}"> <b>{{ monit_event.event_state|event_state_to_string }}</b></span>
                                 </div>
                             </div>
@@ -98,7 +98,7 @@
                                 <div class="col-md-3 list-group-item-text">
                                     <b>Monit Action </b>
                                 </div>
-                                <div class="col-md-3 list-group-item-text">
+                                <div class="col-md-9 list-group-item-text">
                                     {{ monit_event.event_action|action_to_string }}
                                 </div>
                             </div>

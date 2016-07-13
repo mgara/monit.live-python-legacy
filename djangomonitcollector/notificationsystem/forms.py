@@ -53,9 +53,12 @@ EVENT_ACTION_CHOICES = (
     (6, 'Reload'),
 )
 
+
 '''
 Check if file is valid : is an actual file and its name doesn't match the pattern (Exclusion list)
 '''
+
+
 def validate_file(classes_path, f):
     excluded_files = (
         '__init__.py', 'ieventnotification.py', 'parameter.py', '.pyc')
@@ -70,6 +73,8 @@ def validate_file(classes_path, f):
 '''
 Get the class name and the extra parameters field
 '''
+
+
 def get_class_name_and_extra_params(classname):
     # TODO: read the module from settings ?
     notification_handler_module = importlib.import_module(
@@ -77,19 +82,21 @@ def get_class_name_and_extra_params(classname):
     module_attrs = notification_handler_module.__dict__
     for k in module_attrs.keys():
         if k.lower() == classname:
-            return k, module_attrs[k].extra_params
-
+            return k, module_attrs[k].extra_params, module_attrs[k]
 
 
 '''
 Return a tuple that contains the class name and the actual name that we want to display in the form
 '''
+
+
 def get_notification_plugins_classes():
     classes_list = get_notification_plugins()
     classes_tuple = list()
     for path in classes_list:
         class_name = path.split(".")[0]
-        class_name, extra_attr = get_class_name_and_extra_params(class_name)
+        class_name, extra_attr, class_obj = get_class_name_and_extra_params(
+            class_name)
         e = (class_name, class_name)
         classes_tuple.append(e)
     return tuple(classes_tuple)
@@ -103,18 +110,36 @@ def get_notification_plugins():
     return classes_list
 
 
+class MyClassSelect(forms.Select):
+
+    def render_option(self, selected_choices, option_value, option_label):
+        # look at the original for something to start with
+        k, e, obj = get_class_name_and_extra_params(option_value.lower())
+
+        option_label = obj().get_freindlyname()
+        option_icon = obj().get_icon()
+
+        return u'<option id="{}" data-icon="{}">{}</option>'.format(
+            option_value,
+            option_icon,
+            option_label
+        )
+
+
 class NotificationTypeForm(forms.ModelForm):
     notification_service = forms.CharField(required=False)
 
     notification_host_group = forms.CharField(
         required=False,
-        help_text=_('Tags, Apply notification to this list of host groups (wildcards are permitted)')
-        )
+        help_text=_(
+            'Tags, Apply notification to this list of host groups (wildcards are permitted)')
+    )
 
     notification_server = forms.CharField(
         required=False,
-        help_text=_('Tags, Apply notification to this list of servers (wildcards are permitted)')
-        )
+        help_text=_(
+            'Tags, Apply notification to this list of servers (wildcards are permitted)')
+    )
 
     notification_type = forms.MultipleChoiceField(
         choices=EVENT_STATUS_CHOICES, required=False)
@@ -123,7 +148,10 @@ class NotificationTypeForm(forms.ModelForm):
     notification_state = forms.MultipleChoiceField(
         choices=EVENT_STATE_CHOICES, required=False)
     notification_class = forms.ChoiceField(
-        choices=get_notification_plugins_classes(), required=True)
+        choices=get_notification_plugins_classes(),
+        required=True,
+        widget=MyClassSelect()
+    )
 
     class Meta:
         model = NotificationType

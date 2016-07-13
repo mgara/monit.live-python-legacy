@@ -10,7 +10,7 @@ import os
 from optparse import OptionParser, OptionGroup
 
 from gevent import monkey
-from flask.ext.socketio import SocketIO, emit, disconnect
+from flask_socketio import SocketIO, emit, disconnect
 
 
 app = flask.Flask(__name__,
@@ -26,16 +26,20 @@ FILENAME = '../logs/kairos_io.log'
 FORMAT = '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
 
 
+
 @app.route('/<path:url>', methods=['GET', 'POST', 'DELETE'])
 def route(url):
+    global logger
 
     if flask.request.method == 'GET':
         req = requests.get(url, stream=True)
+        logger.debug('HTTP GET [{}] '.format(url))
 
     if flask.request.method == 'POST':
         req = requests.post(url, data=json.dumps(flask.request.json),
                             headers={'content-type': 'application/json'},
                             stream=True)
+        logger.debug('HTTP POST [{}] '.format(url))
 
     if flask.request.method == 'DELETE':
         req = requests.delete(url, stream=True)
@@ -52,14 +56,15 @@ def disconnect_request():
 
 @socketio.on('connect', namespace='/dmc')
 def test_connect():
-    print "Client CONNECTED"
-    logging.info('client [{}] connected'.format(flask.request.sid))
+    global logger
+    logger.info('client [{}] connected'.format(flask.request.sid))
     emit('dmc', {'data': {'event_type': 'connected'}})
 
 
 @socketio.on('disconnected', namespace='/dmc')
 def test_disconnect():
-    logging.info('client [{}] disconnected'.format(flask.request.sid))
+    global logger
+    logger.info('client [{}] disconnected'.format(flask.request.sid))
 
 
 class Broker(kombu.mixins.ConsumerMixin):
@@ -68,19 +73,23 @@ class Broker(kombu.mixins.ConsumerMixin):
         super(Broker, self).__init__()
         global BROKER_URL
         broker_url = BROKER_URL
-
-        logging.info('Broker Started on: {}'.format(broker_url))
+        global logger
+        logger.info('Broker Started on: {}'.format(broker_url))
         self.connection = kombu.Connection(
                 broker_url)
 
-        print self.connection
-
     def on_message(self, body, message):
         try:
+
+            global logger
+
             body = body.encode('ascii', 'ignore')
+            logger.debug('Received: {}'.format(body))
             if isinstance(body, str):
                 data = json.loads(body)
-            namespace = '/{}'.format(data.get('channel'))
+                channel = data.get('channel')
+            namespace = '/{}'.format(channel)
+
             socketio.emit('dmc', {'data': data},
                           namespace=namespace,
                           broadcast=True)
@@ -165,7 +174,7 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
     #  create logger with 'spam_application'
     global logger
-    logger = logging.getLogger('monit_collector_io')
+    logger = logging.getLogger('kairos.io')
 
     log_level = eval('logging.' + options.log.upper())
 

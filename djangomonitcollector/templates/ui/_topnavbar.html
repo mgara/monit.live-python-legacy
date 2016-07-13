@@ -42,8 +42,6 @@
                             </li>
                     {% endif %}
 
-
-
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                                 aria-expanded="false"><i class="fa fa-bell"></i>{% trans "Notifications Center" %}<span class="caret"></span></a>
@@ -63,10 +61,10 @@
                 {% endif %}
                         <li >
                         <a class="nav-link"
-                            href="{% url 'users:detail' request.user.username %}"><i class="fa fa-user"></i> {{ request.user|title }}</a>
+                            href="{% url 'users:detail' request.user.username %}"> <span class="text-navy" ><i class="fa fa-user"></i> {{ request.user|title }}</span></a>
                         </li>
                         <li >
-                            <a class="nav-link" href="{% url 'account_logout' %}"><i class="fa fa-sign-out"></i> {% trans "Logout" %}</a>
+                            <a class="nav-link" href="{% url 'account_logout' %}"><span class="text-danger" ><i class="fa fa-sign-out"></i> {% trans "Logout" %}</span></a>
                         </li>
             {% else %}
                         <li >
@@ -77,9 +75,7 @@
                             <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">{% trans "Log In" %}</a>
                         </li>
             {% endif %}
-                    <li >
-                        <a class="nav-link" href="{% url 'about' %}">{% trans "About" %}</a>
-                    </li>
+
                 </ul>
             </nav>
         </div>

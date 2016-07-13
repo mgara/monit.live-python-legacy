@@ -9,6 +9,7 @@
 {% endblock %}
 {% block content %}
   <div class="container">
+
   <div class="widget style1">
   <div class="col-lg-2"></div>
    <select  data-placeholder="Display Filter..."  class="col-lg-6 chosen-select" multiple="">
@@ -51,11 +52,11 @@
 <script>
 $(document).ready(function () {
 
-  window.intervalId = setInterval(function() {
-    $.post("{% url 'ui:load_dashboard_table' %}", function(data) {
-    $( "#dashboard_table" ).replaceWith( data.table_html );
-    });
-  }, 5000);
+//  window.intervalId = setInterval(function() {
+//    $.post("{% url 'ui:load_dashboard_table' %}", function(data) {
+//    $( "#dashboard_table" ).replaceWith( data.table_html );
+//    });
+//  }, 30000);
 
   var l = $( '.ladda-button' ).ladda();
   l.click(function() {
@@ -69,8 +70,6 @@ $(document).ready(function () {
       foo[i] = $(selected).text();
     });
 
-    console.log(foo)
-
     $.ajax({
        url: "{% url 'ui:update_hgs' %}", // the endpoint
        type: "POST", // http method
@@ -79,8 +78,8 @@ $(document).ready(function () {
        },
        // handle a successful response
        success: function(json) {
-           $.post("{% url 'ui:load_dashboard_table' %}", function(data) {
-          $( "#dashboard_table" ).replaceWith( data.table_html );
+          $.post("{% url 'ui:load_dashboard_table' %}", function(data) {
+            $( "#dashboard_table" ).replaceWith( data.table_html );
           });
            l.ladda('stop');
 

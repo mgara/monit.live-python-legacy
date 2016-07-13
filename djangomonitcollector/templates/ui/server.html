@@ -212,6 +212,7 @@
     <script src="{% static 'js/dygraph-combined.js' %}"></script>
     <script src="{% static 'js/csrf.js' %}"></script>
     <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="{% static 'js/synchronizer.js' %}"></script>
     <script>
 $(function() {
     Highcharts.setOptions({
@@ -550,7 +551,7 @@ $(function() {
             ]
         }]
     });
-    var socket = io('/server_dashboard_{{ server.id }}');
+    var socket = io('/{{ server.id|clean }}');
     socket.on('dmc', function(msg) {
         var data = msg.data;
         // var cpu_system_last=['System', data.cpu_system_last];

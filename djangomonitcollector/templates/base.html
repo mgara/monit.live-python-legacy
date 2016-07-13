@@ -29,6 +29,7 @@
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
 
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
 
     {%  block head %}
 {% endblock head %}
@@ -129,7 +130,6 @@
                 ================================================== -->
                 <!-- Placed at the end of the document so the pages load faster -->
                 <script src="{% static 'js/bootstrap.min.js' %}"></script>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
                 <script src="{% static 'js/plugins/metisMenu/jquery.metisMenu.js' %}"></script>
                 <script src="{% static 'js/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
                 <script src="{% static 'js/plugins/toastr/toastr.min.js' %}"></script>
@@ -138,7 +138,17 @@
                 <script src="{% static 'js/plugins/iCheck/icheck.min.js' %}"></script>
                 <script src="{% static 'js/inspinia.js' %}"></script>
                 <script src="{% static 'js/jquery.printElement.min.js' %}"></script>
-                <script src="{% static 'js/synchronizer.js' %}"></script>
+
+                <script type="text/javascript">
+                    /**
+                     * @param {string} filename The name of the file WITHOUT ending
+                     */
+                    function playSound(){
+                        $("#sound").html('<audio autoplay="autoplay"><source src="{% static 'sounds/gets-in-the-way.mp3' %}" type="audio/mpeg" /><source src="{% static 'sounds/gets-in-the-way.ogg' %}" type="audio/ogg" /><embed hidden="true" autostart="true" loop="false" src="{% static 'sounds/gets-in-the-way.mp3' %}" /></audio>');
+                    }
+
+                </script>
+
                 <script type="text/javascript">
 
 
@@ -152,7 +162,7 @@
                         var alerts_sockets = io('/organisation_events_{{ request.user.organisation.id|clean }}');
                         alerts_sockets.on('dmc', function(msg) {
                             var data = msg.data;
-
+                            playSound()
                             if ( $( "#event_table" ).length ) {
 
                                 $.ajax({
@@ -230,9 +240,11 @@
                 <!-- Your stuff: Third-party javascript libraries go here -->
                 <!-- place project specific Javascript in this file -->
                 <script src="{% static 'js/project.js' %}"></script>
+
                 {% block javascript %}
                 {% endblock javascript %}
                 {% block ajaxcalls %}
                 {% endblock ajaxcalls %}
+                <div id="sound"></div>
             </body>
         </html>

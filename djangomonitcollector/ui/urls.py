@@ -151,7 +151,7 @@ urlpatterns = [
         name='update_hgs'
     ),
     url(
-        regex=r'get_network_usage/(?P<pk>\w*)/$',
+        regex=r'get_network_usage/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         view=views.get_network_usage,
         name='get_network_usage'
     ),
@@ -161,13 +161,13 @@ urlpatterns = [
         name='set_stats_period'
     ),
     url(
-        regex=r'get_filesystem_usage/(?P<pk>\w*)/$',
+        regex=r'get_filesystem_usage/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         view=views.get_filesystem_usage,
         name='get_filesystem_usage'
     ),
 
     url(
-        regex=r'get_system_usage/(?P<pk>\w*)/$',
+        regex=r'get_system_usage/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         view=views.get_system_usage,
         name='get_system_usage'
     ),

@@ -1,15 +1,17 @@
 import datetime
-from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
-
-from django.db import models
-from pytz import timezone
-import pika
 import json
-from service import Service
+import logging
+import pika
+
+
 from ..lib.utils import get_value, json_list_append
 from ..models import AggregationPeriod
-import logging
 from django.conf import settings
+from django.db import models
+from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
+from djangomonitcollector.ui.templatetags.extra_tags import percent_to_bar, kb_formatting, time_str
+from pytz import timezone
+from service import Service
 
 
 class System(Service):
@@ -208,42 +210,54 @@ class MemoryCPUSystemStats(models.Model):
 
 def broadcast_to_websocket_channel(server, system):
     response = dict()
-    response['channel'] = "server_dashboard_{0}".format(server.id)
+    response['channel'] = str(server.id).replace("-", "_")
+
     response['cpu_user_last'] = system.cpu_user_last
     response['cpu_system_last'] = system.cpu_user_last
     response['cpu_wait_last'] = system.cpu_wait_last
+
     response['memory_percent_last'] = system.memory_percent_last
     response['memory_kilobyte_last'] = system.memory_kilobyte_last
+
+    response['load_avg1_last'] = system.load_avg01_last
+    response['load_avg5_last'] = system.load_avg05_last
+    response['load_avg15_last'] = system.load_avg15_last
+
+    # formatted
+    response['cpu_user_last_progress_bar'] = percent_to_bar(system.cpu_user_last)
+    response['cpu_wait_last_progress_bar'] = percent_to_bar(system.cpu_wait_last)
+    response['cpu_system_last_progress_bar'] = percent_to_bar(system.cpu_system_last)
+
+    response['memory_last_progress_bar'] = percent_to_bar(system.memory_percent_last)
+    response['memory_last_kb_formatted'] = kb_formatting(system.memory_kilobyte_last)
+
+    response['uptime'] = time_str(server.uptime)
     response_str = json.dumps(response)
     to_queue(response_str)
 
 
 def to_queue(message):
     connection = None
-    try:
-        rabbitmq_resource = getattr(
-            settings, 'BROKER_URL', 'amqp://dmc:va2root@172.16.5.83:5672/%2f')
-        rabbitmq_queue = getattr(settings, 'RABBITMQ_QUEUE', 'dmc')
-        parameters = pika.URLParameters(rabbitmq_resource)
 
-        connection = pika.BlockingConnection(parameters)
+    rabbitmq_resource = getattr(
+        settings, 'BROKER_URL', 'amqp://dmc:va2root@172.16.5.83:5672/%2f')
+    rabbitmq_queue = getattr(settings, 'RABBITMQ_QUEUE', 'dmc')
+    parameters = pika.URLParameters(rabbitmq_resource)
 
-        channel = connection.channel()
+    connection = pika.BlockingConnection(parameters)
 
-        # Declare the queue
-        channel.queue_declare(
-            queue=rabbitmq_queue, durable=True, exclusive=False, auto_delete=False)
+    channel = connection.channel()
 
-        # Enabled delivery confirmations
-        channel.confirm_delivery()
+    # Declare the queue
+    channel.queue_declare(
+        queue=rabbitmq_queue, durable=True, exclusive=False, auto_delete=False)
 
-        channel.basic_publish(exchange='dmc',
-                              routing_key='dmc',
-                              body=message)
+    # Enabled delivery confirmations
+    channel.confirm_delivery()
 
-        connection.close()
-    except:
-        logging.error("Error sending to RabbitMQ")
-    finally:
-        if connection:
-            connection.close()
+    channel.basic_publish(exchange='dmc',
+                          routing_key='dmc',
+                          body=message)
+
+    connection.close()
+

@@ -182,7 +182,7 @@ def get_notification_plugin_form(request):
                 extra_params_values = ast.literal_eval(NotificationType.objects.get(
                     id=notification_type_id).notification_plugin_extra_params)
 
-        k, extra_params = get_class_name_and_extra_params(plugin_name.lower())
+        k, extra_params, klass_obj = get_class_name_and_extra_params(plugin_name.lower())
         output = ""
 
         if is_update_form:

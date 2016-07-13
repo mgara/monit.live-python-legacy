@@ -8,6 +8,7 @@ from service import Service
 from ..lib.utils import get_value, get_float
 from system import to_queue
 from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
+from djangomonitcollector.ui.templatetags.extra_tags import percent_to_bar, kb_formatting, time_str
 from ..models import AggregationPeriod
 
 
@@ -67,6 +68,7 @@ class FileSystem(Service):
             )
 
         if filesystem.name == '___':
+
             broadcast_to_websocket_channel(server, filesystem)
         return filesystem
 
@@ -160,9 +162,14 @@ class FsAndDiskAggregatedUsageStats(models.Model):
 
 def broadcast_to_websocket_channel(server, fs):
     response = dict()
-    response['channel'] = "server_dashboard_{0}".format(server.id)
+    response['channel'] = str(server.id).replace("-", "_")
     response['fs_blocks_percent_last'] = fs.blocks_percent_last
     response['fs_blocks_total'] = fs.blocks_total
+    response['fs_blocks_usage_last'] = fs.blocks_usage_last
+    response['fs_blocks_percent_last_formatted'] = percent_to_bar(fs.blocks_percent_last)
+    response['fs_blocks_free_percent_last_formatted'] = percent_to_bar(100-fs.blocks_percent_last)
+    response['fs_blocks_total_formatted'] = kb_formatting(fs.blocks_total*1024)
+    response['fs_blocks_usage_last_formatted'] = kb_formatting(fs.blocks_usage_last*1024)
     response_str = json.dumps(response)
     to_queue(response_str)
 

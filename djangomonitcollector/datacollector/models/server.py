@@ -63,7 +63,7 @@ class Server(models.Model):
     http_password = models.CharField(max_length=45, null=True, default="admin")
     http_username = models.CharField(max_length=45, null=True, default="monit")
     disable_monitoring = models.BooleanField(default=True)
-    localhostname = models.TextField(null=True)
+    localhostname = models.TextField(db_index=True, default="default-hostname", null=True)
     monit_id = models.CharField(max_length=32, unique=True)
     monit_update_period = models.IntegerField(default=60)
     monit_version = models.TextField(null=True)
@@ -100,22 +100,25 @@ class Server(models.Model):
             port_str = ":{0}".format(port) if port != 80 else ""
             protocol = "https" if get_int(
                 xmldoc, "server.httpd.ssl") == 1 else "http"
-            address = server.address if server.address != "0.0.0.0" else external_ip
+
             server.last_data_received = datetime.datetime.utcnow().replace(
                 tzinfo=timezone("UTC"))
             server.monit_version = xmldoc.getElementsByTagName(
                 'monit')[0].attributes["version"].value
+
             server.external_ip = external_ip
             server.localhostname = get_value(xmldoc, "localhostname", "")
             server.data_timezone = org.settings.general_default_timezone_for_servers
             server.uptime = get_value(xmldoc, "server", "uptime")
             server.address = get_string(xmldoc, "server.httpd.address")
-            server.http_address = "{0}://{1}{2}/".format(
-                protocol, address, port_str)
+
             server.http_username = get_string(
                 xmldoc, "server.credentials.username")
             server.http_password = get_string(
                 xmldoc, "server.credentials.password")
+            server.http_address = "{0}://{1}:{2}@{3}{4}/".format(
+                protocol, server.http_username, server.http_password, server.external_ip , port_str)
+
             server.monit_update_period = get_int(xmldoc, "server.poll")
             server.save()
 
@@ -155,20 +158,28 @@ class Server(models.Model):
 
                     if service_type == '0':  # Filesystem
                         s = FileSystem.update(xmldoc, server, service)
+                        continue
                     elif service_type == '1':  # Directory
                         s = Directory.update(xmldoc, server, service)
+                        continue
                     elif service_type == '2':  # File
                         s = File.update(xmldoc, server, service)
+                        continue
                     elif service_type == '3':  # Process
                         s = Process.update(xmldoc, server, service)
+                        continue
                     elif service_type == '4':  # Host
                         s = Host.update(xmldoc, server, service)
+                        continue
                     elif service_type == '5':  # System Analysis
                         s = System.update(xmldoc, server, service)
+                        continue
                     elif service_type == '7':  # Program
                         s = Program.update(xmldoc, server, service)
+                        continue
                     elif service_type == '8':  # Network Card
                         s = Net.update(xmldoc, server, service)
+                        continue
                     else:
                         s = Process.update(xmldoc, server, service)
 
@@ -200,8 +211,6 @@ class ServiceGroup(models.Model):
 
     def __unicode__(self):
         return self.display_name
-
-
 
 
 class MonitEvent(models.Model):

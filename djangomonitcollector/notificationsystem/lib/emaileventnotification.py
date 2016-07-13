@@ -10,8 +10,8 @@ class EmailEventNotification(EventSettingsInterface):
         'subjet_prefix': Parameter('subjet_prefix', 'Subject Prefix'),
     }
 
-    PLUGIN_NAME="Email Notification"
-    PLUGIN_ICON="evelope"
+    PLUGIN_NAME = "Email Notification"
+    PLUGIN_ICON = "envelope"
 
     def __init__(self):
         pass

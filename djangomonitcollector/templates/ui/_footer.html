@@ -1,11 +1,17 @@
 {% load tz %}
+{% load  i18n %}
+
 {% get_current_timezone as TIME_ZONE %}
 <div class="footer">
     <div class="pull-right">
+        <small class="text-default">
+            <strong>Copyright</strong> Kairos MC&copy; 2016 &middot; {{ request.user.organisation.name }}
+        </small>    |
             <a class="nav-link" href="#"><small class="text-danger">{{ TIME_ZONE }}</small></a>
-
     </div>
     <div>
-         <strong>Copyright</strong> Kairos MC&copy; 2016 &middot; {{ request.user.organisation.name }}
+        <small class="text-primary">
+         Contact Us &middot; Privacy Policy  &middot;  Kairos Terms  &middot;  Legal  &middot;  Help  &middot;  <a class="nav-link" href="{% url 'about' %}">{% trans "About" %}</a>
+         </small>
     </div>
 </div>

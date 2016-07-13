@@ -31,10 +31,11 @@ class Platform(models.Model):
         service = cls.objects.get(server=server)
         return service
 
-
     def __str__(self):
         return 'a'
+
     def __unicode__(self):
         return u'a'
+
     def __repr__(self):
         return 'a'

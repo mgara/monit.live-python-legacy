@@ -128,7 +128,7 @@
 
 
                                             <div class="media-body ">
-                            <small class="pull-right text-danger">{{ monit_event.event_time|time_diff|format_timedelta }}</small>
+                            <button class="pull-right btn btn-xs btn-danger btn-outline " data-toggle="tooltip" data-placement="top" title="{{ monit_event.event_time}}"> {{ monit_event.event_time|time_diff|format_timedelta }}</button>
                             <p class="m-b-xs">
                                  {{ monit_event.event_message }}
                             </p>

@@ -154,12 +154,14 @@
                         {% endif %}
                     </div>
                 </div>
+
                 <div class="form-group">
                     <div class="row ">
                         <div class="col-md-2 control-label">
                             {{ form.notification_class.label_tag|title }}
                         </div>
-                        <div class="col-md-5 ">
+                        <div  class="col-md-5 ">
+                            <div id="class_container"></div>
                             {{ form.notification_class}}
                         </div>
                         {% if form.notification_class.errors %}
@@ -169,6 +171,7 @@
                         {% endif %}
                     </div>
                 </div>
+
                 <div id="extra_params_container" class="extra_params_class"></div>
                 <div class="hr-line-dashed"></div>
                 <div class="control-group">
@@ -195,13 +198,38 @@
     <script language="JavaScript">
      $(document).ready(function(){
 
-        select_size = $('#id_notification_class option').length;
-        $('#id_notification_class').selectpicker({
-            style: 'btn-primary',
-            size: select_size
+
+        //select_size = $('#id_notification_class option').length;
+        //$('#id_notification_class').selectpicker({
+        //    style: 'btn-primary',
+        //    size: select_size
+        //});
+
+
+        var btnGroup = "<div class='btn-group'></div>";
+        $("#class_container").append(btnGroup);
+
+        $("#id_notification_class option").each(function() {
+
+            var item_id = $(this).attr("id")
+            var item_value = $(this).html()
+            var item_icon = $(this).attr("data-icon")
+
+            console.log(item_icon)
+            var the_button = $("<button type='button' class='btn-class btn-sq btn btn-primary btn-space' id='"+item_id+"'><i class='"+item_icon+" fa-4x'></i> <br/>" + item_value + "</button>");
+            the_button.on('click',function(){
+                var value=$(this).attr("id")
+                $('#id_notification_class').val(value)
+                get_plugin_form(value)
+            })
+            $(".btn-group").after(the_button);
         });
 
-        get_plugin_form($('#id_notification_class').val());
+        $("#id_notification_class").hide();
+
+
+
+        get_plugin_form($('#id_notification_class option:first').attr("id"));
 
         $('#id_notification_service').multiSelect({cssClass:"multiselect"});
         $('#id_notification_type').multiSelect({cssClass:"multiselect"});

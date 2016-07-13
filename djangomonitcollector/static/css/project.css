@@ -121,8 +121,69 @@
   color: black;
 }
 
-* {
+/* {
   -webkit-border-radius: 0 !important;
      -moz-border-radius: 0 !important;
           border-radius: 0 !important;
+}*/
+
+
+.btn-sq-lg {
+  width: 150px !important;
+  height: 150px !important;
 }
+
+.btn-sq {
+  width: 100px !important;
+  height: 100px !important;
+  font-size: 10px;
+}
+
+.btn-sq-sm {
+  width: 50px !important;
+  height: 50px !important;
+  font-size: 10px;
+}
+
+.btn-sq-xs {
+  width: 25px !important;
+  height: 25px !important;
+  padding:2px;
+}
+.btn-space{
+  margin: 5px;
+}
+.progress-mini{
+  border-width: 0.5px;
+  border-style: solid;
+}
+
+.progress-bar-border-navy-light {
+  border-color: #3dc7ab;
+}
+.progress-bar-border-success {
+  border-color: #1c84c6;
+}
+.progress-bar-border-primary {
+  border-color: #23c6c8;
+}
+.progress-bar-border-info {
+  border-color: #23c6c8;
+}
+.progress-bar-border-warning {
+  border-color: #f8ac59;
+}
+.progress-bar-border-danger {
+  border-color: #ed5565;
+}
+
+
+progress-bar-border-warning
+
+progress-bar-border-danger
+
+.server-data{
+  padding:0px !important;
+  background: #555555;
+}
+

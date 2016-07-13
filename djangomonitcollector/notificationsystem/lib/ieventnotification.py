@@ -20,6 +20,15 @@ class EventSettingsInterface(object):
     notification_type = None
     has_extra_config = False
 
+    PLUGIN_NAME = "PLUGIN_NAME"
+    PLUGIN_ICON = "PLUGIN_ICON"
+
+    def get_freindlyname(self):
+        return self.PLUGIN_NAME
+
+    def get_icon(self):
+        return u"fa fa-{}".format(self.PLUGIN_ICON)
+
     '''
     this function takes as a parametr the event object and will
     indicate how to process the event

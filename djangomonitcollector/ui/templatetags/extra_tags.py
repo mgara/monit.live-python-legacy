@@ -105,6 +105,12 @@ def get_title(url_name):
     url_name = url_name.replace('_', ' ')
     return url_name.title()
 
+@register.filter
+def server_status_to_string(status):
+    if status:
+        return "UP"
+    else:
+        return "DOWN"
 
 @register.filter
 def server_status_to_css_class(status):
@@ -191,6 +197,10 @@ def to_path(dir_name):
 @register.filter
 def time_str(uptime):
     """ converts uptime in seconds to a time string """
+    if isinstance(uptime, unicode):
+        uptime = int(uptime)
+    if isinstance(uptime, str):
+        uptime = int(uptime)
     if not isinstance(uptime, int):
         return "-"
     mins = (uptime / 60) % 60
@@ -461,7 +471,7 @@ def status_to_string_(status, type_of_service, monitor_status):
 def get_progress_bar_html(value, display_txt):
     style = get_style_from_value(value)
     res = '<span class="label label-{0} small">{2}</span>' \
-          '<div class="progress progress-mini">' \
+          '<div class="progress progress-mini  progress-bar-border-{0}">' \
           '<div class="progress-bar progress-bar-{0} " role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: {1}%">' \
           '<span>{2}</span>' \
           '</div>' \

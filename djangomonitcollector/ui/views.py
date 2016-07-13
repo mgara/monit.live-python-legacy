@@ -40,7 +40,9 @@ default_display_period = int(
 def dashboard(request):
     org = request.user.organisation
     hgs = request.user.host_groups.all()
-    all_hgs = HostGroup.objects.all()
+    all_hgs = HostGroup.objects.filter(owned_by=org)
+    org_has_hgs = True if len(all_hgs) > 0 else False
+    user_has_hgs = True if len(hgs) > 0 else False
 
     servers = []
 
@@ -60,10 +62,14 @@ def dashboard(request):
         server.processes = len(set(server.process_set.all()))
         server_found = True
 
+
+
     return render(
         request,
         'ui/dashboard.html',
         {
+            'org_has_hgs': org_has_hgs,
+            'user_has_hgs': user_has_hgs,
             'servers': servers,
             'hgs': hgs,
             'all_hgs': all_hgs,
@@ -356,6 +362,10 @@ def delete_server(request, server_id):
 def load_dashboard_table(request):
     org = request.user.organisation
     hgs = request.user.host_groups.all()
+    all_hgs = HostGroup.objects.filter(owned_by=org)
+    org_has_hgs = True if len(all_hgs) > 0 else False
+    user_has_hgs = True if len(hgs) > 0 else False
+
     servers = []
 
     for hg in hgs:
@@ -376,6 +386,8 @@ def load_dashboard_table(request):
 
     table_html = render_to_string(
         'ui/includes/dashboard_table.html', {
+            'org_has_hgs': org_has_hgs,
+            'user_has_hgs': user_has_hgs,
             'servers': servers,
             'hgs': hgs,
             'server_found': server_found
@@ -573,9 +585,10 @@ def ack_event(request):
 #  Ajax call
 #  Update user hostgroups from the dashboard call
 def update_user_hgs(request):
+    org = request.user.organisation
     current_user = request.user
     hgs = request.POST['user_hgs']
-    all_gs = HostGroup.objects.all()
+    all_gs = HostGroup.objects.filter(owned_by=org)
     try:
         select_hgs = ast.literal_eval(hgs)
         selected_hgs_count = len(select_hgs)
