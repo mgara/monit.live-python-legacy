@@ -6,6 +6,7 @@ from pytz import timezone
 from service import Service
 from ..lib.utils import get_value, get_string, get_int
 from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
+from djangomonitcollector.datacollector.lib.graphite import collect_metric_from_datetime
 from ..models import AggregationPeriod
 
 
@@ -69,6 +70,11 @@ class Net(Service):
                 )
 
                 NetStats.to_elasticsearch(
+                    entry,
+                    net.server.localhostname.replace('.','_'),
+                    net.name
+                    )
+                NetStats.to_carbon(
                     entry,
                     net.server.localhostname.replace('.','_'),
                     net.name
@@ -156,6 +162,38 @@ class NetStats(models.Model):
         entity.upload_packet = upload_packet
         entity.save()
         return entity
+
+    @classmethod
+    def to_carbon(cls, entry, server_name, net):
+        metric = "{}.net.{}.download.packet".format(
+            server_name, net)
+        collect_metric_from_datetime(
+            metric, entry.download_packet, entry.date_last)
+
+        metric = "{}.net.{}.download.bytes".format(
+            server_name, net)
+        collect_metric_from_datetime(
+            metric, entry.download_bytes, entry.date_last)
+
+        metric = "{}.net.{}.download.errors".format(
+            server_name, net)
+        collect_metric_from_datetime(
+            metric, entry.download_errors, entry.date_last)
+
+        metric = "{}.net.{}.upload.packet".format(
+            server_name, net)
+        collect_metric_from_datetime(
+            metric, entry.upload_packet, entry.date_last)
+
+        metric = "{}.net.{}.upload.bytes".format(
+            server_name, net)
+        collect_metric_from_datetime(
+            metric, entry.upload_bytes, entry.date_last)
+
+        metric = "{}.net.{}.upload.errors".format(
+            server_name, net)
+        collect_metric_from_datetime(
+            metric, entry.upload_errors, entry.date_last)
 
     @classmethod
     def to_elasticsearch(cls, entry, server_name, net):

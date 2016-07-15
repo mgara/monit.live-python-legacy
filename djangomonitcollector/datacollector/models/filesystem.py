@@ -8,7 +8,9 @@ from service import Service
 from ..lib.utils import get_value, get_float
 from system import to_queue
 from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
-from djangomonitcollector.ui.templatetags.extra_tags import percent_to_bar, kb_formatting, time_str
+from djangomonitcollector.datacollector.lib.graphite import collect_metric_from_datetime
+
+from djangomonitcollector.ui.templatetags.extra_tags import percent_to_bar, kb_formatting
 from ..models import AggregationPeriod
 
 
@@ -66,6 +68,11 @@ class FileSystem(Service):
                 filesystem.server.localhostname.replace('.', '_'),
                 fs_name
             )
+            FsAndDiskUsageStats.to_carbon(
+                entry,
+                filesystem.server.localhostname.replace('.', '_'),
+                fs_name
+            )
 
         if filesystem.name == '___':
 
@@ -107,6 +114,25 @@ class FsAndDiskUsageStats(models.Model):
         entry.inode_usage = inode_usage
         entry.save()
         return entry
+
+    @classmethod
+    def to_carbon(cls, entry, server_name, fs_name):
+        metric = "{}.fs.{}.blocks_percent".format(
+            server_name, fs_name.replace('/', '_'))
+        collect_metric_from_datetime(
+            metric, entry.blocks_percent, entry.date_last)
+        metric = "{}.fs.{}.blocks_usage".format(
+            server_name, fs_name.replace('/', '_'))
+        collect_metric_from_datetime(
+            metric, entry.blocks_usage, entry.date_last)
+        metric = "{}.fs.{}.inode_percent".format(
+            server_name, fs_name.replace('/', '_'))
+        collect_metric_from_datetime(
+            metric, entry.inode_percent, entry.date_last)
+        metric = "{}.fs.{}.inode_usage".format(
+            server_name, fs_name.replace('/', '_'))
+        collect_metric_from_datetime(
+            metric, entry.inode_usage, entry.date_last)
 
     @classmethod
     def to_elasticsearch(cls, entry, server_name, fs_name):
@@ -166,12 +192,12 @@ def broadcast_to_websocket_channel(server, fs):
     response['fs_blocks_percent_last'] = fs.blocks_percent_last
     response['fs_blocks_total'] = fs.blocks_total
     response['fs_blocks_usage_last'] = fs.blocks_usage_last
-    response['fs_blocks_percent_last_formatted'] = percent_to_bar(fs.blocks_percent_last)
-    response['fs_blocks_free_percent_last_formatted'] = percent_to_bar(100-fs.blocks_percent_last)
+    response['fs_blocks_percent_last_formatted'] = percent_to_bar(
+        fs.blocks_percent_last)
+    response['fs_blocks_free_percent_last_formatted'] = percent_to_bar(
+        100-fs.blocks_percent_last)
     response['fs_blocks_total_formatted'] = kb_formatting(fs.blocks_total*1024)
-    response['fs_blocks_usage_last_formatted'] = kb_formatting(fs.blocks_usage_last*1024)
+    response['fs_blocks_usage_last_formatted'] = kb_formatting(
+        fs.blocks_usage_last*1024)
     response_str = json.dumps(response)
     to_queue(response_str)
-
-
-

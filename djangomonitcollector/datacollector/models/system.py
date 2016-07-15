@@ -1,6 +1,5 @@
 import datetime
 import json
-import logging
 import pika
 
 
@@ -9,6 +8,7 @@ from ..models import AggregationPeriod
 from django.conf import settings
 from django.db import models
 from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
+from djangomonitcollector.datacollector.lib.graphite import collect_metric_from_datetime
 from djangomonitcollector.ui.templatetags.extra_tags import percent_to_bar, kb_formatting, time_str
 from pytz import timezone
 from service import Service
@@ -81,6 +81,11 @@ class System(Service):
                 system.swap_kilobyte_last
             )
             MemoryCPUSystemStats.to_elasticsearch(
+                entity,
+                system.server.localhostname.replace('.', '_')
+                )
+
+            MemoryCPUSystemStats.to_carbon(
                 entity,
                 system.server.localhostname.replace('.', '_')
                 )
@@ -185,6 +190,50 @@ class MemoryCPUSystemStats(models.Model):
         entry.swap_kilobyte = swap_kilobyte
         entry.save()
         return entry
+
+
+    @classmethod
+    def to_carbon(cls, entry, server_name):
+        metric = "{}.system.load.avg01".format(
+            server_name)
+        collect_metric_from_datetime(
+            metric, entry.load_avg01, entry.date_last)
+        metric = "{}.system.load.avg05".format(
+            server_name)
+        collect_metric_from_datetime(
+            metric, entry.load_avg05, entry.date_last)
+
+        metric = "{}.system.cpu.user".format(
+            server_name)
+        collect_metric_from_datetime(
+            metric, entry.cpu_user, entry.date_last)
+        metric = "{}.system.cpu.system".format(
+            server_name)
+        collect_metric_from_datetime(
+            metric, entry.cpu_system, entry.date_last)
+        metric = "{}.system.cpu.wait".format(
+            server_name)
+        collect_metric_from_datetime(
+            metric, entry.cpu_wait, entry.date_last)
+
+        metric = "{}.system.memory.percent".format(
+            server_name)
+        collect_metric_from_datetime(
+            metric, entry.memory_percent, entry.date_last)
+        metric = "{}.system.memory.kilobyte".format(
+            server_name)
+        collect_metric_from_datetime(
+            metric, entry.memory_kilobyte, entry.date_last)
+
+        metric = "{}.system.swap.percent".format(
+            server_name)
+        collect_metric_from_datetime(
+            metric, entry.swap_percent, entry.date_last)
+        metric = "{}.system.swap.kilobyte".format(
+            server_name)
+        collect_metric_from_datetime(
+            metric, entry.swap_kilobyte, entry.date_last)
+
 
     @classmethod
     def to_elasticsearch(cls, entry, server_name):

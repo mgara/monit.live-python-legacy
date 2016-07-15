@@ -5,6 +5,8 @@ from pytz import timezone
 from service import Service
 from ..lib.utils import get_value
 from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
+from djangomonitcollector.datacollector.lib.graphite import collect_metric_from_datetime
+
 from ..models import AggregationPeriod
 
 
@@ -52,6 +54,11 @@ class Process(Service):
                 process.server.localhostname.replace('.','_'),
                 process.name
                 )
+            MemoryCPUProcessStats.to_carbon(
+                entry,
+                process.server.localhostname.replace('.','_'),
+                process.name
+                )
         return process
 
     @classmethod
@@ -86,6 +93,21 @@ class MemoryCPUProcessStats(models.Model):
         entry.memory_percent = memory_percent
         entry.save()
         return entry
+
+    @classmethod
+    def to_carbon(cls, entry, server_name, processname):
+        metric = "{}.process.{}.cpu_percent".format(
+            server_name, processname)
+        collect_metric_from_datetime(
+            metric, entry.cpu_percent, entry.date_last)
+        metric = "{}.process.{}.memory_percent".format(
+            server_name, processname)
+        collect_metric_from_datetime(
+            metric, entry.memory_percent, entry.date_last)
+        metric = "{}.process.{}.memory_kilobyte".format(
+            server_name, processname)
+        collect_metric_from_datetime(
+            metric, entry.memory_kilobyte, entry.date_last)
 
     @classmethod
     def to_elasticsearch(cls, entry, server_name, processname):

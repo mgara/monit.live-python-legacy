@@ -157,6 +157,10 @@
 
 </div>
 
+<div id="cubism_graph">
+
+</div>
+
     {% csrf_token %}
   {% endblock %}
   {% block customjs %}
@@ -164,8 +168,23 @@
     <script src="{% static 'js/dygraph-combined.js' %}"></script>
     <script src="{% static 'js/csrf.js' %}"></script>
     <script src="{% static 'js/synchronizer.js' %}"></script>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="http://square.github.io/cubism/cubism.v1.js"></script>
     <script>
 $(function() {
+
+     //*****************************************
+    console.log("start cubism")
+     var context = cubism.context(), // a default context
+     graphite = context.graphite("http://172.16.5.19:8888");
+     var foo = graphite.metric("sumSeries(nonNegativeDerivative(exclude(hosts.foo.cpu.*.*,'idle')))");
+      graphite.find("*.system.*.*", function(error, results) {
+        console.log(results); // ["hosts.foo.cpu.0.", "hosts.bar.cpu.0.", etc.]
+          console.log(error);
+      });
+      console.log("done cubism")
+     //*****************************************
+
 
     // server side code
     var update_period = 1000 * {{monit_update_period}};

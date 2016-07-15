@@ -53,13 +53,13 @@
                                     <a data-toggle="tooltip" data-placement="top" title="{% trans 'Settings' %}" class="btn btn-xs btn-info" href="{% url 'ui:server_show' server.id %}"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a>
                                     <a data-toggle="tooltip" data-placement="top" title="{% trans 'KPIs' %}" class="btn btn-xs btn-info" href="{% url 'ui:server_kpis' server.id %}"><span class="fa fa-bar-chart" aria-hidden="true"></span></a>
                                     <a data-toggle="tooltip" data-placement="top" title="{% trans 'View' %}" class="btn btn-xs btn-info" href="{% url 'ui:server' server.id %}"><span class="fa fa-eye" aria-hidden="true"></span></a>
-                                    <a data-toggle="tooltip" data-placement="top" title="{% trans 'More Details' %}" data-href="{{server.id|clean}}_more_details" class="btn btn-xs btn-success pull-right btn-toggle-info"><span class="fa fa-caret-square-o-down" aria-hidden="true"></span></a>
+                                    <a data-toggle="tooltip" data-placement="top" title="{% trans 'More Details' %}" data-href="{{server.id|clean}}_more_details" class="btn btn-xs btn-success pull-right btn-toggle-info"><span class="fa fa-arrow-circle-down" aria-hidden="true"></span></a>
                                 </td>
                             </tr>
                             <tr id="{{server.id|clean}}_more_details">
 
-                                    <td colspan="12" >
-                                     <div class="col-md-12 server-data">
+                                    <td colspan="12" style="padding:0px" >
+                                     <div class="col-md-12 server-data" style="display:none">
                                         <div class="col-md-3">
                                         <h2 class="text-navy">{% trans 'System Properties' %}</h2>
                                         <span class="text-muted col-md-3">{% trans 'Name' %}:</span><span class="text-success"> {{ server.platform.name}}  </span>     <br/>
@@ -189,17 +189,16 @@
         var div = td.children('div .server-data')
         if(div.is(":hidden"))
         {
-            $(this).children().removeClass('fa-caret-square-o-up');
-            $(this).children().addClass('fa-caret-square-o-down');
+            $(this).children().removeClass('fa-arrow-circle-down');
+            $(this).children().addClass('fa-arrow-circle-up');
             div.slideDown(100)
         }else
         {
-            $(this).children().removeClass('fa-caret-square-o-down');
-            $(this).children().addClass('fa-caret-square-o-up');
+            $(this).children().removeClass('fa-arrow-circle-up');
+            $(this).children().addClass('fa-arrow-circle-down');
             div.slideUp(100)
         }
    })
-
 });
 
 </script>
