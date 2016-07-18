@@ -1,21 +1,14 @@
-import datetime
-import json
 
 from django.db import models
-from pytz import timezone
 
 from service import Service
 from ..lib.utils import get_value, get_float
-from system import to_queue
-from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
-from djangomonitcollector.datacollector.lib.graphite import collect_metric_from_datetime
-
-from djangomonitcollector.ui.templatetags.extra_tags import percent_to_bar, kb_formatting
-from ..models import AggregationPeriod
+from ..lib.metrics.fsanddiskusage import FsAndDiskUsageMetrics
 
 
 class FileSystem(Service):
     server = models.ForeignKey('Server')
+    display_name = models.TextField(null=True)
     date_last = models.PositiveIntegerField(null=True)
     file_system = models.TextField(null=True)
     mode = models.TextField(null=True)
@@ -30,11 +23,12 @@ class FileSystem(Service):
     @classmethod
     def update(cls, xmldoc, server, service):
         fs_name = get_value(service, "", "", "name")
-        fs_name.replace('_', '')
         filesystem, created = cls.objects.get_or_create(
             server=server, name=fs_name)
         filesystem.service_type = get_value(service, "type", "")
         filesystem.name = fs_name
+        filesystem.display_name = fs_name.replace("___", "__").replace(
+            "__", "_").replace("_", "/").replace("//", "/")
         filesystem.status = get_value(service, "status", "")
         filesystem.status_hint = get_value(service, "status_hint", "")
         filesystem.monitor = get_value(service, "monitor", "")
@@ -53,30 +47,9 @@ class FileSystem(Service):
 
         if percent_last:
             colect_timestamp = int(get_value(service, "collected_sec", ""))
-            entry = FsAndDiskUsageStats.create(
-                filesystem,
-                filesystem.server.data_timezone,
-                colect_timestamp,
-                filesystem.blocks_percent_last,
-                filesystem.blocks_usage_last,
-                filesystem.inode_percent_last,
-                filesystem.inode_usage_last
-            )
-            fs_name = filesystem.name.replace('___', '/').replace('_', '/')
-            FsAndDiskUsageStats.to_elasticsearch(
-                entry,
-                filesystem.server.localhostname.replace('.', '_'),
-                fs_name
-            )
-            FsAndDiskUsageStats.to_carbon(
-                entry,
-                filesystem.server.localhostname.replace('.', '_'),
-                fs_name
-            )
-
+            metrics = FsAndDiskUsageMetrics(filesystem, server, colect_timestamp)
         if filesystem.name == '___':
-
-            broadcast_to_websocket_channel(server, filesystem)
+            metrics.broadcast_to_websocket_channel(server, filesystem)
         return filesystem
 
     @classmethod
@@ -84,120 +57,3 @@ class FileSystem(Service):
         service, created = cls.objects.get_or_create(server=server, name=name)
         return service
 
-
-class FsAndDiskUsageStats(models.Model):
-    fs_id = models.ForeignKey('FileSystem')
-    date_last = models.DateTimeField(null=False)
-    blocks_percent = models.FloatField(null=True)
-    blocks_usage = models.FloatField(null=True)
-    inode_percent = models.FloatField(null=True)
-    inode_usage = models.FloatField(null=True)
-
-    @classmethod
-    def create(
-        cls,
-        fs,
-        tz_str,
-        unixtimestamp,
-        blocks_percent,
-        blocks_usage,
-        inode_percent,
-        inode_usage
-    ):
-
-        entry = cls(fs_id=fs)
-        tz = timezone(tz_str)
-        entry.date_last = datetime.datetime.fromtimestamp(unixtimestamp, tz)
-        entry.blocks_percent = blocks_percent
-        entry.blocks_usage = blocks_usage
-        entry.inode_percent = inode_percent
-        entry.inode_usage = inode_usage
-        entry.save()
-        return entry
-
-    @classmethod
-    def to_carbon(cls, entry, server_name, fs_name):
-        metric = "{}.fs.{}.blocks_percent".format(
-            server_name, fs_name.replace('/', '_'))
-        collect_metric_from_datetime(
-            metric, entry.blocks_percent, entry.date_last)
-        metric = "{}.fs.{}.blocks_usage".format(
-            server_name, fs_name.replace('/', '_'))
-        collect_metric_from_datetime(
-            metric, entry.blocks_usage, entry.date_last)
-        metric = "{}.fs.{}.inode_percent".format(
-            server_name, fs_name.replace('/', '_'))
-        collect_metric_from_datetime(
-            metric, entry.inode_percent, entry.date_last)
-        metric = "{}.fs.{}.inode_usage".format(
-            server_name, fs_name.replace('/', '_'))
-        collect_metric_from_datetime(
-            metric, entry.inode_usage, entry.date_last)
-
-    @classmethod
-    def to_elasticsearch(cls, entry, server_name, fs_name):
-        _doc = dict()
-        _doc['timestamp'] = entry.date_last
-        _doc['{}_fs_{}_blocks_percent'.format(
-            server_name, fs_name)] = entry.blocks_percent
-        _doc['{}_fs_{}_blocks_usage'.format(
-            server_name, fs_name)] = entry.blocks_usage
-        _doc['{}_fs_{}_inode_percent'.format(
-            server_name, fs_name)] = entry.inode_percent
-        _doc['{}_fs_{}_inode_usage'.format(
-            server_name, fs_name)] = entry.inode_usage
-
-        publish_to_elasticsearch(
-            "monit",
-            "filesystem-stats",
-            _doc
-        )
-
-
-class FsAndDiskAggregatedUsageStats(models.Model):
-    fs_id = models.ForeignKey('FileSystem')
-    date_last = models.DateTimeField(null=False)
-    blocks_percent = models.FloatField(null=True)
-    blocks_usage = models.FloatField(null=True)
-    inode_percent = models.FloatField(null=True)
-    inode_usage = models.FloatField(null=True)
-    rule_id = models.ForeignKey(AggregationPeriod)
-
-    @classmethod
-    def create(
-        cls,
-        fs,
-        tz_str,
-        unixtimestamp,
-        blocks_percent,
-        blocks_usage,
-        inode_percent,
-        inode_usage
-    ):
-
-        entry = cls(fs_id=fs)
-        tz = timezone(tz_str)
-        entry.date_last = datetime.datetime.fromtimestamp(unixtimestamp, tz)
-        entry.blocks_percent = blocks_percent
-        entry.blocks_usage = blocks_usage
-        entry.inode_percent = inode_percent
-        entry.inode_usage = inode_usage
-        entry.save()
-        return entry
-
-
-def broadcast_to_websocket_channel(server, fs):
-    response = dict()
-    response['channel'] = str(server.id).replace("-", "_")
-    response['fs_blocks_percent_last'] = fs.blocks_percent_last
-    response['fs_blocks_total'] = fs.blocks_total
-    response['fs_blocks_usage_last'] = fs.blocks_usage_last
-    response['fs_blocks_percent_last_formatted'] = percent_to_bar(
-        fs.blocks_percent_last)
-    response['fs_blocks_free_percent_last_formatted'] = percent_to_bar(
-        100-fs.blocks_percent_last)
-    response['fs_blocks_total_formatted'] = kb_formatting(fs.blocks_total*1024)
-    response['fs_blocks_usage_last_formatted'] = kb_formatting(
-        fs.blocks_usage_last*1024)
-    response_str = json.dumps(response)
-    to_queue(response_str)

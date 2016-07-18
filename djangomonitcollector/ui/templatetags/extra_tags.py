@@ -20,10 +20,13 @@ except:
 def clean(value):
     return str(value).replace('-', '_')
 
+@register.filter
+def normalize(value):
+    return str(value).replace('.', '_')
 
 @register.filter
 def clean_service_name(value):
-    return value.replace("_/", "_").replace("___", "__").replace("__", "_").replace("_", "/")
+    return value.replace("___", "__").replace("__", "_").replace("_", "/")
 
 
 @register.filter
