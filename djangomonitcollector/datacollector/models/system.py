@@ -41,7 +41,6 @@ class System(Service):
         system.monitor = get_value(service, "monitor", "")
         system.monitor_mode = get_value(service, "monitormode", "")
         system.pending_action = get_value(service, "pendingaction", "")
-
         tz = timezone(system.server.data_timezone)
 
         if get_value(service, "load", "avg01") != "none":

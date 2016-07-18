@@ -124,6 +124,18 @@
         </div>
       </div>
 
+      {% if nic.name == "eno1" %}
+      <script type="text/javascript">
+        $(function(){
+          $("#network_graph_packets_{{nic.name}}").dygraphite({
+            target: [
+              ['server_homenetwork.net.{{nic.name}}.download.packet', 'Download'],
+              ['server_homenetwork.net.{{nic.name}}.upload.packet','Upload'],
+            ]
+          });
+        })
+      </script>
+      {% endif %}
     {% endfor %}
 
 
@@ -157,9 +169,6 @@
 
 </div>
 
-<div id="cubism_graph">
-
-</div>
 
     {% csrf_token %}
   {% endblock %}
@@ -168,22 +177,13 @@
     <script src="{% static 'js/dygraph-combined.js' %}"></script>
     <script src="{% static 'js/csrf.js' %}"></script>
     <script src="{% static 'js/synchronizer.js' %}"></script>
-    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-    <script src="http://square.github.io/cubism/cubism.v1.js"></script>
+    <script src="{% static 'js/graphite.js' %}"></script>
     <script>
-$(function() {
+    $(function() {
 
-     //*****************************************
-    console.log("start cubism")
-     var context = cubism.context(), // a default context
-     graphite = context.graphite("http://172.16.5.19:8888");
-     var foo = graphite.metric("sumSeries(nonNegativeDerivative(exclude(hosts.foo.cpu.*.*,'idle')))");
-      graphite.find("*.system.*.*", function(error, results) {
-        console.log(results); // ["hosts.foo.cpu.0.", "hosts.bar.cpu.0.", etc.]
-          console.log(error);
-      });
-      console.log("done cubism")
-     //*****************************************
+    //$.fn.graphite.defaults.url = "http://dev-server:8888/render/"
+
+
 
 
     // server side code
@@ -200,6 +200,7 @@ $(function() {
     var isStacked = false;
     var errorbars = false;
     var graph_colors = ["#1ab394", "#ed5565", "#f8ac59", "#1c84c6"];
+    var update_period = 1000 * {{monit_update_period}};
 
 
     {% if request.session.is_dst %}
@@ -209,29 +210,7 @@ $(function() {
         {% endif %}
 
 
-    function set_linewidth(graph, data) {
-        var range = graph.xAxisRange();
-        var data_points = 0;
-        for (var i = 0; i < data.length; i++) {
-            var x = data[i][0];
-            //if (x > minDate && x < maxDate)
-            if (x > range[0] && x < range[1])
-                data_points++;
-        }
 
-        var new_opts = {};
-        if (data_points > 2000) {
-            new_opts.pointSize = 0.5;
-            new_opts.strokeWidth = stroke_width;
-        } else if (data_points > 900) {
-            new_opts.pointSize = 1;
-            new_opts.strokeWidth = 1.5;
-        } else {
-            new_opts.pointSize = 1.5;
-            new_opts.strokeWidth = 1;
-        }
-        graph.updateOptions(new_opts);
-    }
 
     var draw_filesystem_graphs_for_fs=function(name,data){
         var dates = JSON.parse(data[0]);
@@ -377,7 +356,6 @@ $(function() {
 
         if (download_packets.length==0){
           document.getElementById("network_graph_packets_"+name).innerHTML = "<div class=\"text-center\">No Data Available: Resource not monitored or Monitoring not supported</div>"
-
           return
         }
 
@@ -470,7 +448,9 @@ $(function() {
                 set_linewidth(g3, data_errors);
             },
 
-        });
+        }
+
+        );
 
         gs.push(g1)
         gs.push(g2)
@@ -620,6 +600,7 @@ $(function() {
 
     $("#kpis :input").change(function() {
         active = $(this).parent().hasClass("active")
+
         if(this.id=="filesystem"){
             $.ajax({
                  url: "{% url 'ui:get_filesystem_usage' server.id %}", // the endpoint
