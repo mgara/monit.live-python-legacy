@@ -44,11 +44,12 @@ class FsAndDiskUsageMetrics(object):
 
         self.to_carbon()
         self.to_elasticsearch()
+
         if (fs.display_name == '/'):
             self.to_broker()
 
     def to_carbon(self):
-        metric = "{}.self.metric.{}.blocks_percent".format(
+        metric = "{}.fs.{}.blocks_percent".format(
             self.server_name,
             self.fs_name.replace('/', '_')
         )
@@ -58,15 +59,15 @@ class FsAndDiskUsageMetrics(object):
             self.metric.date_last
         )
 
-        metric = "{}.self.metric.{}.blocks_usage".format(
+        metric = "{}.fs.{}.blocks_usage".format(
             self.server_name, self.fs_name.replace('/', '_'))
         collect_metric_from_datetime(
             metric, self.metric.blocks_usage, self.metric.date_last)
-        metric = "{}.self.metric.{}.inode_percent".format(
+        metric = "{}.fs.{}.inode_percent".format(
             self.server_name, self.fs_name.replace('/', '_'))
         collect_metric_from_datetime(
             metric, self.metric.inode_percent, self.metric.date_last)
-        metric = "{}.self.metric.{}.inode_usage".format(
+        metric = "{}.fs.{}.inode_usage".format(
             self.server_name, self.fs_name.replace('/', '_'))
         collect_metric_from_datetime(
             metric, self.metric.inode_usage, self.metric.date_last)

@@ -41,6 +41,8 @@ class NetMetrics(object):
         self.server_id = server.id
 
         self.net_name = net.name
+        self.to_carbon()
+        self.to_elasticsearch()
 
     def to_carbon(self):
         metric = "{}.net.{}.download.packet".format(

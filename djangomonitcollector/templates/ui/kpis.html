@@ -19,19 +19,6 @@
 {% block content %}
   <div class="row clearfix text-center">
 
-<div id="kpis" class="btn-group" data-toggle="buttons">
-  <label class="btn btn-primary btn-outline">
-    <input type="checkbox" autocomplete="off" id="system"> System
-  </label>
-    <label class="btn btn-primary btn-outline">
-    <input type="checkbox" autocomplete="off" id="network"> Network
-  </label>
-  <label class="btn btn-primary btn-outline">
-    <input type="checkbox" autocomplete="off" id="filesystem"> FileSystems
-  </label>
-</div>
-
-
 <div id="periods" class="btn-group" data-toggle="buttons">
   <label class="btn btn-primary btn-outline ">
     <input type="radio" id="1h" autocomplete="off"> 1h
@@ -101,6 +88,47 @@
         </div>
       </div>
 
+<script type="text/javascript">
+  $(function(){
+    var gs = []
+      $("#graph_load").dygraphite({
+        target: [
+          ['{{server.localhostname|normalize}}.system.load.avg01', 'Load 1 min'],
+          ['{{server.localhostname|normalize}}.system.load.avg05','Load 5 min'],
+          ['{{server.localhostname|normalize}}.system.load.avg15','Load 15 min'],
+        ],
+        from:"-24hours"
+      },{
+        ylabel : "%",
+        sync: gs
+      });
+
+      $("#graph_cpu").dygraphite({
+        target: [
+          ['{{server.localhostname|normalize}}.system.cpu.user', 'User'],
+          ['{{server.localhostname|normalize}}.system.cpu.system','System'],
+          ['{{server.localhostname|normalize}}.system.cpu.wait','I/O Wait'],
+        ],
+        from:"-24hours"
+      },{
+        ylabel : "%",
+        sync: gs
+      });
+
+      $("#graph_mem").dygraphite({
+        target: [
+          ['{{server.localhostname|normalize}}.system.memory.percent', 'Memory'],
+          ['{{server.localhostname|normalize}}.system.swap.percent','Swap'],
+        ],
+        from:"-24hours"
+      },{
+            ylabel : "%",
+            valueRange: [0,100],
+            labelsKMB : false,
+            sync: gs
+      });
+  })
+</script>
     {% for nic in server.net_set.all %}
        <div class="ibox float-e-margins ui-draggable ui-droppable">
 
@@ -127,7 +155,7 @@
       <script type="text/javascript">
         $(function(){
 
-          $("#network_graph_packets_{{nic.name}}").dygraphite({
+        var graph_packets_{{nic.name}} = $("#network_graph_packets_{{nic.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.download.packet', 'Download'],
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.upload.packet','Upload'],
@@ -136,7 +164,7 @@
             ylabel : "Packets"
           });
 
-          $("#network_graph_bytes_{{nic.name}}").dygraphite({
+          var graph_bytes_{{nic.name}} = $("#network_graph_bytes_{{nic.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.download.bytes', 'Download'],
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.upload.bytes','Upload'],
@@ -146,7 +174,7 @@
           });
 
 
-          $("#network_graph_errors_{{nic.name}}").dygraphite({
+          var graph_errors_{{nic.name}} = $("#network_graph_errors_{{nic.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.download.errors', 'Download'],
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.upload.errors','Upload'],
@@ -160,7 +188,13 @@
       </script>
     {% endfor %}
 
-
+    <script type="text/javascript">
+      Object.defineProperty(Number.prototype,'fileSize',{value:function(a,b,c,d){
+ return (a=a?[1e3,'k','B']:[1024,'K','iB'],b=Math,c=b.log,
+ d=c(this)/c(a[0])|0,this/b.pow(a[0],d)).toFixed(2)
+ +' '+(d?(a[1]+'MGTPEZY')[--d]+a[2]:'Bytes');
+},writable:false,enumerable:false});
+    </script>
     {% for fs in server.filesystem_set.all %}
        <div class="ibox float-e-margins ui-draggable ui-droppable">
 
@@ -198,6 +232,41 @@
             labelsKMB : false,
           });
        });
+
+        $(function(){
+         $("#fs_graph_blocks_usage_{{fs.name}}").dygraphite({
+            target: [
+              ['{{server.localhostname|normalize}}.fs.{{fs.name}}.blocks_usage', 'Usage'],
+            ]
+          },{
+            ylabel : "Blocks (1Block = 1MB) Total ("+({{fs.blocks_total}}*1024*1024).fileSize()+")",
+            valueRange: [0,{{fs.blocks_total}}],
+          });
+       });
+
+        $(function(){
+         $("#fs_graph_inode_percent_{{fs.name}}").dygraphite({
+            target: [
+              ['{{server.localhostname|normalize}}.fs.{{fs.name}}.inode_percent', 'Inodes %'],
+            ]
+          },{
+            ylabel : "%",
+            valueRange: [0,100],
+            labelsKMB : false,
+          });
+       });
+
+        $(function(){
+         $("#fs_graph_inode_usage_{{fs.name}}").dygraphite({
+            target: [
+              ['{{server.localhostname|normalize}}.fs.{{fs.name}}.inode_usage', 'Inodes'],
+            ]
+          },{
+            ylabel : "Inodes",
+            valueRange: [0,null],
+          });
+       });
+
       </script>
     {% endfor %}
 
@@ -269,90 +338,6 @@
           });
     });
 
-    $("#kpis :input").change(function() {
-        active = $(this).parent().hasClass("active")
-
-        if(this.id=="filesystem"){
-            $.ajax({
-                 url: "{% url 'ui:get_filesystem_usage' server.id %}", // the endpoint
-                 type: "POST", // http method
-                 data: {
-                     "kpi": "filesystem"
-                 },
-                 // handle a successful response
-                 success: function(result) {
-                    jQuery.each(result.res, function(i, data) {
-                        draw_filesystem_graphs_for_fs(i,data);
-                    });
-                 },
-                 // handle a non-successful response
-                 error: function(xhr, errmsg, err) {
-
-                    if ($('#results').length){
-                         $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
-                         " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-                    }
-
-                     console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-                 }
-            });
-
-        }
-
-        if(this.id=="system"){
-            $.ajax({
-                 url: "{% url 'ui:get_system_usage' server.id %}", // the endpoint
-                 type: "POST", // http method
-                 data: {
-                     "kpi": "system"
-                 },
-
-                 // handle a successful response
-                 success: function(result) {
-                    draw_system_graphs(result.res);
-                 },
-
-                 // handle a non-successful response
-                 error: function(xhr, errmsg, err) {
-
-                    if ($('#results').length){
-                         $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
-                         " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-                    }
-
-                     console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-                 }
-            });
-        }
-
-        if(this.id=="network"){
-
-            $.ajax({
-                 url: "{% url 'ui:get_network_usage' server.id %}", // the endpoint
-                 type: "POST", // http method
-                 data: {
-                     "kpi": "network"
-                 },
-                 // handle a successful response
-                 success: function(result) {
-                    jQuery.each(result.res, function(i, data) {
-                        draw_network_graphs_for_nic(i,data);
-                    });
-                 },
-                 // handle a non-successful response
-                 error: function(xhr, errmsg, err) {
-
-                    if ($('#results').length){
-                         $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
-                         " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-                    }
-
-                     console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-                 }
-            });
-
-        }
-    });
 
     var hashTagActive = "";
     $(".scroll").click(function (event) {

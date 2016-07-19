@@ -216,6 +216,9 @@
     <script src="{% static 'js/graphite.js' %}"></script>
     <script>
 $(function() {
+
+    var gs = []
+
     Highcharts.setOptions({
         colors: [
             '#1ab394',
@@ -229,7 +232,7 @@ $(function() {
         ]
     });
 
-      $("#graph_load").dygraphite({
+     $("#graph_load").dygraphite({
         target: [
           ['{{server.localhostname|normalize}}.system.load.avg01', 'Load 1 min'],
           ['{{server.localhostname|normalize}}.system.load.avg05','Load 5 min'],
@@ -237,18 +240,21 @@ $(function() {
         ],
         from:"-30mins"
       },{
-        ylabel : "%"
+        ylabel : "%",
+        sync: gs
       });
 
-      $("#graph_cpu").dygraphite({
+     $("#graph_cpu").dygraphite({
         target: [
           ['{{server.localhostname|normalize}}.system.cpu.user', 'User'],
           ['{{server.localhostname|normalize}}.system.cpu.system','System'],
           ['{{server.localhostname|normalize}}.system.cpu.wait','I/O Wait'],
         ],
-        from:"-30mins"
+        from:"-30mins",
       },{
-        ylabel : "%"
+        ylabel : "%",
+        sync: gs,
+
       });
 
       $("#graph_mem").dygraphite({
@@ -256,26 +262,17 @@ $(function() {
           ['{{server.localhostname|normalize}}.system.memory.percent', 'Memory'],
           ['{{server.localhostname|normalize}}.system.swap.percent','Swap'],
         ],
-        from:"-30mins"
+        from:"-30mins",
       },{
             ylabel : "%",
             valueRange: [0,100],
             labelsKMB : false,
+            sync: gs
       });
 
-  /*
 
-    var gs = []
-        gs.push(graph_mem)
-        gs.push(graph_cpu)
-        gs.push(graph_load)
 
-    var sync = Dygraph.synchronize(gs, {
-          range: false,
-          selection:true,
-          zoom:true,
-        });
-*/
+
 
 
     chart_cpu = new Highcharts.Chart({

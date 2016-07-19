@@ -17,7 +17,7 @@
 
         return this.each(function() {
             var $this = $(this);
-            $.fn.graphite.renderdy($this, settings, dysettings);
+            $.fn.dygraphite.renderdy($this, settings, dysettings);
         });
 
     };
@@ -68,7 +68,77 @@
         $img.attr("width", options.width);
     };
 
-    $.fn.graphite.renderdy = function($dyobj, options, dysettings) {
+    $.fn.dygraphite.updatedy = function($dyobj, options, dysettings, g, dydata) {
+        options.format = 'json'
+        options.from = '-' + options.autoupdate + 'secs'
+        var url = $.fn.graphite.geturl(options)
+            //Get JSON data from Graphite
+        $.getJSON(url, function(result) {
+
+            var graphiteData = new Object();
+
+            $.each(result, function(i, item) {
+
+                //fill out the array with the metrics
+                $.each(item["datapoints"], function(key, val) {
+
+                    tempDate = val[1];
+
+                    if (!(tempDate in graphiteData)) {
+                        graphiteData[tempDate] = [];
+                    }
+
+                    //I've chosen to 0 out any null values, otherwise additional data series
+                    //could be inserted into previous data series array
+                    if (val[0] === null) {
+                        val[0] = 0;
+                    }
+
+
+                    graphiteData[tempDate].push([val[0]]);
+
+                });
+            });
+            newData = $.fn.dygraphite.graphite2dy(graphiteData)
+
+            var date_window = [dydata[0][0], newData[0][0]]
+            dydata.push(newData[0])
+            dydata.shift()
+
+            g.updateOptions({
+                'file': dydata,
+                'dateWindow': date_window
+            });
+
+
+        });
+    }
+
+    $.fn.dygraphite.graphite2dy = function(graphiteData) {
+
+        //need to flatten the hash to an array for Dygraph
+        var dygraphData = [];
+
+        for (var key in graphiteData) {
+
+            if (graphiteData.hasOwnProperty(key)) {
+
+                tempArray = [];
+                tempArray.push(new Date(key * 1000));
+                dataSeries = graphiteData[key];
+
+                for (var key in dataSeries) {
+                    if (dataSeries.hasOwnProperty(key)) {
+                        tempArray.push(parseInt(dataSeries[key]));
+                    }
+                }
+                dygraphData.push(tempArray);
+            }
+        }
+        return dygraphData
+    }
+
+    $.fn.dygraphite.renderdy = function($dyobj, options, dysettings) {
 
         dysettings.labels = []
         dysettings.labels.push($.fn.graphite.dydefaults.xlabel)
@@ -117,25 +187,7 @@
                 });
             });
 
-            //need to flatten the hash to an array for Dygraph
-            var dygraphData = [];
-
-            for (var key in graphiteData) {
-
-                if (graphiteData.hasOwnProperty(key)) {
-
-                    tempArray = [];
-                    tempArray.push(new Date(key * 1000));
-                    dataSeries = graphiteData[key];
-
-                    for (var key in dataSeries) {
-                        if (dataSeries.hasOwnProperty(key)) {
-                            tempArray.push(parseInt(dataSeries[key]));
-                        }
-                    }
-                    dygraphData.push(tempArray);
-                }
-            }
+            var dygraphData = $.fn.dygraphite.graphite2dy(graphiteData)
 
             g = new Dygraph($dyobj.get(0), dygraphData, {
                 rollPeriod: dysettings.rollPeriod,
@@ -163,8 +215,24 @@
                     $.fn.dygraphite.setlinewidth(g, dygraphData)
                 },
             });
+
+            if (dysettings.sync !== undefined) {
+                dysettings.sync.push(g)
+                if (dysettings.sync.length > 1) {
+                    Dygraph.synchronize(dysettings.sync, {
+                        range: false,
+                        selection: true,
+                        zoom: true,
+                    });
+                }
+            }
+            if (options.autoupdate > 0) {
+                setInterval(function() {
+                    $.fn.dygraphite.updatedy($dyobj, options, dysettings, g, dygraphData)
+                }, options.autoupdate * 1000);
+            }
         });
-        return g
+
     };
 
 
@@ -193,7 +261,7 @@
             new_opts.strokeWidth = 1;
         } else {
             new_opts.pointSize = 1.5;
-            new_opts.strokeWidth = 1.5;
+            new_opts.strokeWidth = 0.5;
         }
         g.updateOptions(new_opts);
     }
@@ -218,7 +286,7 @@
         url: "/render/",
         width: "940",
         format: "img",
-        autoupdate: 1,
+        autoupdate: 0,
     };
 
     $.fn.graphite.dydefaults = {
@@ -226,8 +294,8 @@
         labelsKMB: true,
         animatedZooms: true,
         point_size: 1,
-        stroke_width: 1.5,
-        rollperiod: 10,
+        stroke_width: 0.5,
+        rollperiod: 20,
         draw_point: false,
         isStacked: false,
         errorbars: false,
