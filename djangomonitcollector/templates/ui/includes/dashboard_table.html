@@ -59,37 +59,37 @@
                             <tr id="{{server.id|clean}}_more_details">
 
                                     <td colspan="12" style="padding:0px" >
-                                     <div class="col-md-12 server-data" style="display:none">
-                                        <div class="col-md-3">
-                                        <h2 class="text-navy">{% trans 'System Properties' %}</h2>
-                                        <span class="text-muted col-md-3">{% trans 'Name' %}:</span><span class="text-success"> {{ server.platform.name}}  </span>     <br/>
-                                        <span class="text-muted col-md-3">{% trans 'Release' %}:</span><span class="text-success"> {{ server.platform.release}}</span> <br/>
-                                        <span class="text-muted col-md-3">{% trans 'Version' %}:</span> <span class="text-success">{{ server.platform.version}} </span><br/>
-                                        <span class="text-muted col-md-3">{% trans 'Machine' %}:</span><span class="text-success"> {{ server.platform.machine}}</span> <br/>
-                                        </div>
-                                        <div class="col-md-3">
-                                        <h2 class="text-navy">{% trans 'CPU Usage' %}</h2>
-                                        <span class="text-muted">CPU Cores:</span> <span class="text-success">{{ server.platform.cpu}}</span> <span class="text-muted">cores</span><br/>
+                                     <div class="col-md-12 server-data pad-8" style="display:none">
+                                        <div class="col-md-3 ">
+                                            <h2 class="text-navy">{% trans 'System Properties' %}</h2>
+                                                <span class="text-muted col-md-3">{% trans 'Name' %}:</span><span class="text-success"> {{ server.platform.name}}  </span>     <br/>
+                                                <span class="text-muted col-md-3">{% trans 'Release' %}:</span><span class="text-success"> {{ server.platform.release}}</span> <br/>
+                                                <span class="text-muted col-md-3">{% trans 'Version' %}:</span> <span class="text-success">{{ server.platform.version}} </span><br/>
+                                                <span class="text-muted col-md-3">{% trans 'Machine' %}:</span><span class="text-success"> {{ server.platform.machine}}</span> <br/>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <h2 class="text-navy">{% trans 'CPU Usage' %}</h2>
+                                                <span class="text-muted">CPU Cores:</span> <span class="text-success">{{ server.platform.cpu}}</span> <span class="text-muted">cores</span><br/>
 
-                                        <span class="text-muted">CPU Wait:</span>
-                                        <div id="{{server.id|clean}}_cpu_wait_progress_bar"></div>
+                                                <span class="text-muted">CPU Wait:</span>
+                                                <div id="{{server.id|clean}}_cpu_wait_progress_bar"></div>
 
-                                         <span class="text-muted">CPU System:</span>
-                                        <div id="{{server.id|clean}}_cpu_system_progress_bar"></div>
+                                                 <span class="text-muted">CPU System:</span>
+                                                <div id="{{server.id|clean}}_cpu_system_progress_bar"></div>
 
 
-                                        </div>
-                                        <div class="col-md-3">
-                                        <h2 class="text-navy">{% trans 'Memory Usage' %}</h2>
-                                        <span class="text-muted col-md-4">Total:</span><span class="text-success">  {{ server.platform.memory|kb_formatting|safe}}</span> <br/>
-                                        <span class="text-muted col-md-4">Used:</span> <span id="{{server.id|clean}}_used_memory" class="text-success">{{ server.system.memory_kilobyte_last|kb_formatting|safe }} </span><br/>
-                                        <span class="text-muted col-md-4">Swap:</span><span class="text-success"> {{ server.platform.swap|kb_formatting|safe}}</span>
-                                         </div>
-                                        <div class="col-md-3">
-                                        <h2 class="text-navy">{% trans 'Disk Usage' %}</h2>
-                                        <span class="text-muted col-md-4">Total:</span><span class="text-success" id="{{server.id|clean}}_disk_total"> N/A </span> <br/>
-                                        <span class="text-muted col-md-4">Used:</span> <span id="{{server.id|clean}}_disk_used" class="text-success"> N/A </span><br/>
-                                        <span class="text-muted col-md-4"></span><span class="col-md-10" id="{{server.id|clean}}_disk_used_percent" class="text-success"> N/A </span>
+                                            </div>
+                                            <div class="col-md-3">
+                                            <h2 class="text-navy">{% trans 'Memory Usage' %}</h2>
+                                            <span class="text-muted col-md-4">Total:</span><span class="text-success">  {{ server.platform.memory|kb_formatting|safe}}</span> <br/>
+                                            <span class="text-muted col-md-4">Used:</span> <span id="{{server.id|clean}}_used_memory" class="text-success">{{ server.system.memory_kilobyte_last|kb_formatting|safe }} </span><br/>
+                                            <span class="text-muted col-md-4">Swap:</span><span class="text-success"> {{ server.platform.swap|kb_formatting|safe}}</span>
+                                             </div>
+                                            <div class="col-md-3">
+                                            <h2 class="text-navy">{% trans 'Disk Usage' %}</h2>
+                                            <span class="text-muted col-md-4">Total:</span><span class="text-success" id="{{server.id|clean}}_disk_total"> N/A </span> <br/>
+                                            <span class="text-muted col-md-4">Used:</span> <span id="{{server.id|clean}}_disk_used" class="text-success"> N/A </span><br/>
+                                            <span class="text-muted col-md-4"></span><span class="col-md-10" id="{{server.id|clean}}_disk_used_percent" class="text-success"> N/A </span>
 
                                          </div>
                                     </td>

@@ -1,15 +1,11 @@
-import datetime
-import json
 
 from ..lib.utils import get_value, json_list_append
 from django.db import models
-from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
-from djangomonitcollector.datacollector.lib.graphite import collect_metric_from_datetime
-from djangomonitcollector.datacollector.lib.broker import to_queue
 
-from djangomonitcollector.ui.templatetags.extra_tags import percent_to_bar, kb_formatting, time_str
+
 from pytz import timezone
 from service import Service
+from ..lib.metrics.system import MemoryCPUSystemMetrics
 
 
 class System(Service):
@@ -59,38 +55,12 @@ class System(Service):
             system.swap_kilobyte_last = int(
                 get_value(service, "swap", "kilobyte"))
         system.save()
-        broadcast_to_websocket_channel(server, system)
 
         if get_value(service, "load", "avg01") != "none":
-            entity = MemoryCPUSystemStats.create(
-                system,
-                system.server.data_timezone,
-                data_timestamp,
-                system.load_avg01_last,
-                system.load_avg05_last,
-                system.load_avg15_last,
-                system.cpu_user_last,
-                system.cpu_system_last,
-                system.cpu_wait_last,
-                system.memory_percent_last,
-                system.memory_kilobyte_last,
-                system.swap_percent_last,
-                system.swap_kilobyte_last
-            )
-            MemoryCPUSystemStats.to_elasticsearch(
-                entity,
-                system.server.localhostname.replace('.', '_')
-                )
-
-            MemoryCPUSystemStats.to_carbon(
-                entity,
-                system.server.localhostname.replace('.', '_')
-                )
+            MemoryCPUSystemMetrics(system, server, data_timestamp)
         return system
 
     @classmethod
     def get_by_server(cls, server):
         system, created = cls.objects.get_or_create(server=server)
         return system
-
-

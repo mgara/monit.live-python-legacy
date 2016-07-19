@@ -3,7 +3,7 @@ from django.db import models
 
 from service import Service
 from ..lib.utils import get_value, get_float
-from ..lib.metrics.fsanddiskusage import FsAndDiskUsageMetrics
+from ..lib.metrics.fs import FsAndDiskUsageMetrics
 
 
 class FileSystem(Service):
@@ -47,9 +47,7 @@ class FileSystem(Service):
 
         if percent_last:
             colect_timestamp = int(get_value(service, "collected_sec", ""))
-            metrics = FsAndDiskUsageMetrics(filesystem, server, colect_timestamp)
-        if filesystem.name == '___':
-            metrics.broadcast_to_websocket_channel(server, filesystem)
+            FsAndDiskUsageMetrics(filesystem, server, colect_timestamp)
         return filesystem
 
     @classmethod

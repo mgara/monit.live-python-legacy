@@ -1,55 +1,71 @@
-class MemoryCPUProcessStats(models.Model):
-    process_id = models.ForeignKey('Process')
-    date_last = models.DateTimeField()
-    cpu_percent = models.FloatField(null=True)
-    memory_percent = models.FloatField(null=True)
-    memory_kilobyte = models.PositiveIntegerField(null=True)
+from pytz import timezone
+import datetime
+import json
 
-    @classmethod
-    def create(
-            cls,
+from ..broker import to_queue
+from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
+from djangomonitcollector.datacollector.lib.graphite import collect_metric_from_datetime
+from djangomonitcollector.ui.templatetags.extra_tags import percent_to_bar, kb_formatting
+
+
+class MemoryCPUProcessMetric(object):
+    date_last = None
+    cpu_percent = None
+    memory_percent = None
+    memory_kilobyte = None
+
+
+class MemoryCPUProcessMetrics(object):
+    metric = MemoryCPUProcessMetric()
+    server_name = None
+    server_id = None
+    process_name = None
+
+    def __init__(
+            self,
             process,
-            tz_str,
-            unixtimestamp,
-            cpu_percent,
-            memory_percent,
-            memory_kilobyte
+            server,
+            timestamp,
     ):
-        entry = cls()
-        tz = timezone(tz_str)
-        entry.date_last = datetime.datetime.fromtimestamp(unixtimestamp, tz)
-        entry.process_id = process
-        entry.cpu_percent = cpu_percent
-        entry.memory_kilobyte = memory_kilobyte
-        entry.memory_percent = memory_percent
-        entry.save()
-        return entry
+        tz = timezone(server.data_timezone)
+        self.metric.date_last = datetime.datetime.fromtimestamp(timestamp, tz)
+        self.metric.process_id = process.id
+        self.metric.cpu_percent = process.cpu_percent
+        self.metric.memory_kilobyte = process.memory_kilobyte
+        self.metric.memory_percent = process.memory_percent
+        self.server_name = server.localhostname.replace('.', '_')
+        self.server_id = server.id
 
-    @classmethod
-    def to_carbon(cls, entry, server_name, processname):
+        self.to_carbon()
+        self.to_elasticsearch()
+        self.to_broker()
+
+    def to_carbon(self):
         metric = "{}.process.{}.cpu_percent".format(
-            server_name, processname)
+            self.server_name, self.process_name)
         collect_metric_from_datetime(
-            metric, entry.cpu_percent, entry.date_last)
+            metric, self.metric.cpu_percent, self.metric.date_last)
         metric = "{}.process.{}.memory_percent".format(
-            server_name, processname)
+            self.server_name, self.process_name)
         collect_metric_from_datetime(
-            metric, entry.memory_percent, entry.date_last)
+            metric, self.metric.memory_percent, self.metric.date_last)
         metric = "{}.process.{}.memory_kilobyte".format(
-            server_name, processname)
+            self.server_name, self.process_name)
         collect_metric_from_datetime(
-            metric, entry.memory_kilobyte, entry.date_last)
+            metric, self.metric.memory_kilobyte, self.metric.date_last)
 
-    @classmethod
-    def to_elasticsearch(cls, entry, server_name, processname):
+    def to_elasticsearch(self):
         _doc = dict()
-        _doc['timestamp'] = entry.date_last
-        _doc['{}_process_{}_cpu_percent'.format(server_name, processname)] = entry.cpu_percent
-        _doc['{}_process_{}_memory_percent'.format(server_name, processname)] = entry.memory_percent
-        _doc['{}_process_{}_memory_kilobyte'.format(server_name, processname)] = entry.memory_kilobyte
+        _doc['timestamp'] = self.metric.date_last
+        _doc['{}_process_{}_cpu_percent'.format(self.server_name, self.process_name)] = self.metric.cpu_percent
+        _doc['{}_process_{}_memory_percent'.format(self.server_name, self.process_name)] = self.metric.memory_percent
+        _doc['{}_process_{}_memory_kilobyte'.format(self.server_name, self.process_name)] = self.metric.memory_kilobyte
 
         publish_to_elasticsearch(
             "monit",
             "process-stats",
             _doc
             )
+
+    def to_broker(self):
+        pass

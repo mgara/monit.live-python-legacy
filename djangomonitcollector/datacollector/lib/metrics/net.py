@@ -1,73 +1,96 @@
+from pytz import timezone
+import datetime
+import json
 
-class NetStats():
-    @classmethod
-    def create(cls,
-               net,
-               tz_str,
-               unixtimestamp,
-               download_packet,
-               download_bytes,
-               download_errors,
-               upload_packet,
-               upload_bytes,
-               upload_errors,
-               ):
-        entity = cls()
-        tz = timezone(tz_str)
-        entity.date_last = datetime.datetime.fromtimestamp(unixtimestamp, tz)
-        entity.download_bytes = download_bytes
-        entity.download_errors = download_errors
-        entity.download_packet = download_packet
-        entity.upload_bytes = upload_bytes
-        entity.upload_errors = upload_errors
-        entity.upload_packet = upload_packet
-        return entity
+from ..broker import to_queue
+from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
+from djangomonitcollector.datacollector.lib.graphite import collect_metric_from_datetime
+from djangomonitcollector.ui.templatetags.extra_tags import percent_to_bar, kb_formatting
 
-    @classmethod
-    def to_carbon(cls, entry, server_name, net):
+
+class NetMetric(object):
+    download_bytes = None
+    download_errors = None
+    download_packet = None
+    upload_bytes = None
+    upload_errors = None
+    upload_packet = None
+
+
+class NetMetrics(object):
+
+    metric = NetMetric()
+    server_name = None
+    server_id = None
+    net_name = None
+
+    def __init__(self,
+                 server,
+                 net,
+                 timestamp):
+
+        tz = timezone(server.data_timezone)
+        self.metric.date_last = datetime.datetime.fromtimestamp(timestamp, tz)
+        self.metric.download_bytes = net.download_bytes
+        self.metric.download_errors = net.download_errors
+        self.metric.download_packet = net.download_packet
+        self.metric.upload_bytes = net.upload_bytes
+        self.metric.upload_errors = net.upload_errors
+        self.metric.upload_packet = net.upload_packet
+        self.server_name = server.localhostname.replace('.', '_')
+        self.server_id = server.id
+
+        self.net_name = net.name
+
+    def to_carbon(self):
         metric = "{}.net.{}.download.packet".format(
-            server_name, net)
+            self.server_name, self.net_name)
         collect_metric_from_datetime(
-            metric, entry.download_packet, entry.date_last)
+            metric, self.metric.download_packet, self.metric.date_last)
 
         metric = "{}.net.{}.download.bytes".format(
-            server_name, net)
+            self.server_name, self.net_name)
         collect_metric_from_datetime(
-            metric, entry.download_bytes, entry.date_last)
+            metric, self.metric.download_bytes, self.metric.date_last)
 
         metric = "{}.net.{}.download.errors".format(
-            server_name, net)
+            self.server_name, self.net_name)
         collect_metric_from_datetime(
-            metric, entry.download_errors, entry.date_last)
+            metric, self.metric.download_errors, self.metric.date_last)
 
         metric = "{}.net.{}.upload.packet".format(
-            server_name, net)
+            self.server_name, self.net_name)
         collect_metric_from_datetime(
-            metric, entry.upload_packet, entry.date_last)
+            metric, self.metric.upload_packet, self.metric.date_last)
 
         metric = "{}.net.{}.upload.bytes".format(
-            server_name, net)
+            self.server_name, self.net_name)
         collect_metric_from_datetime(
-            metric, entry.upload_bytes, entry.date_last)
+            metric, self.metric.upload_bytes, self.metric.date_last)
 
         metric = "{}.net.{}.upload.errors".format(
-            server_name, net)
+            self.server_name, self.net_name)
         collect_metric_from_datetime(
-            metric, entry.upload_errors, entry.date_last)
+            metric, self.metric.upload_errors, self.metric.date_last)
 
-    @classmethod
-    def to_elasticsearch(cls, entry, server_name, net):
+    def to_elasticsearch(self):
         _doc = dict()
-        _doc['timestamp'] = entry.date_last
-        _doc['{}_net_{}_download_packet'.format(server_name, net)] = entry.download_packet
-        _doc['{}_net_{}_download_bytes'.format(server_name, net)] = entry.download_bytes
-        _doc['{}_net_{}_download_errors'.format(server_name, net)] = entry.download_errors
-        _doc['{}_net_{}_upload_packet'.format(server_name, net)] = entry.upload_packet
-        _doc['{}_net_{}_upload_bytes'.format(server_name, net)] = entry.upload_bytes
-        _doc['{}_net_{}_upload_errors'.format(server_name, net)] = entry.upload_errors
+        _doc['timestamp'] = self.metric.date_last
+        _doc['{}_net_{}_download_packet'.format(
+            self.server_name, self.net_name)] = self.metric.download_packet
+        _doc['{}_net_{}_download_bytes'.format(
+            self.server_name, self.net_name)] = self.metric.download_bytes
+        _doc['{}_net_{}_download_errors'.format(
+            self.server_name, self.net_name)] = self.metric.download_errors
+        _doc['{}_net_{}_upload_packet'.format(
+            self.server_name, self.net_name)] = self.metric.upload_packet
+        _doc['{}_net_{}_upload_bytes'.format(
+            self.server_name, self.net_name)] = self.metric.upload_bytes
+        _doc['{}_net_{}_upload_errors'.format(
+            self.server_name, self.net_name)] = self.metric.upload_errors
 
         publish_to_elasticsearch(
             "monit",
             "net-stats",
             _doc
-            )
+        )

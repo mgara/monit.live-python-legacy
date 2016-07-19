@@ -7,6 +7,8 @@ from service import Service
 from ..lib.utils import get_value, get_string, get_int
 from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
 from djangomonitcollector.datacollector.lib.graphite import collect_metric_from_datetime
+from ..lib.metrics.net import NetMetrics
+
 
 # type = 8
 class Net(Service):
@@ -36,52 +38,35 @@ class Net(Service):
         download_packets = get_int(service, "link.download.packets.now", None)
         if download_packets:
             net.download_packet = download_packets
-            net.download_packet_sum = get_int(service, "link.download.packets.total", None)
-            net.download_bytes = get_int(service, "link.download.bytes.now", None)
-            net.download_bytes_sum = get_int(service, "link.download.bytes.total", None)
-            net.download_errors = get_int(service, "link.download.errors.total", None)
-            net.download_errors_sum = get_int(service, "link.download.errors.total", None)
-            net.upload_packet = get_int(service, "link.upload.packets.now", None)
-            net.upload_packet_sum = get_int(service, "link.upload.packets.total", None)
+            net.download_packet_sum = get_int(
+                service, "link.download.packets.total", None)
+            net.download_bytes = get_int(
+                service, "link.download.bytes.now", None)
+            net.download_bytes_sum = get_int(
+                service, "link.download.bytes.total", None)
+            net.download_errors = get_int(
+                service, "link.download.errors.total", None)
+            net.download_errors_sum = get_int(
+                service, "link.download.errors.total", None)
+            net.upload_packet = get_int(
+                service, "link.upload.packets.now", None)
+            net.upload_packet_sum = get_int(
+                service, "link.upload.packets.total", None)
             net.upload_bytes = get_int(service, "link.upload.bytes.now", None)
-            net.upload_bytes_sum = get_int(service, "link.upload.bytes.total", None)
-            net.upload_errors = get_int(service, "link.upload.errors.total", None)
-            net.upload_errors_sum = get_int(service, "link.upload.errors.total", None)
+            net.upload_bytes_sum = get_int(
+                service, "link.upload.bytes.total", None)
+            net.upload_errors = get_int(
+                service, "link.upload.errors.total", None)
+            net.upload_errors_sum = get_int(
+                service, "link.upload.errors.total", None)
             net.state = get_string(service, "state", None)
             net.duplex = get_string(service, "duplex", None)
             net.speed = get_string(service, "speed", None)
 
         net.save()
         if download_packets:
-            collect_timestamp = int(get_value(service, "collected_sec", ""))
-            try:
-                entry = NetStats.create(
-                        net,
-                        net.server.data_timezone,
-                        collect_timestamp,
-                        net.download_packet,
-                        net.download_bytes,
-                        net.download_errors,
-                        net.upload_packet,
-                        net.upload_bytes,
-                        net.upload_errors
-                )
-
-                NetStats.to_elasticsearch(
-                    entry,
-                    net.server.localhostname.replace('.','_'),
-                    net.name
-                    )
-                NetStats.to_carbon(
-                    entry,
-                    net.server.localhostname.replace('.','_'),
-                    net.name
-                    )
-
-            except ValueError as e:
-                print "{0}:{1}".format(e.args, e.message)
-            except NameError as e:
-                print "{0}:{1}".format(e.args, e.message)
+            timestamp = int(get_value(service, "collected_sec", ""))
+            NetMetrics(server, net, timestamp)
         return net
 
     @classmethod

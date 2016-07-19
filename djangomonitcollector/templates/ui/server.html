@@ -213,6 +213,7 @@
     <script src="{% static 'js/csrf.js' %}"></script>
     <script src="http://code.highcharts.com/highcharts.js"></script>
     <script src="{% static 'js/synchronizer.js' %}"></script>
+    <script src="{% static 'js/graphite.js' %}"></script>
     <script>
 $(function() {
     Highcharts.setOptions({
@@ -227,144 +228,42 @@ $(function() {
             '#d1dade',
         ]
     });
-    // init parameters
-    var point_size = 1;
-    var stroke_width = 1;
-    var rollperiod = 10;
-    var draw_point = false;
-    var isStacked = false;
-    var errorbars = false;
-    var graph_colors = ["#1ab394", "#ed5565", "#f8ac59", "#1c84c6"];
-    var update_period = 1000 * {{monit_update_period}};
-    // Init data
-    // Load Data
-    var data_load = [];
-    var data1 = ['load1']
-    var data2 = ['load5']
-    var data3 = ['load15']
-    var dates_ = ['x']
-    var dates = {{date_last}};
-    var y1 = {{load_avg01}};
-    var y2 = {{load_avg05}};
-    var y3 = {{load_avg15}};
 
-    {% if request.session.is_dst %}
-    var dst_delta =3600
-          {% else %}
-    var dst_delta= 0 // 1h
-        {% endif %}
+      $("#graph_load").dygraphite({
+        target: [
+          ['{{server.localhostname|normalize}}.system.load.avg01', 'Load 1 min'],
+          ['{{server.localhostname|normalize}}.system.load.avg05','Load 5 min'],
+          ['{{server.localhostname|normalize}}.system.load.avg15','Load 15 min'],
+        ],
+        from:"-30mins"
+      },{
+        ylabel : "%"
+      });
 
-    for (i = 0; i < dates.length; i++)
-        data_load.push([new Date((dates[i]-dst_delta) * 1000.), y1[i], y2[i], y3[i]]);
-    // CPU Data
-    var data_cpu = [];
-    y1 = {{cpu_user}};
-    y2 = {{cpu_system}};
-    y3 = {{cpu_wait}};
-    for (i = 0; i < dates.length; i++)
-        data_cpu.push([new Date((dates[i]-dst_delta) * 1000.), y1[i], y2[i], y3[i]]);
-    // Mem Data
-    var data_mem = [];
-    y1 = {{memory_percent}};
-    y2 = {{memory_kilobyte}};
-    y3 = {{swap_percent}};
-    var y4 = {{swap_kilobyte}};
-    for (i = 0; i < dates.length; i++)
-        data_mem.push([new Date((dates[i]-dst_delta) * 1000.), y1[i], y2[i] / 1.e6, y3[i], y4[i] / 1.e6]);
-    // smaller points if the data array is too big
-    function set_linewidth(graph, data) {
-        var range = graph.xAxisRange();
-        var data_points = 0;
-        for (var i = 0; i < data.length; i++) {
-            var x = data[i][0];
-            //if (x > minDate && x < maxDate)
-            if (x > range[0] && x < range[1])
-                data_points++;
-        }
+      $("#graph_cpu").dygraphite({
+        target: [
+          ['{{server.localhostname|normalize}}.system.cpu.user', 'User'],
+          ['{{server.localhostname|normalize}}.system.cpu.system','System'],
+          ['{{server.localhostname|normalize}}.system.cpu.wait','I/O Wait'],
+        ],
+        from:"-30mins"
+      },{
+        ylabel : "%"
+      });
 
-        var new_opts = {};
-        if (data_points > 2000) {
-            new_opts.pointSize = 0.5;
-            new_opts.strokeWidth = stroke_width;
-        } else if (data_points > 900) {
-            new_opts.pointSize = 1;
-            new_opts.strokeWidth = 1.5;
-        } else {
-            new_opts.pointSize = 1.5;
-            new_opts.strokeWidth = 1;
-        }
-        graph.updateOptions(new_opts);
-    }
+      $("#graph_mem").dygraphite({
+        target: [
+          ['{{server.localhostname|normalize}}.system.memory.percent', 'Memory'],
+          ['{{server.localhostname|normalize}}.system.swap.percent','Swap'],
+        ],
+        from:"-30mins"
+      },{
+            ylabel : "%",
+            valueRange: [0,100],
+            labelsKMB : false,
+      });
 
-    var graph_load = new Dygraph(document.getElementById("graph_load"), data_load, {
-        rollPeriod: rollperiod,
-        legend: 'always', // show always
-        labelsDivWidth: '140', // default 250
-        labelsSeparateLines: true,
-        ylabel: 'Load average',
-        xlabel: 'Time',
-        drawPoints: draw_point,
-        errorBars: errorbars,
-        pointSize: point_size,
-        strokeWidth: stroke_width,
-        stackedGraph: isStacked,
-        //showRoller: true,  // for a rolling average over values
-        labels: ['Time', 'load 1 min', 'load 5 min', 'load 15 min'],
-        axisLabelColor: '#BBB',
-        axisLineColor: '#BBB',
-        colors: graph_colors,
-        fillGraph: true,
-        zoomCallback: function() { // (minDate, maxDate)
-            set_linewidth(graph_load, data_load);
-        },
-
-    });
-    var graph_cpu = new Dygraph(document.getElementById("graph_cpu"), data_cpu, {
-        rollPeriod: rollperiod,
-        legend: 'always', // show always
-        labelsDivWidth: '140', // default 250
-        labelsSeparateLines: true,
-        ylabel: 'CPU usage (in %)',
-        xlabel: 'Time',
-        drawPoints: draw_point,
-        errorBars: errorbars,
-        pointSize: point_size,
-        strokeWidth: stroke_width,
-        stackedGraph: isStacked,
-        labels: ['Time', 'user', 'system', 'wait'],
-        axisLabelColor: '#CCC',
-        axisLineColor: '#CCC',
-        fillGraph: true,
-        colors: graph_colors,
-        zoomCallback: function() { // (minDate, maxDate)
-            set_linewidth(graph_cpu, data_cpu);
-        },
-
-    });
-    // set_linewidth(graph_cpu, data_cpu);
-    var graph_mem = new Dygraph(document.getElementById("graph_mem"), data_mem, {
-        rollPeriod: rollperiod,
-        legend: 'always', // show always
-        labelsDivWidth: '140', // default 250
-        labelsSeparateLines: true,
-        ylabel: 'Memonry usage (in % or GB)',
-        xlabel: 'Time',
-        errorBars: errorbars,
-        drawPoints: draw_point,
-        pointSize: point_size,
-        strokeWidth: stroke_width,
-        stackedGraph: isStacked,
-        //showRoller: true,  // to average over values (?)
-        //valueRange: [0.0, ymax],
-        labels: ['Time', 'memory in %', 'memory in GB', 'swap in %', 'swap in GB'],
-        axisLabelColor: '#CCC',
-        axisLineColor: '#CCC',
-        colors: graph_colors,
-        zoomCallback: function() { // (minDate, maxDate)
-            set_linewidth(graph_mem, data_mem);
-        },
-
-    });
+  /*
 
     var gs = []
         gs.push(graph_mem)
@@ -376,46 +275,8 @@ $(function() {
           selection:true,
           zoom:true,
         });
+*/
 
-    //set_linewidth(graph_mem, data_mem);
-    window.intervalId = setInterval(function() {
-        $.post("{% url 'ui:load_system_data' server.id %}", function(data) {
-            if (data_cpu.length > 0) {
-
-                var date_of_last_data_received = data_cpu[data_cpu.length - 1][0]
-                var date_of_just_received_data = new Date(JSON.parse(data.date) * 1000);
-                if (date_of_just_received_data > date_of_last_data_received) {
-                    data_load.push([date_of_just_received_data, JSON.parse(data.load_avg01), JSON.parse(data.load_avg05), JSON.parse(data.load_avg15)]);
-                    data_load.shift()
-                    date_window =  [data_load[0][0], date_of_just_received_data]
-                    graph_load.updateOptions({
-                        'file': data_load,
-                        'dateWindow': date_window
-                    });
-                    data_cpu.push([date_of_just_received_data, JSON.parse(data.cpu_user), JSON.parse(data.cpu_system), JSON.parse(data.cpu_wait)]);
-                    data_cpu.shift()
-                    graph_cpu.updateOptions({
-                        'file': data_cpu,
-                        'dateWindow': date_window
-                    });
-                    data_mem.push([date_of_just_received_data, JSON.parse(data.memory_percent), JSON.parse(data.memory_kilobyte) / 1.e6, JSON.parse(data.swap_percent), JSON.parse(data.swap_kilobyte) / 1.e6]);
-                    data_mem.shift()
-                    graph_mem.updateOptions({
-                        'file': data_mem,
-                        'dateWindow': date_window
-                    });
-                }}
-        });
-    }, update_period);
-
-    window.intervalId = setInterval(function() {
-        $.post("{% url 'ui:load_system_table' server.id %}", function(data) {
-            if ($("#process_table").length){
-                $("#process_table").replaceWith(data.table_html);
-            }
-        });
-
-    }, update_period);
 
     chart_cpu = new Highcharts.Chart({
         chart: {

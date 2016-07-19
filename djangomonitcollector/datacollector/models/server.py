@@ -26,6 +26,7 @@ from djangomonitcollector.datacollector.lib.event_mappings import \
 
 from djangomonitcollector.users.models import HostGroup
 from ..lib.event_mappings import EVENT_STATE_CHOICES, EVENT_ID_CHOICES, EVENT_TYPE_CHOICES, EVENT_ACTION_CHOICES
+from ..lib.broker import to_queue
 
 from .file import File
 from .filesystem import FileSystem
@@ -35,7 +36,7 @@ from .platform import Platform
 from .process import Process
 from .program import Program
 from .service import Service
-from .system import System, to_queue
+from .system import System
 from .url import Host
 from ..lib.utils import \
     remove_old_services, \

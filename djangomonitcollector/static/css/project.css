@@ -177,13 +177,11 @@
   border-color: #ed5565;
 }
 
-
-progress-bar-border-warning
-
-progress-bar-border-danger
-
 .server-data{
   padding:0px !important;
-  background: #555555;
+}
+
+.pad-8{
+  padding:8px !important;
 }
 

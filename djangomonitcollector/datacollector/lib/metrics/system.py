@@ -1,124 +1,161 @@
-class MemoryCPUSystemStats():
+from pytz import timezone
+import datetime
+import json
 
-    @classmethod
-    def create(cls,
-               system,
-               tz_str,
-               data_timestamp,
-               load_avg01,
-               load_avg05,
-               load_avg15,
-               cpu_user,
-               cpu_system,
-               cpu_wait,
-               memory_percent,
-               memory_kilobyte,
-               swap_percent,
-               swap_kilobyte
-               ):
-        entry = cls()
-        tz = timezone(tz_str)
-        entry.date_last = datetime.datetime.fromtimestamp(data_timestamp, tz)
-        entry.load_avg01 = load_avg01
-        entry.load_avg05 = load_avg05
-        entry.load_avg15 = load_avg15
-        entry.cpu_user = cpu_user
-        entry.cpu_system = cpu_system
-        entry.cpu_wait = cpu_wait
-        entry.memory_percent = memory_percent
-        entry.memory_kilobyte = memory_kilobyte
-        entry.swap_percent = swap_percent
-        entry.swap_kilobyte = swap_kilobyte
-        entry.save()
-        return entry
+from ..broker import to_queue
+from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
+from djangomonitcollector.datacollector.lib.graphite import collect_metric_from_datetime
+from djangomonitcollector.ui.templatetags.extra_tags import percent_to_bar, kb_formatting, time_str
 
-    @classmethod
-    def to_carbon(cls, entry, server_name):
+
+class MemoryCPUSystemMetric(object):
+    load_avg01 = None
+    load_avg05 = None
+    load_avg15 = None
+    cpu_user = None
+    cpu_system = None
+    cpu_wait = None
+    memory_kilobyte = None
+    memory_percent = None
+    swap_percent = None
+    swap_kilobyte = None
+
+
+class MemoryCPUSystemMetrics(object):
+    metric = MemoryCPUSystemMetric()
+    server_name = None
+    server_id = None
+    server_uptime = None
+
+    def __init__(self,
+                 system,
+                 server,
+                 timestamp
+                 ):
+        tz = timezone(server.data_timezone)
+        self.metric.date_last = datetime.datetime.fromtimestamp(timestamp, tz)
+        self.metric.load_avg01 = system.load_avg01_last
+        self.metric.load_avg05 = system.load_avg05_last
+        self.metric.load_avg15 = system.load_avg15_last
+        self.metric.cpu_user = system.cpu_user_last
+        self.metric.cpu_system = system.cpu_system_last
+        self.metric.cpu_wait = system.cpu_wait_last
+        self.metric.memory_percent = system.memory_percent_last
+        self.metric.memory_kilobyte = system.memory_kilobyte_last
+        self.metric.swap_percent = system.swap_percent_last
+        self.metric.swap_kilobyte = system.swap_kilobyte_last
+        self.server_name = server.localhostname.replace('.', '_')
+        self.server_id = server.id
+        self.server_uptime = server.uptime
+
+        self.to_carbon()
+        self.to_elasticsearch()
+        self.to_broker()
+
+    def to_carbon(self):
         metric = "{}.system.load.avg01".format(
-            server_name)
+            self.server_name)
         collect_metric_from_datetime(
-            metric, entry.load_avg01, entry.date_last)
+            metric, self.metric.load_avg01, self.metric.date_last)
         metric = "{}.system.load.avg05".format(
-            server_name)
+            self.server_name)
         collect_metric_from_datetime(
-            metric, entry.load_avg05, entry.date_last)
+            metric, self.metric.load_avg05, self.metric.date_last)
+
+        metric = "{}.system.load.avg15".format(
+            self.server_name)
+        collect_metric_from_datetime(
+            metric, self.metric.load_avg15, self.metric.date_last)
 
         metric = "{}.system.cpu.user".format(
-            server_name)
+            self.server_name)
         collect_metric_from_datetime(
-            metric, entry.cpu_user, entry.date_last)
+            metric, self.metric.cpu_user, self.metric.date_last)
         metric = "{}.system.cpu.system".format(
-            server_name)
+            self.server_name)
         collect_metric_from_datetime(
-            metric, entry.cpu_system, entry.date_last)
+            metric, self.metric.cpu_system, self.metric.date_last)
         metric = "{}.system.cpu.wait".format(
-            server_name)
+            self.server_name)
         collect_metric_from_datetime(
-            metric, entry.cpu_wait, entry.date_last)
+            metric, self.metric.cpu_wait, self.metric.date_last)
 
         metric = "{}.system.memory.percent".format(
-            server_name)
+            self.server_name)
         collect_metric_from_datetime(
-            metric, entry.memory_percent, entry.date_last)
+            metric, self.metric.memory_percent, self.metric.date_last)
         metric = "{}.system.memory.kilobyte".format(
-            server_name)
+            self.server_name)
         collect_metric_from_datetime(
-            metric, entry.memory_kilobyte, entry.date_last)
+            metric, self.metric.memory_kilobyte, self.metric.date_last)
 
         metric = "{}.system.swap.percent".format(
-            server_name)
+            self.server_name)
         collect_metric_from_datetime(
-            metric, entry.swap_percent, entry.date_last)
+            metric, self.metric.swap_percent, self.metric.date_last)
         metric = "{}.system.swap.kilobyte".format(
-            server_name)
+            self.server_name)
         collect_metric_from_datetime(
-            metric, entry.swap_kilobyte, entry.date_last)
+            metric, self.metric.swap_kilobyte, self.metric.date_last)
 
-    @classmethod
-    def to_elasticsearch(cls, entry, server_name):
+    def to_elasticsearch(self):
         _doc = dict()
-        _doc['timestamp'] = entry.date_last
-        _doc['{}_system_load_avg01'.format(server_name)] = entry.load_avg01
-        _doc['{}_system_load_avg05'.format(server_name)] = entry.load_avg05
-        _doc['{}_system_load_avg15'.format(server_name)] = entry.load_avg15
-        _doc['{}_system_cpu_user'.format(server_name)] = entry.cpu_user
-        _doc['{}_system_cpu_system'.format(server_name)] = entry.cpu_system
-        _doc['{}_system_cpu_wait'.format(server_name)] = entry.cpu_wait
-        _doc['{}_system_memory_percent'.format(server_name)] = entry.memory_percent
-        _doc['{}_system_memory_kilobyte'.format(server_name)] = entry.memory_kilobyte
-        _doc['{}_system_swap_percent'.format(server_name)] = entry.swap_percent
-        _doc['{}_system_swap_kilobyte'.format(server_name)] = entry.swap_kilobyte
+        _doc['timestamp'] = self.metric.date_last
+        _doc['{}_system_load_avg01'.format(
+            self.server_name)] = self.metric.load_avg01
+        _doc['{}_system_load_avg05'.format(
+            self.server_name)] = self.metric.load_avg05
+        _doc['{}_system_load_avg15'.format(
+            self.server_name)] = self.metric.load_avg15
+        _doc['{}_system_cpu_user'.format(
+            self.server_name)] = self.metric.cpu_user
+        _doc['{}_system_cpu_system'.format(
+            self.server_name)] = self.metric.cpu_system
+        _doc['{}_system_cpu_wait'.format(
+            self.server_name)] = self.metric.cpu_wait
+        _doc['{}_system_memory_percent'.format(
+            self.server_name)] = self.metric.memory_percent
+        _doc['{}_system_memory_kilobyte'.format(
+            self.server_name)] = self.metric.memory_kilobyte
+        _doc['{}_system_swap_percent'.format(
+            self.server_name)] = self.metric.swap_percent
+        _doc['{}_system_swap_kilobyte'.format(
+            self.server_name)] = self.metric.swap_kilobyte
 
         publish_to_elasticsearch(
             "monit",
             "system-stats",
             _doc
-            )
+        )
 
+    def to_broker(self):
+        response = dict()
+        response['channel'] = str(self.server_id).replace("-", "_")
 
-def broadcast_to_websocket_channel(server, system):
-    response = dict()
-    response['channel'] = str(server.id).replace("-", "_")
+        response['cpu_user_last'] = self.metric.cpu_user
+        response['cpu_system_last'] = self.metric.cpu_user
+        response['cpu_wait_last'] = self.metric.cpu_wait
 
-    response['cpu_user_last'] = system.cpu_user_last
-    response['cpu_system_last'] = system.cpu_user_last
-    response['cpu_wait_last'] = system.cpu_wait_last
+        response['memory_percent_last'] = self.metric.memory_percent
+        response['memory_kilobyte_last'] = self.metric.memory_kilobyte
 
-    response['memory_percent_last'] = system.memory_percent_last
-    response['memory_kilobyte_last'] = system.memory_kilobyte_last
+        response['load_avg1_last'] = self.metric.load_avg01
+        response['load_avg5_last'] = self.metric.load_avg05
+        response['load_avg15_last'] = self.metric.load_avg15
 
-    response['load_avg1_last'] = system.load_avg01_last
-    response['load_avg5_last'] = system.load_avg05_last
-    response['load_avg15_last'] = system.load_avg15_last
+        # formatted
+        response['cpu_user_last_progress_bar'] = percent_to_bar(
+            self.metric.cpu_user)
+        response['cpu_wait_last_progress_bar'] = percent_to_bar(
+            self.metric.cpu_wait)
+        response['cpu_system_last_progress_bar'] = percent_to_bar(
+            self.metric.cpu_system)
 
-    # formatted
-    response['cpu_user_last_progress_bar'] = percent_to_bar(system.cpu_user_last)
-    response['cpu_wait_last_progress_bar'] = percent_to_bar(system.cpu_wait_last)
-    response['cpu_system_last_progress_bar'] = percent_to_bar(system.cpu_system_last)
+        response['memory_last_progress_bar'] = percent_to_bar(
+            self.metric.memory_percent)
+        response['memory_last_kb_formatted'] = kb_formatting(
+            self.metric.memory_kilobyte)
 
-    response['memory_last_progress_bar'] = percent_to_bar(system.memory_percent_last)
-    response['memory_last_kb_formatted'] = kb_formatting(system.memory_kilobyte_last)
-
-    response['uptime'] = time_str(server.uptime)
-    response_str = json.dumps(response)
-    to_queue(response_str)
+        response['uptime'] = time_str(self.server_uptime)
+        response_str = json.dumps(response)
+        to_queue(response_str)

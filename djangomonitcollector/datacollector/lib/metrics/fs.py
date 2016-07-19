@@ -14,6 +14,7 @@ class FsAndDiskUsageMetric(object):
     blocks_usage = None
     inode_percent = None
     inode_usage = None
+    blocks_total = None
 
 
 class FsAndDiskUsageMetrics(object):
@@ -28,17 +29,24 @@ class FsAndDiskUsageMetrics(object):
                  server,
                  timestamp
                  ):
-        tz = timezone(server.timezone)
+        tz = timezone(server.data_timezone)
         self.metric.date_last = datetime.datetime.fromtimestamp(
             timestamp, tz)
-        self.metric.blocks_percent = fs.blocks_percent
-        self.metric.blocks_usage = fs.blocks_usage
-        self.metric.inode_percent = fs.inode_percent
-        self.metric.inode_usage = fs.inode_usage
+        self.metric.blocks_percent = fs.blocks_percent_last
+        self.metric.blocks_usage = fs.blocks_usage_last
+        self.metric.inode_percent = fs.inode_percent_last
+        self.metric.inode_usage = fs.inode_usage_last
         self.server_name = server.localhostname.replace('.', '_')
+        self.server_id = server.id
+
+        self.metric.blocks_total = fs.blocks_total
         self.fs_name = fs.name
 
-    @classmethod
+        self.to_carbon()
+        self.to_elasticsearch()
+        if (fs.display_name == '/'):
+            self.to_broker()
+
     def to_carbon(self):
         metric = "{}.self.metric.{}.blocks_percent".format(
             self.server_name,
@@ -81,19 +89,20 @@ class FsAndDiskUsageMetrics(object):
             _doc
         )
 
-    def broadcast_to_websocket_channel(self):
+    def to_broker(self):
         response = dict()
         response['channel'] = str(self.server_id).replace("-", "_")
-        response['fs_blocks_percent_last'] = self.metric.blocks_percent_last
+        response['fs_blocks_percent_last'] = self.metric.blocks_percent
         response['fs_blocks_total'] = self.metric.blocks_total
-        response['fs_blocks_usage_last'] = self.metric.blocks_usage_last
+        response['fs_blocks_usage_last'] = self.metric.blocks_usage
         response['fs_blocks_percent_last_formatted'] = percent_to_bar(
-            self.metric.blocks_percent_last)
+            self.metric.blocks_percent)
         response['fs_blocks_free_percent_last_formatted'] = percent_to_bar(
-            100-self.metric.blocks_percent_last)
-        response['fs_blocks_total_formatted'] = kb_formatting(
-            self.metric.blocks_total*1024)
+            100-self.metric.blocks_percent)
+        if (self.metric.blocks_total):
+            response['fs_blocks_total_formatted'] = kb_formatting(
+                self.metric.blocks_total*1024)
         response['fs_blocks_usage_last_formatted'] = kb_formatting(
-            self.metric.blocks_usage_last*1024)
+            self.metric.blocks_usage*1024)
         response_str = json.dumps(response)
         to_queue(response_str)
