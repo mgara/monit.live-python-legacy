@@ -12,7 +12,8 @@ def collect_metric(name, value, timestamp):
 
     sock = socket.socket()
     sock.connect(("localhost", 2003))
-    sock.send("%s %d %d\n" % (name, value, timestamp))
+    metric = "%s %.2f %d\n" % (name, value, timestamp)
+    sock.send(metric)
     sock.close()
 
 

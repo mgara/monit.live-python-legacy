@@ -1,12 +1,7 @@
-import datetime
-
 from django.db import models
-from pytz import timezone
 
 from service import Service
 from ..lib.utils import get_value, get_string, get_int
-from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
-from djangomonitcollector.datacollector.lib.graphite import collect_metric_from_datetime
 from ..lib.metrics.net import NetMetrics
 
 

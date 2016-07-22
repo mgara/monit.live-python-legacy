@@ -129,7 +129,7 @@
 
                 for (var key in dataSeries) {
                     if (dataSeries.hasOwnProperty(key)) {
-                        tempArray.push(parseInt(dataSeries[key]));
+                        tempArray.push(parseFloat(dataSeries[key]));
                     }
                 }
                 dygraphData.push(tempArray);
@@ -197,18 +197,17 @@
                 labelsSeparateLines: true,
                 ylabel: dysettings.ylabel,
                 xlabel: dysettings.xlabel,
-                drawPoints: dysettings.draw_point,
-                errorBars: dysettings.errorbars,
-                pointSize: dysettings.point_size,
-                strokeWidth: dysettings.stroke_width,
+                drawPoints: dysettings.drawPoints,
+                errorBars: dysettings.errorBars,
+                pointSize: dysettings.pointSize,
+                strokeWidth: dysettings.strokeWidth,
                 stackedGraph: dysettings.isStacked,
                 axisLabelColor: '#BBB',
                 axisLineColor: '#BBB',
                 labels: dysettings.labels,
-                labelsKMB: true,
+                labelsKMB: dysettings.labelsKMB,
                 animatedZooms: true,
-                fillGraph: true,
-                //logscale: true,
+                fillGraph: dysettings.fillGraph,
                 colors: dysettings.graph_colors,
 
                 zoomCallback: function() {
@@ -293,12 +292,12 @@
         fillGraph: true,
         labelsKMB: true,
         animatedZooms: true,
-        point_size: 1,
-        stroke_width: 0.5,
-        rollperiod: 20,
-        draw_point: false,
+        pointSize: 1,
+        strokeWidth: 1,
+        rollPeriod: 5,
+        drawPoints: false,
         isStacked: false,
-        errorbars: false,
+        errorBars: false,
         graph_colors: ["#1ab394", "#ed5565", "#f8ac59", "#1c84c6"],
         ylabel: "Default",
         xlabel: "Date/Time",

@@ -97,7 +97,7 @@
           ['{{server.localhostname|normalize}}.system.load.avg05','Load 5 min'],
           ['{{server.localhostname|normalize}}.system.load.avg15','Load 15 min'],
         ],
-        from:"-24hours"
+        from:"-24hours",
       },{
         ylabel : "%",
         sync: gs
@@ -154,36 +154,38 @@
 
       <script type="text/javascript">
         $(function(){
+        var gs = []
 
-        var graph_packets_{{nic.name}} = $("#network_graph_packets_{{nic.name}}").dygraphite({
+        $("#network_graph_packets_{{nic.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.download.packet', 'Download'],
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.upload.packet','Upload'],
             ]
           },{
-            ylabel : "Packets"
+            ylabel : "Packets",
+             sync: gs
           });
 
-          var graph_bytes_{{nic.name}} = $("#network_graph_bytes_{{nic.name}}").dygraphite({
+         $("#network_graph_bytes_{{nic.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.download.bytes', 'Download'],
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.upload.bytes','Upload'],
             ]
           },{
-            ylabel : "Bytes"
+            ylabel : "Bytes",
+             sync: gs
           });
 
 
-          var graph_errors_{{nic.name}} = $("#network_graph_errors_{{nic.name}}").dygraphite({
+          $("#network_graph_errors_{{nic.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.download.errors', 'Download'],
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.upload.errors','Upload'],
             ]
           },{
-            ylabel : "Packets"
+            ylabel : "Packets",
+             sync: gs
           });
-
-
         })
       </script>
     {% endfor %}
@@ -222,16 +224,19 @@
       </div>
    <script type="text/javascript">
         $(function(){
+        var gs = []
+
          $("#fs_graph_blocks_percent_{{fs.name}}").dygraphite({
             target: [
-              ['{{server.localhostname|normalize}}.fs.{{fs.name}}.blocks_percent', 'Blocks %'],
+              ['summarize({{server.localhostname|normalize}}.fs.{{fs.name}}.blocks_percent,\'avg\')', 'Blocks %'],
             ]
           },{
             ylabel : "%",
             valueRange: [0,100],
             labelsKMB : false,
+            sync: gs
           });
-       });
+
 
         $(function(){
          $("#fs_graph_blocks_usage_{{fs.name}}").dygraphite({
@@ -241,6 +246,7 @@
           },{
             ylabel : "Blocks (1Block = 1MB) Total ("+({{fs.blocks_total}}*1024*1024).fileSize()+")",
             valueRange: [0,{{fs.blocks_total}}],
+            sync: gs
           });
        });
 
@@ -253,6 +259,7 @@
             ylabel : "%",
             valueRange: [0,100],
             labelsKMB : false,
+            sync: gs
           });
        });
 
@@ -264,9 +271,10 @@
           },{
             ylabel : "Inodes",
             valueRange: [0,null],
+            sync: gs
           });
        });
-
+     });
       </script>
     {% endfor %}
 

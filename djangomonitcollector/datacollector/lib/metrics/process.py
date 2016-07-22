@@ -29,10 +29,10 @@ class MemoryCPUProcessMetrics(object):
     ):
         tz = timezone(server.data_timezone)
         self.metric.date_last = datetime.datetime.fromtimestamp(timestamp, tz)
-        self.metric.process_id = process.id
-        self.metric.cpu_percent = process.cpu_percent
-        self.metric.memory_kilobyte = process.memory_kilobyte
-        self.metric.memory_percent = process.memory_percent
+        self.metric.process_id = process.pid
+        self.metric.cpu_percent = process.cpu_percent_last
+        self.metric.memory_kilobyte = process.memory_kilobyte_last
+        self.metric.memory_percent = process.memory_percent_last
         self.server_name = server.localhostname.replace('.', '_')
         self.server_id = server.id
 

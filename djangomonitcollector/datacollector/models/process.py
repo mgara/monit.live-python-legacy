@@ -1,11 +1,8 @@
-import datetime
 from django.db import models
-from pytz import timezone
 
 from service import Service
 from ..lib.utils import get_value
-from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
-from djangomonitcollector.datacollector.lib.graphite import collect_metric_from_datetime
+from ..lib.metrics.process import MemoryCPUProcessMetrics
 
 
 class Process(Service):
@@ -39,24 +36,7 @@ class Process(Service):
         process.save()
         if get_value(service, "cpu", "percent") != "none":
             colect_timestamp = int(get_value(service, "collected_sec", ""))
-            entry = MemoryCPUProcessStats.create(
-                    process,
-                    process.server.data_timezone,
-                    colect_timestamp,
-                    process.cpu_percent_last,
-                    process.memory_percent_last,
-                    process.memory_kilobyte_last
-            )
-            MemoryCPUProcessStats.to_elasticsearch(
-                entry,
-                process.server.localhostname.replace('.','_'),
-                process.name
-                )
-            MemoryCPUProcessStats.to_carbon(
-                entry,
-                process.server.localhostname.replace('.','_'),
-                process.name
-                )
+            MemoryCPUProcessMetrics(process, server, colect_timestamp )
         return process
 
     @classmethod
