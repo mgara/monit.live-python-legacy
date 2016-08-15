@@ -14,16 +14,17 @@
         <link href="{% static 'vendors/bower_components/sweetalert/dist/sweetalert.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css' %}" rel="stylesheet">
-
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+        <!-- CSS -->
 
         {% block css %}
         {% endblock %}
 
-        <!-- CSS -->
         <link href="{% static 'css/app_1.min.css' %}" rel="stylesheet">
         <link href="{% static 'css/app_2.min.css' %}" rel="stylesheet">
         <link href="{% static 'css/project.css' %}" rel="stylesheet">
+
 
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
@@ -84,7 +85,7 @@
                 <ul class="main-menu">
                     <li class="mm-profile sub-menu">
                         <a href="" data-ma-action="submenu-toggle" class="media">
-                            <img class="pull-left" src="{{ request.user.email|gravatar_url:150 }}" alt="">
+                            <img class="pull-left" src="{{request.user.email|gravatar_url:150 }}" alt="">
                             <div class="media-body">
                                 {{ request.user.username|title }}
                                 <small>{{ request.user.organisation|title}}</small>
@@ -218,13 +219,9 @@
 
         <!-- Javascript Libraries -->
         <script src="{% static 'vendors/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
-
-        <script src="{% static 'vendors/bower_components/flot/jquery.flot.js' %}"></script>
-        <script src="{% static 'vendors/bower_components/flot/jquery.flot.resize.js' %}"></script>
         <script src="{% static 'vendors/bower_components/flot.curvedlines/curvedLines.js' %}"></script>
         <script src="{% static 'vendors/sparklines/jquery.sparkline.min.js' %}"></script>
         <script src="{% static 'vendors/bower_components/jquery.easy-pie-chart/dist/jquery.easypiechart.min.js' %}"></script>
-
         <script src="{% static 'vendors/bower_components/moment/min/moment.min.js' %}"></script>
         <script src="{% static 'vendors/bower_components/fullcalendar/dist/fullcalendar.min.js' %}"></script>
         <script src="{% static 'vendors/bower_components/simpleWeather/jquery.simpleWeather.min.js' %}"></script>
@@ -239,71 +236,18 @@
         <![endif]-->
         <script src="{% static 'js/app.min.js' %}"></script>
         <script src="{% static 'js/jquery.printElement.min.js' %}"></script>
+        <script type="text/javascript">
+        /**
+        * @param {string} filename The name of the file WITHOUT ending
+        */
+        function playSound(){
+        $("#sound").html('<audio autoplay="autoplay"><source src="{% static 'sounds/gets-in-the-way.mp3' %}" type="audio/mpeg" /><source src="{% static 'sounds/gets-in-the-way.ogg' %}" type="audio/ogg" /><embed hidden="true" autostart="true" loop="false" src="{% static 'sounds/gets-in-the-way.mp3' %}" /></audio>');
+        }
+        </script>
 <script type="text/javascript">
-/**
-* @param {string} filename The name of the file WITHOUT ending
-*/
-function playSound(){
-$("#sound").html('<audio autoplay="autoplay"><source src="{% static 'sounds/gets-in-the-way.mp3' %}" type="audio/mpeg" /><source src="{% static 'sounds/gets-in-the-way.ogg' %}" type="audio/ogg" /><embed hidden="true" autostart="true" loop="false" src="{% static 'sounds/gets-in-the-way.mp3' %}" /></audio>');
-}
-</script>
-<script type="text/javascript">
-$(document).ready(function() {
-//  Check if the browser supports local storage
-if (window.localStorage) {
-localStorageSupport = true
-}
-var alerts_sockets = io('/organisation_events_{{ request.user.organisation.id|clean }}');
-alerts_sockets.on('dmc', function(msg) {
-var data = msg.data;
-playSound()
-if ( $( "#event_table" ).length ) {
-$.ajax({
-url: "{% url 'n:get_event_row' %}", // the endpoint
-type: "POST", // http method
-data: {
-"event_id": data.event.id
-},
-// handle a successful response
-success: function(json) {
-// Simple bottom row removal
-$('#event_table tr:last').remove();
-data_row_html = json.row
-$("#event_table tbody").prepend(data_row_html);
-},
-// handle a non-successful response
-error: function(xhr, errmsg, err) {
-if ($('#results').length){
-$('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
-" <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-}
-console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-}
-});
-}else{
-if (localStorageSupport){
-notifications_count = localStorage.getItem("notifications_count")
-new_notification_count = 0
-if (notifications_count){
-new_notification_count = parseInt(notifications_count)
-}
-new_notification_count+= 1
-localStorage.setItem("notifications_count", new_notification_count);
-$('#notification_count').html(new_notification_count)
-//$('#notification_count').addClass("label label-danger")
-}
-}
-}
-);
-if (localStorageSupport){
-notifications_count = localStorage.getItem("notifications_count")
-if (notifications_count){
-new_notification_count = parseInt(notifications_count)
-$('#notification_count').html(new_notification_count)
-//$('#notification_count').addClass("label label-danger")
-}
-}
-});
+
+
+
 </script>
 {% if messages %}
 {% for message in messages %}

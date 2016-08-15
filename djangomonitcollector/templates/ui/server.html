@@ -1,10 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load extra_tags %}
-{% block head %}
-    <link href="{% static 'css/plugins/c3/c3.min.css' %}" rel="stylesheet">
 
-{% endblock %}
 {% block page_title %} Server : <strong class="text-red">{{ server.localhostname }}</strong> <br/> IP : <strong class="text-blue">{{ server.external_ip }}</strong> {% endblock %}
 
 {% block submenu %}
@@ -161,21 +158,16 @@
     <script src="{% static 'js/graphite.js' %}"></script>
     <script>
     $(function() {
-
-
-
       var cpu_system_chart = $('.cpu-system-chart')
       var cpu_wait_chart   = $('.cpu-wait-chart')
       var cpu_user_chart   = $('.cpu-user-chart')
-
       var memory_usage_chart   = $('.memory-usage-chart')
       var swap_usage_chart     = $('.swap-usage-chart')
-
       var disk_usage_chart   = $('.disk-usage-chart')
-
 
       $(".easy-pie").easyPieChart({
         easing: 'easeOutBounce',
+        animate : 2000,
         trackColor: false,
         onStep: function(from, to, percent) {
             var rounded = Math.round( percent * 10 ) / 10;
@@ -235,6 +227,7 @@
             cpu_wait_chart.data('easyPieChart').update(data.cpu_wait_last);
             cpu_user_chart.data('easyPieChart').update(data.cpu_user_last);
             memory_usage_chart.data('easyPieChart').update(data.memory_percent_last);
+            //TODO : Swap space missing
         }
         if (null != data.fs_blocks_percent_last) {
                 disk_usage_chart.data('easyPieChart').update(data.fs_blocks_percent_last);

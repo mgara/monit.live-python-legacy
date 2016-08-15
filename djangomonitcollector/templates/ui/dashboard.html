@@ -37,7 +37,7 @@
         <div class="card-header">
           <h2>Active Instances</h2>
         </div>
-        <div class="card-body">
+        <div class="card-body  card-padding">
           <div id="dashboard_table" class="table-responsive ">
             {% if user_has_hgs %}
               <table class="table table-inner table-vmiddle" width="100%"  border="0" cellspacing="0" cellpadding="0">
@@ -144,7 +144,8 @@
   {%  if error %}
   <p class="alert alert-danger">{{ error }}</p>
 {% endif %}
-<script src="{% static 'js/jquery-2.1.4.min.js'%}"></script>
+{% endblock %}
+{% block javascript %}
 <script src="{% static 'js/csrf.js'%}"></script>
 <script src="{% static 'js/plugins/chosen/chosen.jquery.js' %}"></script>
 <script src="{% static 'js/plugins/ladda/spin.min.js'%}"></script>

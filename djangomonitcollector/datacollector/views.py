@@ -68,7 +68,14 @@ def collect_data(xml_str, ck, ip_addr, host_group):
         try:
             ckobj = CollectorKey.objects.get(pk=ck)
         except CollectorKey.DoesNotExist:
-            raise CollectorKeyError("No Such Key Error {0}".format(ck))
+            try:
+                org = Organisation.objects.get(pk=ck)
+                ck = CollectorKey.objects.filter(organisation=org)
+                if len(list(ck)) > 0:
+                    ckobj = ck[0]
+            except CollectorKey.DoesNotExist:
+
+                raise CollectorKeyError("No Such Key Error {0}".format(ck))
         except ValueError:
             raise CollectorKeyError("Wrong Key Format {0}".format(ck))
 
@@ -150,6 +157,7 @@ def list_servers(request):
                 server['incarnation'] = s.last_data_received
                 server['monit_update_period'] = s.monit_update_period
                 server['org_id'] = s.organisation.id
+                server['host_group'] = s.host_group.slug
                 servers[s.monit_id] = server
         response = JsonResponse(servers, status=200)
     except StandardError as e:

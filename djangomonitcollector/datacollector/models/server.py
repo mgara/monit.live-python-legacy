@@ -124,12 +124,17 @@ class Server(models.Model):
             server.save()
 
             Platform.update(xmldoc, server)
+        else:
+            print monit_id
+            print org
+            print external_ip
+            print host_group
+            print server.localhostname
 
         event_doc = xmldoc.getElementsByTagName('event')
 
         if event_doc:
             event_xml = event_doc[0]
-
             MonitEvent.create(
                 event_xml,
                 server,
@@ -273,6 +278,7 @@ class MonitEvent(models.Model):
         #  Check if we received Monit Stopped Event
         event_obj = cls.update_server_running_status(event_obj, server)
 
+        print event_obj.event_state
         #  We received an error alarm
         if event_obj.event_state == 1:
             found, duplicates = cls.check_for_events_in_time_window(
@@ -365,7 +371,7 @@ class MonitEvent(models.Model):
 
     @classmethod
     def update_server_running_status(cls, event_obj, server):
-        monit_stopped_pattern = re.compile("^Monit.*stopped$")
+        monit_stopped_pattern = re.compile("^Monit.*stopped$|.*Host.*Down.*")
         monit_started_pattern = re.compile("^Monit.*started$")
 
         server.server_up = True

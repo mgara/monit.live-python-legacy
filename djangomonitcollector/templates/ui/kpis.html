@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load extra_tags %}
-{% block head %}
-    <link href="{% static 'css/plugins/c3/c3.min.css' %}" rel="stylesheet">
 
-{% endblock %}
-{% block page_title %} Key Performance Indicators  <br/> Server : <small class="text-navy">{{ server.localhostname }}</small> <br/> IP : <small class="text-navy">{{ server.external_ip }}</small> {% endblock %}
+{% block page_title %}
+ Key Performance Indicators  <br/> Server : <strong class="text-red"> {{ server.localhostname }} </strong> <br/>
+ IP :  <strong class="text-red">{{ server.external_ip }}</strong>
+  {% endblock %}
 
 {% block submenu %}
   <li class="nav-item">
@@ -20,26 +20,26 @@
   <div class="row clearfix text-center">
 
 <div id="periods" class="btn-group" data-toggle="buttons">
-  <label class="btn btn-primary btn-outline ">
+  <label class="btn btn-default btn-outline ">
     <input type="radio" id="1h" autocomplete="off"> 1h
   </label>
-   <label class="btn btn-primary btn-outline ">
+   <label class="btn btn-default btn-outline ">
     <input type="radio" id="3h" autocomplete="off"> 3h
   </label>
-  <label class="btn btn-primary btn-outline active">
+  <label class="btn btn-default btn-outline active">
     <input type="radio" id="1d" autocomplete="off"> 1d
   </label>
-    <label class="btn btn-primary btn-outline">
+    <label class="btn btn-default btn-outline">
     <input type="radio" id="1w" autocomplete="off"> 1w
   </label>
-      <label class="btn btn-primary btn-outline">
+      <label class="btn btn-default btn-outline">
     <input type="radio" id="1m" autocomplete="off"> 1m
   </label>
-       <label class="btn btn-primary btn-outline">
+       <label class="btn btn-default btn-outline">
     <input type="radio" id="1y" autocomplete="off"> 1y
   </label>
 
-  <label class="btn btn-primary btn-outline">
+  <label class="btn btn-default btn-outline">
     <input type="radio" id="max" autocomplete="off"> max
   </label>
 </div>
@@ -48,47 +48,17 @@
 </div>
   <div class="row clearfix top-buffer">
 
-    <div class="box float-e-margins ui-draggable ui-droppable">
-       <div class="box-title"> <h5>System Load</h5>
-            <div class="box-tools">
-                <a class="collapse-link">
-                    <i class="fa fa-chevron-up"></i>
-                </a>
-            </div>
-       </div>
-       <div class="box-content">
-            <div id="graph_load" class="graph" style="width:100%;">
+      {% include "ui/includes/_widget.html" with caption="CPU Usage" %}
+            <div id="graph_load" class="graph" style="width:100%;"></div>
+      {% include "ui/includes/_end_widget.html" %}
 
-            </div>
-          </div>
-    </div>
-
-   <div class="box float-e-margins ui-draggable ui-droppable">
-   <div class="box-title"> <h5>CPU Usage</h5>
-        <div class="box-tools">
-        <a class="collapse-link">
-            <i class="fa fa-chevron-up"></i>
-        </a>
-    </div>
-   </div>
-   <div class="box-content">
+      {% include "ui/includes/_widget.html" with caption="CPU Usage" %}
         <div id="graph_cpu" class="graph" style="width:100%;"></div>
-        </div>
-      </div>
+      {% include "ui/includes/_end_widget.html" %}
 
-
-   <div class="box float-e-margins ui-draggable ui-droppable">
-   <div class="box-title"> <h5>System Memory</h5>
-        <div class="box-tools">
-        <a class="collapse-link">
-            <i class="fa fa-chevron-up"></i>
-        </a>
-    </div>
-   </div>
-   <div class="box-content">
+      {% include "ui/includes/_widget.html" with caption="Memory Usage" %}
         <div id="graph_mem" class="graph" style="width:100%;"></div>
-        </div>
-      </div>
+      {% include "ui/includes/_end_widget.html" %}
 
 <script type="text/javascript">
   $(function(){
@@ -131,28 +101,30 @@
       });
   })
 </script>
+
     {% for nic in server.net_set.all %}
-       <div class="box float-e-margins ui-draggable ui-droppable">
 
-   <div class="box-title"> <h5> Network traffic: <b class="text-info">{{nic.name}}</b></h5>
-        <div class="box-tools">
-        <a class="collapse-link">
-            <i class="fa fa-chevron-up"></i>
-        </a>
-    </div>
-   </div>
-   <div class="box-content">
-        <div id="network_graph_packets_{{nic.name}}" class="graph" style="width:100%;">
-
+    <div class="card">
+        <div class="card-header ch-alt {{theme}}">
+            <h4 class="capitalize"> Network Interface : <small> {{nic.name}}</small></h4>
         </div>
+
+        <div class="card-body  card-padding">
+
+            {% include "ui/includes/_widget.html" with caption="Network Packets" theme="" %}
+          <div id="network_graph_packets_{{nic.name}}" class="graph" style="width:100%;">
+          </div>
+        {% include "ui/includes/_end_widget.html" %}
+        {% include "ui/includes/_widget.html" with caption="Network Bytes" %}
           <div id="network_graph_bytes_{{nic.name}}" class="graph" style="width:100%;">
-
           </div>
+        {% include "ui/includes/_end_widget.html" %}
+        {% include "ui/includes/_widget.html" with caption="Network Errors" %}
           <div id="network_graph_errors_{{nic.name}}" class="graph" style="width:100%;">
-
           </div>
-        </div>
-      </div>
+      {% include "ui/includes/_end_widget.html" %}
+
+      {% include "ui/includes/_end_widget.html" %}
 
       <script type="text/javascript">
         $(function(){
@@ -200,30 +172,32 @@
 },writable:false,enumerable:false});
     </script>
     {% for fs in server.filesystem_set.all %}
-       <div class="box float-e-margins ui-draggable ui-droppable">
 
-   <div class="box-title"> <h5> Filesystem Usage: <b class="text-info">{{fs.display_name}}</b></h5>
-        <div class="box-tools">
-        <a class="collapse-link">
-            <i class="fa fa-chevron-up"></i>
-        </a>
-    </div>
-   </div>
-   <div class="box-content">
-        <div id="fs_graph_blocks_usage_{{fs.name}}" class="graph" style="width:100%;">
+        <div class="card">
+        <div class="card-header ch-alt {{theme}}">
+            <h4 class="capitalize"> Filesystem : <small> {{fs.display_name}}</small></h4>
+        </div>
 
-        </div>
-        <div id="fs_graph_blocks_percent_{{fs.name}}" class="graph" style="width:100%;">
+        <div class="card-body  card-padding">
 
-        </div>
-        <div id="fs_graph_inode_usage_{{fs.name}}" class="graph" style="width:100%;">
+          {% include "ui/includes/_widget.html" with caption="Blocks Usage"  %}
+            <div id="fs_graph_blocks_usage_{{fs.name}}" class="graph" style="width:100%;"></div>
+            {% include "ui/includes/_end_widget.html" %}
 
-        </div>
-        <div id="fs_graph_inode_percent_{{fs.name}}" class="graph" style="width:100%;">
+            {% include "ui/includes/_widget.html" with caption="Blocks Percentage"  %}
+              <div id="fs_graph_blocks_percent_{{fs.name}}" class="graph" style="width:100%;"></div>
+            {% include "ui/includes/_end_widget.html" %}
 
-        </div>
-        </div>
-      </div>
+            {% include "ui/includes/_widget.html" with caption="Inode Usage"  %}
+              <div id="fs_graph_inode_usage_{{fs.name}}" class="graph" style="width:100%;"></div>
+            {% include "ui/includes/_end_widget.html" %}
+
+            {% include "ui/includes/_widget.html" with caption="Inode Usage"  %}
+                <div id="fs_graph_inode_percent_{{fs.name}}" class="graph" style="width:100%;"></div>
+            {% include "ui/includes/_end_widget.html" %}
+
+      {% include "ui/includes/_end_widget.html" %}
+
    <script type="text/javascript">
         $(function(){
         var gs = []
@@ -280,7 +254,7 @@
 
     {% csrf_token %}
   {% endblock %}
-  {% block customjs %}
+  {% block javascript %}
     <script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
     <script src="{% static 'js/dygraph-combined.js' %}"></script>
     <script src="{% static 'js/csrf.js' %}"></script>
@@ -363,4 +337,4 @@
 
     </script>
     <script src="{% static 'js/server.js' %}"></script>
-  {% endblock customjs %}
+  {% endblock javascript %}
