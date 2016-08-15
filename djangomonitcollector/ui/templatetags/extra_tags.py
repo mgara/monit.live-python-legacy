@@ -1,12 +1,17 @@
 import ast
+import datetime
+import hashlib
+import pytz
 import time
+import urllib
+
 
 from django import template
 from django.conf import settings
 from django.utils import timezone
-import datetime
-import pytz
+from django.utils.safestring import mark_safe
 from math import floor
+
 
 register = template.Library()
 
@@ -16,13 +21,33 @@ except:
     monit_update_period = 60
 
 
+# return only the URL of the gravatar
+# TEMPLATE USE:  {{ email|gravatar_url:150 }}
+@register.filter
+def gravatar_url(email, size=40):
+    default = ""
+
+    return "https://www.gravatar.com/avatar/%s?%s" % (hashlib.md5(email.lower()).hexdigest(), urllib.urlencode({'d': default, 's': str(size)}))
+
+# return an image tag with the gravatar
+# TEMPLATE USE:  {{ email|gravatar:150 }}
+
+
+@register.filter
+def gravatar(email, size=40):
+    url = gravatar_url(email, size)
+    return mark_safe('<img src="%s" height="%d" width="%d">' % (url, size, size))
+
+
 @register.filter
 def clean(value):
     return str(value).replace('-', '_')
 
+
 @register.filter
 def normalize(value):
     return str(value).replace('.', '_')
+
 
 @register.filter
 def clean_service_name(value):
@@ -71,7 +96,6 @@ def format_timedelta(value, time_format="{days} days, {hours2}:{minutes2}:{secon
                 else:
                     time_format = "New !"
 
-
     return time_format.format(**{
         'seconds': seconds,
         'seconds2': str(seconds).zfill(2),
@@ -108,6 +132,7 @@ def get_title(url_name):
     url_name = url_name.replace('_', ' ')
     return url_name.title()
 
+
 @register.filter
 def server_status_to_string(status):
     if status:
@@ -115,10 +140,11 @@ def server_status_to_string(status):
     else:
         return "DOWN"
 
+
 @register.filter
 def server_status_to_css_class(status):
     if status:
-        return "<a href=\"#\" class=\"btn btn-primary btn-xs\"><span class=\"glyphicon glyphicon-upload\"></span></a>"
+        return "<a href=\"#\" class=\"btn btn-success btn-xs\"><span class=\"glyphicon glyphicon-upload\"></span></a>"
     else:
         return "<a href=\"#\" class=\"btn btn-danger btn-xs\"><span class=\"glyphicon glyphicon-download\"></span></a>"
 
@@ -126,9 +152,10 @@ def server_status_to_css_class(status):
 @register.filter
 def boolean_widget(boolean_value):
     if boolean_value:
-        return "<a href=\"#\" class=\"btn btn-primary btn-xs\"><span class=\"fa fa-check-square\"></span></a>"
+        return "<a href=\"#\" class=\"btn btn-success btn-xs\"><span class=\"fa fa-check-square\"></span></a>"
     else:
         return "<a href=\"#\" class=\"btn btn-danger btn-xs\"><span class=\"fa fa-times\"></span></a>"
+
 
 @register.filter
 def event_state_to_widget_style(state):
@@ -138,9 +165,11 @@ def event_state_to_widget_style(state):
         return "red"
     return "lazur"
 
+
 @register.filter
 def remove_protocol(value):
-    return value.replace('https://','').replace('http://','')
+    return value.replace('https://', '').replace('http://', '')
+
 
 @register.filter
 def get_server_len(server_set):
@@ -178,6 +207,7 @@ def timestamp_to_date(timestamp):
     user_time = user_tz.normalize(data_time.astimezone(user_tz))
     return user_time
 
+
 @register.filter
 def to_html(txt):
     return txt.replace("\n", "<br/>")
@@ -188,8 +218,8 @@ def time_class(timestamp):
     if not isinstance(timestamp, int):
         return ""
     if int(time.time()) > int(timestamp) + 3 * monit_update_period:
-        return "danger"
-    return "primary"
+        return "bgm-red"
+    return "bgm-green"
 
 
 @register.filter
@@ -222,10 +252,10 @@ def time_str(uptime):
 @register.filter
 def status_alert(alert_counts):
     if not alert_counts:
-        return ""
+        return "bgm-green"
     if int(alert_counts) == 0:
-        return ""
-    return "danger"
+        return "bgm-green"
+    return "bgm-red"
 
 
 @register.filter
@@ -235,7 +265,7 @@ def status_tr_class(status, monitor):
     if monitor == 0:
         return 'info'
     if int(status) == 0:
-        return 'primary'
+        return 'success'
     return 'danger'
 
 
@@ -275,11 +305,14 @@ def get_int(value):
     return None
 
 # the grey button to highlight a row in the alert table.
+
+
 @register.filter
 def to_btn(value):
     var = '{}'
     if value:
-        return "<button onclick=\"$('#event-{0}').effect('highlight', {1}, 1500);\" class=\"btn btn-reverse btn-xs\" type=\"button\" id=\"highlight-{0}\" data-id=\"{0}\">{0}</button>".format(value,var)
+        return "<button onclick=\"$('#event-{0}').effect('highlight', {1}, 1500);\" class=\"btn btn-reverse btn-xs\" type=\"button\" id=\"highlight-{0}\" data-id=\"{0}\">{0}</button>".format(value, var)
+
 
 @register.filter
 def to_btns(value):
@@ -321,7 +354,7 @@ def percent(value):
 def fs_percent_bar(fs):
     value = fs.blocks_percent_last if fs.blocks_percent_last else 0.0
     percent_value = round(value, 1)
-    progress_bar_txt = "{0}% [{1}/{2}]".format(percent_value, disk_size_formatting(
+    progress_bar_txt = "{0}% [<b>{1}</b>/{2}]".format(percent_value, disk_size_formatting(
         fs.blocks_usage_last), disk_size_formatting(fs.blocks_total))
     return get_progress_bar_html(percent_value, progress_bar_txt)
 
@@ -330,7 +363,7 @@ def fs_percent_bar(fs):
 def fs_percent_bar_inode(fs):
     value = fs.inode_percent_last if fs.inode_percent_last else 0.0
     percent_value = round(value, 1)
-    progress_bar_txt = "{0}% [{1}/{2}]".format(
+    progress_bar_txt = "{0}% [<b>{1}</b>/{2}]".format(
         percent_value, get_int(fs.inode_usage_last), get_int(fs.inode_total))
     return get_progress_bar_html(percent_value, progress_bar_txt)
 
@@ -430,7 +463,7 @@ def action_to_string(action):
 @register.filter
 def event_state_to_style(state):
     if int(state) == 0:
-        return "primary"
+        return "success"
     if int(state) == 1:
         return "danger"
     return "success"
@@ -441,7 +474,7 @@ def flapping_status(flapping):
     if flapping:
         return '<span class="label label-danger small">Yes</span>'
     else:
-        return '<span class="label label-primary small">No</span>'
+        return '<span class="label label-success small">No</span>'
 
 
 def status_to_string_(status, type_of_service, monitor_status):
@@ -473,8 +506,8 @@ def status_to_string_(status, type_of_service, monitor_status):
 
 def get_progress_bar_html(value, display_txt):
     style = get_style_from_value(value)
-    res = '<span class="label label-{0} small">{2}</span>' \
-          '<div class="progress progress-mini  progress-bar-border-{0}">' \
+    res = '<span class="progress-number text-{0}">{2}</span>'\
+          '<div class="progress progress-mini  progress-bar-border-{0} xs">' \
           '<div class="progress-bar progress-bar-{0} " role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: {1}%">' \
           '<span>{2}</span>' \
           '</div>' \
@@ -484,7 +517,7 @@ def get_progress_bar_html(value, display_txt):
 
 def get_style_from_value(value, thresh1=50, thresh2=85):
     if value < thresh1:
-        return "primary"
+        return "success"
     if value >= thresh1 and value < thresh2:
         return "warning"
     return "danger"
@@ -499,7 +532,7 @@ def get_current_notification_number():
 @register.filter
 def nt_status_to_label(status):
     if status:
-        return '<span class="label label-primary small">On</span>'
+        return '<span class="label label-success small">On</span>'
     return '<span class="label label-danger small">Off</span>'
 
 

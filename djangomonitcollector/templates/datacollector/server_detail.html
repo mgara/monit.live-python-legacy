@@ -5,8 +5,8 @@
 {% block page_title %} Server Details <small class="text-navy">{{ object.localhostname }} </small>{% endblock %}
 {% block content %}
   <div class="row">
-    <div class="ibox">
-      <div class="ibox-content">
+    <div class="box">
+      <div class="box-content">
         {% if object.external_ip %}
           <p><span class="text-uppercase"> External IP :  </span> <span class="lead text-navy">{{ object.external_ip }}</span></p>
         {% endif %}
@@ -24,9 +24,9 @@
   </div>
 </div>
 <div class="row">
-  <div class="ibox">
-    <div class="ibox-title"> Monit Paremeters</div>
-    <div class="ibox-content">
+  <div class="box">
+    <div class="box-title"> Monit Paremeters</div>
+    <div class="box-content">
       {% if object.http_address %}
         <p><span class="text-uppercase"> HTTP Address : </span> <span
         class="lead"> <a target="_blank" href="{{ object.http_address }}">{{ object.http_address }}</a></span></p>

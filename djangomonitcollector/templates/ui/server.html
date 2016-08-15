@@ -5,7 +5,7 @@
     <link href="{% static 'css/plugins/c3/c3.min.css' %}" rel="stylesheet">
 
 {% endblock %}
-{% block page_title %} Server : <small class="text-navy">{{ server.localhostname }}</small> <br/> IP : <small class="text-navy">{{ server.external_ip }}</small> {% endblock %}
+{% block page_title %} Server : <strong class="text-red">{{ server.localhostname }}</strong> <br/> IP : <strong class="text-blue">{{ server.external_ip }}</strong> {% endblock %}
 
 {% block submenu %}
   <li class="nav-item">
@@ -41,196 +41,152 @@
   </li>
 {% endblock %}
 {% block content %}
-  <div class="row clearfix">
 
-    <div class="col-md-12 column2">
-      <div class="col-lg-4 col-md-6 column">
-        <div id="cpu-chart" class="graph" style="width:100%;"></div>
+
+<div class="row">
+    <div class="col-md-12 gauges">
+        <div class="col-md-4 col-md-6 column">
+            {% include "ui/includes/_widget.html" with caption="CPU Usage"  %}
+            <div class="p-t-25 p-b-20 text-center">
+                <div class="easy-pie  cpu-wait-chart" data-percent="{{server.system.cpu_wait_last}}">
+                    <span class="percent">{{server.system.cpu_wait_last}}</span>
+                    <div class="pie-title">Wait</div>
+              </div>
+                <span class="easy-pie cpu-user-chart" data-percent="{{server.system.cpu_user_last}}">
+                    <span class="percent">{{server.system.cpu_user_last}}</span>
+                    <div class="pie-title">User</div>
+             </span>
+                <div class="easy-pie  cpu-system-chart" data-percent="{{server.system.cpu_system_last}}">
+                    <span class="percent">{{server.system.cpu_user_last}}</span>
+                    <div class="pie-title">System</div>
+               </div>
+            </div>
+            {% include "ui/includes/_end_widget.html" %}
+        </div>
+        <div class="col-md-4 col-md-6 column">
+            {% include "ui/includes/_widget.html" with caption="Memory Usage" %}
+                <div class="p-t-25 p-b-20 text-center">
+                    <div class="easy-pie  memory-usage-chart" data-percent="{{server.system.memory_percent_last}}">
+                        <span class="percent">{{server.system.memory_percent_last}}</span>
+                        <div class="pie-title">Sytem Memory</div>
+                  </div>
+                    <div class="easy-pie  swap-usage-chart" data-percent="{{server.system.swap_percent_last}}">
+                        <span class="percent">{{server.system.swap_percent_last}}</span>
+                        <div class="pie-title">Swap</div>
+                 </div>
+            </div>
+            {% include "ui/includes/_end_widget.html" %}
+        </div>
+        <div class="col-md-4 col-md-6 column">
+            {% include "ui/includes/_widget.html" with caption="Disk Usage"  %}
+                <div class="p-t-25 p-b-20 text-center">
+                        <div class="easy-pie disk-usage-chart" data-percent="{{disk_usage}}">
+                            <span class="percent">{{disk_usage}}</span>
+                            <div class="pie-title">Space Usage</div>
+                      </div>
+                </div>
+            {% include "ui/includes/_end_widget.html" %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 graphs">
+      <div class="col-md-4 col-md-6 column">
+          {% include "ui/includes/_widget.html" with caption="Load" description="Last 15 minutes" %}
+                <div id="graph_load" class="graph" style="width:100%;"></div>
+           {% include "ui/includes/_end_widget.html" %}
       </div>
-      <div class="col-lg-4 col-md-6 column">
-        <div id="memory-chart" class="graph" style="width:100%;"></div>
+
+      <div class="col-md-4 col-md-6 column">
+          {% include "ui/includes/_widget.html" with caption="CPU Usage" description="Last 15 minutes" %}
+                <div id="graph_cpu" class="graph" style="width:100%;"></div>
+          {% include "ui/includes/_end_widget.html" %}
       </div>
-      <div class="col-lg-4 col-md-6 column">
-        <div id="disk-chart" class="graph" style="width:100%;"></div>
+      <div class="col-md-4 col-md-6 column">
+          {% include "ui/includes/_widget.html" with caption="Memory" description="Last 15 minutes" %}
+                <div id="graph_mem" class="graph" style="width:100%;"></div>
+          {% include "ui/includes/_end_widget.html" %}
       </div>
     </div>
-    <hr class="divider">
-    <div class="col-md-12 column2">
-      <div class="col-lg-4 col-md-6 column">
-        <div id="graph_load" class="graph" style="width:100%;"></div>
+</div>
 
-      </div>
-
-      <div class="col-lg-4 col-md-6 column">
-        <div id="graph_cpu" class="graph" style="width:100%;"></div>
-      </div>
-      <div class="col-lg-4 col-md-6 column">
-        <div id="graph_mem" class="graph" style="width:100%;"></div>
-      </div>
-
-    </div>
-
-  </div>
-  <div class="row clearfix marginTop">
     {% if processes %}
-      <div id="processes" class="col-md-12 column">
-        <div class="ibox">
-            <div class="ibox-title">
-                    <h5>Processes </h5>
-                    <div class="ibox-tools">
-                        <a class="collapse-link">
-                            <i class="fa fa-chevron-up"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="ibox-content">
-                <div class="row">
-          {% include "ui/includes/server_table.html" %}
-                </div>
-                </div>
-                </div>
-      </div>
+          {% include "ui/includes/_widget.html" with caption="processes" %}
+            {% include "ui/includes/server_table.html" %}
+          {% include "ui/includes/_end_widget.html" %}
       {%  endif %}
+
       {% if programs %}
-        <div id="programs" class="col-md-12 column">
-         <div class="ibox">
-            <div class="ibox-title">
-                    <h5>Programs </h5>
-                    <div class="ibox-tools">
-                        <a class="collapse-link">
-                            <i class="fa fa-chevron-up"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="ibox-content">
-                <div class="row">
+          {% include "ui/includes/_widget.html" with caption="Programs" %}
             {% include "ui/includes/program_table.html" %}
-            </div>
-            </div>
-        </div>
+          {% include "ui/includes/_end_widget.html" %}
       {% endif %}
+
       {% if filesystems %}
-        <div id="filesystems" class="col-md-12 column">
-         <div class="ibox">
-            <div class="ibox-title">
-                    <h5>Filesystems </h5>
-                    <div class="ibox-tools">
-                        <a class="collapse-link">
-                            <i class="fa fa-chevron-up"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="ibox-content">
-                <div class="row">
+          {% include "ui/includes/_widget.html" with caption="Filesystems" description="Filesystems and Mount points" %}
             {% include "ui/includes/filesystem_table.html" %}
-          </div>
-          </div>
-          </div>
-        </div>
+          {% include "ui/includes/_end_widget.html" %}
       {% endif %}
+
       {% if directories %}
-        <div  id="directory" class="col-md-12 column">
-                <div class="ibox">
-            <div class="ibox-title">
-                    <h5>Directories </h5>
-                    <div class="ibox-tools">
-                        <a class="collapse-link">
-                            <i class="fa fa-chevron-up"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="ibox-content">
-                <div class="row">
+          {% include "ui/includes/_widget.html" with caption="Directories" %}
             {% include "ui/includes/directory_table.html" %}
-            </div>
-            </div>
-          </div>
-        </div>
+          {% include "ui/includes/_end_widget.html" %}
       {% endif %}
+
       {% if files %}
-        <div id="files" class="col-md-12 column">
-               <div class="ibox">
-            <div class="ibox-title">
-                    <h5>Files </h5>
-                    <div class="ibox-tools">
-                        <a class="collapse-link">
-                            <i class="fa fa-chevron-up"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="ibox-content">
-                <div class="row">
-            {% include "ui/includes/file_table.html" %}
-            </div>
-            </div>
-          </div>
-        </div>
+            {% include "ui/includes/_widget.html" with caption="Files" %}
+                {% include "ui/includes/file_table.html" %}
+            {% include "ui/includes/_end_widget.html" %}
       {% endif %}
+
       {% if nets %}
-        <div id="network" class="col-md-12 column">
-         <div class="ibox">
-            <div class="ibox-title">
-                    <h5>Network </h5>
-                    <div class="ibox-tools">
-                        <a class="collapse-link">
-                            <i class="fa fa-chevron-up"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="ibox-content">
-                <div class="row">
-            {% include "ui/includes/net_table.html" %}
-            </div>
-            </div>
-          </div>
-        </div>
+            {% include "ui/includes/_widget.html" with caption="Nets" description="Network Interfaces" %}
+                {% include "ui/includes/net_table.html" %}
+            {% include "ui/includes/_end_widget.html" %}
       {% endif %}
+
       {% if hosts %}
-        <div id="host" class="col-md-12 column">
-            <div class="ibox">
-            <div class="ibox-title">
-                    <h5>Hosts </h5>
-                    <div class="ibox-tools">
-                        <a class="collapse-link">
-                            <i class="fa fa-chevron-up"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="ibox-content">
-                <div class="row">
-            {% include "ui/includes/host_table.html" %}
-            </div>
-            </div>
-          </div>
-        </div>
+            {% include "ui/includes/_widget.html" with caption="Hosts" description="" %}
+                {% include "ui/includes/host_table.html" %}
+            {% include "ui/includes/_end_widget.html" %}
       {% endif %}
-    </div>
     {% csrf_token %}
   {% endblock %}
-  {% block customjs %}
-    <script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
-    <script src="{% static 'js/dygraph-combined.js' %}"></script>
+  {% block javascript %}
+    <script src="{% static 'js/dygraph-combined.js' ç%}"></script>
     <script src="{% static 'js/csrf.js' %}"></script>
-    <script src="http://code.highcharts.com/highcharts.js"></script>
     <script src="{% static 'js/synchronizer.js' %}"></script>
     <script src="{% static 'js/graphite.js' %}"></script>
     <script>
-$(function() {
+    $(function() {
 
-    var gs = []
 
-    Highcharts.setOptions({
-        colors: [
-            '#1ab394',
-            '#d1dade',
-            '#f8ac59',
-            '#1c84c6',
-            '#a3e1d4',
-            '#ed5565',
-            '#1ab394',
-            '#d1dade',
-        ]
-    });
+
+      var cpu_system_chart = $('.cpu-system-chart')
+      var cpu_wait_chart   = $('.cpu-wait-chart')
+      var cpu_user_chart   = $('.cpu-user-chart')
+
+      var memory_usage_chart   = $('.memory-usage-chart')
+      var swap_usage_chart     = $('.swap-usage-chart')
+
+      var disk_usage_chart   = $('.disk-usage-chart')
+
+
+      $(".easy-pie").easyPieChart({
+        easing: 'easeOutBounce',
+        trackColor: false,
+        onStep: function(from, to, percent) {
+            var rounded = Math.round( percent * 10 ) / 10;
+            $(this.el).find('.percent').text(rounded);
+        }
+      });
+
+
+
+
+      var gs = []
 
      $("#graph_load").dygraphite({
         target: [
@@ -271,168 +227,17 @@ $(function() {
       });
 
 
-
-
-
-
-    chart_cpu = new Highcharts.Chart({
-        chart: {
-            renderTo: 'cpu-chart',
-            plotBackgroundColor: null,
-            plotBorderWidth: 0,
-            plotShadow: false,
-            backgroundColor:'rgba(255, 255, 255, 0.1)'
-        },
-         colors: [
-            '#f8ac59',
-            '#1ab394',
-            '#d1dade',
-            '#1c84c6',
-            '#a3e1d4',
-            '#ed5565',
-            '#1ab394',
-            '#d1dade',
-        ],
-        title: {
-            text: 'CPU<br>Usage',
-            align: 'center',
-            verticalAlign: 'middle',
-            y: 40
-        },
-        tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-        },
-        plotOptions: {
-            pie: {
-                dataLabels: {
-                    enabled: true,
-                    distance: -50,
-                    style: {
-                        fontWeight: 'bold',
-                        color: 'white',
-                        textShadow: '0px 1px 2px black'
-                    }},
-                startAngle: -90,
-                endAngle: 90,
-                center: ['50%', '75%']
-            }},
-        series: [{
-            type: 'pie',
-            name: 'cpu',
-            innerSize: '50%',
-            data: [
-                ['Wait', {{server.system.cpu_wait_last}}],
-                ['User', {{server.system.cpu_user_last}}],
-                ['Idle', 100 - {{server.system.cpu_wait_last}} - {{server.system.cpu_user_last}}]
-            ]
-        }]
-    });
-    chart_memory = new Highcharts.Chart({
-        chart: {
-            renderTo: 'memory-chart',
-            plotBackgroundColor: null,
-            plotBorderWidth: 0,
-            plotShadow: false,
-            backgroundColor:'rgba(255, 255, 255, 0.1)'
-        },
-        title: {
-            text: 'Memory<br>Usage',
-            align: 'center',
-            verticalAlign: 'middle',
-            y: 40
-        },
-        tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-        },
-        plotOptions: {
-            pie: {
-                dataLabels: {
-                    enabled: true,
-                    distance: -50,
-                    style: {
-                        fontWeight: 'bold',
-                        color: 'white',
-                        textShadow: '0px 1px 2px black'
-                    }},
-                startAngle: -90,
-                endAngle: 90,
-                center: ['50%', '75%']
-            }},
-        series: [{
-            type: 'pie',
-            name: 'Memory',
-            innerSize: '50%',
-            data: [
-                ['Used', {{server.system.memory_percent_last}}],
-                ['Free', 100 - {{server.system.memory_percent_last}}],
-            ]
-        }]
-    });
-    chart_disk = new Highcharts.Chart({
-        chart: {
-            renderTo: 'disk-chart',
-            plotBackgroundColor: null,
-            plotBorderWidth: 0,
-            plotShadow: false,
-            backgroundColor:'rgba(255, 255, 255, 0.1)'
-        },
-        title: {
-            text: 'Disk<br>Usage',
-            align: 'center',
-            verticalAlign: 'middle',
-            y: 40
-        },
-        tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-        },
-        plotOptions: {
-            pie: {
-                dataLabels: {
-                    enabled: true,
-                    distance: -50,
-                    style: {
-                        fontWeight: 'bold',
-                        color: 'white',
-                        textShadow: '0px 1px 2px black'
-                    }},
-                startAngle: -90,
-                endAngle: 90,
-                center: ['50%', '75%']
-            }},
-        series: [{
-            type: 'pie',
-            name: 'Disk',
-            innerSize: '50%',
-            data: [
-                ['Used', {{disk_usage}}],
-                ['Free', 100 - {{disk_usage}}],
-            ]
-        }]
-    });
     var socket = io('/{{ server.id|clean }}');
     socket.on('dmc', function(msg) {
         var data = msg.data;
-        // var cpu_system_last=['System', data.cpu_system_last];
-
         if (null != data.cpu_wait_last) {
-            var cpu_wait_last = ['Wait', data.cpu_wait_last];
-            var cpu_user_last = ['User', data.cpu_user_last];
-            var cpu_idle_last = ['Idle', 100 - (data.cpu_user_last + data.cpu_wait_last)];
-            var graph_data = [cpu_wait_last, cpu_user_last, cpu_idle_last];
-            var memory_percent_last = ['Used', data.memory_percent_last];
-            var free_memory_percent_last = ['Free', 100 - data.memory_percent_last];
-            var memory_data = [memory_percent_last, free_memory_percent_last]
-            chart_cpu.series[0].setData(graph_data, true);
-            chart_memory.series[0].setData(memory_data, true);
-            chart_cpu.redraw();
-            chart_memory.redraw();
+            cpu_system_chart.data('easyPieChart').update(data.cpu_system_last);
+            cpu_wait_chart.data('easyPieChart').update(data.cpu_wait_last);
+            cpu_user_chart.data('easyPieChart').update(data.cpu_user_last);
+            memory_usage_chart.data('easyPieChart').update(data.memory_percent_last);
         }
         if (null != data.fs_blocks_percent_last) {
-            var used_disk = ['Used' , data.fs_blocks_percent_last];
-            var free_disk = ['Free', 100 - data.fs_blocks_percent_last];
-            var graph_data = [used_disk, free_disk]
-            chart_disk.series[0].setData(graph_data, true);
-            chart_disk.redraw();
+                disk_usage_chart.data('easyPieChart').update(data.fs_blocks_percent_last);
             }
         }
     );
@@ -462,4 +267,4 @@ $(function() {
 
     </script>
     <script src="{% static 'js/server.js' %}"></script>
-  {% endblock customjs %}
+  {% endblock javascript %}

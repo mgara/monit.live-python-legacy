@@ -298,7 +298,7 @@
         drawPoints: false,
         isStacked: false,
         errorBars: false,
-        graph_colors: ["#1ab394", "#ed5565", "#f8ac59", "#1c84c6"],
+        graph_colors: ["#F44336", "#8BC34A", "#FF9800", "#673AB7"],
         ylabel: "Default",
         xlabel: "Date/Time",
         labels: [],

@@ -45,11 +45,11 @@
                                 <div class="row container top-buffer">
                                     <form class="form-horizontal" method="post">
                                         {% csrf_token %}
-                                        <div class="ibox float-e-margins">
-                                            <div class="ibox-title">
+                                        <div class="box float-e-margins">
+                                            <div class="box-title">
                                                 <h5>General</h5>
                                             </div>
-                                            <div class="ibox-content">
+                                            <div class="box-content">
                                                 <div class="form-group {% if form.general_auto_add_unknown_servers.errors %} has-error{% endif %}">
                                                     <div class="row ">
                                                         <div class="col-md-4 control-label">
@@ -83,11 +83,11 @@
                                             </div>
                                         </div>
 
-                                        <div class="ibox float-e-margins">
-                                            <div class="ibox-title">
+                                        <div class="box float-e-margins">
+                                            <div class="box-title">
                                                 <h5>Flapping Configuration</h5>
                                             </div>
-                                            <div class="ibox-content">
+                                            <div class="box-content">
 
                                                 <div class="form-group {% if form.flapping_threshold.errors %} has-error{% endif %}">
                                                     <div class="row">

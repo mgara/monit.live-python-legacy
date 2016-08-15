@@ -1,11 +1,15 @@
 @import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700");
 @import url("https://fonts.googleapis.com/css?family=Roboto:400,300,500,700");
+@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400italic,400,300");
 /*
  *
  *   INSPINIA - Responsive Admin Theme
  *   version 2.4
  *
 */
+body{
+  font-family: "Source Sans Pro", Calibri, Candara, Arial, sans-serif !important;
+}
 h1,
 h2,
 h3,
@@ -13,6 +17,7 @@ h4,
 h5,
 h6 {
   font-weight: 100;
+  font-family: "Source Sans Pro", Calibri, Candara, Arial, sans-serif !important;
 }
 h1 {
   font-size: 30px;
@@ -1037,7 +1042,7 @@ button.dim:active:before {
 .label {
   background-color: #d1dade;
   color: #5e5e5e;
-  font-family: 'Open Sans';
+  font-family: 'Source Sans Pro';
   font-size: 10px;
   font-weight: 600;
   padding: 3px 8px;
@@ -1046,7 +1051,7 @@ button.dim:active:before {
 .badge {
   background-color: #d1dade;
   color: #5e5e5e;
-  font-family: 'Open Sans';
+  font-family: 'Source Sans Pro';
   font-size: 11px;
   font-weight: 600;
   padding-bottom: 4px;
@@ -6537,7 +6542,7 @@ body.body-small .vote-icon {
 }
 body.landing-page {
   color: #676a6c;
-  font-family: 'Open Sans', helvetica, arial, sans-serif;
+  font-family: 'Source Sans Pro', helvetica, arial, sans-serif;
   background-color: #fff;
 }
 .landing-page {
@@ -6616,7 +6621,7 @@ body.landing-page {
 }
 .landing-page .navbar-default .nav li a {
   color: #fff;
-  font-family: 'Open Sans', helvetica, arial, sans-serif;
+  font-family: 'Source Sans Pro', helvetica, arial, sans-serif;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -7588,10 +7593,6 @@ body.skin-2 {
 .skin-2 .logo-element {
   padding: 17px 0;
 }
-.skin-2 .nav > li > a,
-.skin-2 .welcome-message {
-  color: #edf6ff;
-}
 .skin-2 #top-search::-moz-placeholder {
   color: #edf6ff;
   opacity: 0.5;
@@ -7800,6 +7801,157 @@ body.skin-3 {
 .skin-3 .nav.nav-tabs > li.active {
   background: transparent;
 }
+
+/*
+ *
+ *   SKIN 4 - INSPINIA - Responsive Admin Theme
+ *   NAME - Inspinia Ultra
+ *
+*/
+body.skin-4 {
+  color: #565758 !important;
+}
+.skin-4 .minimalize-styl-2 {
+  margin: 14px 5px 5px 25px;
+}
+.skin-4 .navbar-top-links li:last-child {
+  margin-right: 25px;
+}
+.skin-4 .spin-icon {
+  background: #23c6c8 !important;
+}
+.skin-4 .nav-header {
+  background: #23c6c8;
+  background: url('patterns/header-profile-skin-4.png');
+}
+.skin-4.mini-navbar .nav-second-level {
+  background: #ededed;
+}
+.skin-4 .breadcrumb {
+  background: transparent;
+}
+.skin-4.fixed-nav .minimalize-styl-2 {
+  margin: 14px 5px 5px 15px;
+}
+.skin-4 .page-heading {
+  border: none;
+  background: rgba(255, 255, 255, 0.7);
+}
+.skin-4 .nav > li.active {
+  background: #e0e0e0;
+}
+.skin-4 .logo-element {
+  padding: 17px 0;
+}
+.skin-4 .nav > li > a,
+.skin-4 .welcome-message {
+  color: #edf6ff;
+}
+.skin-4 #top-search::-moz-placeholder {
+  color: #edf6ff;
+  opacity: 0.5;
+}
+.skin-4 #side-menu > li > a,
+.skin-4 .nav.nav-second-level > li > a {
+  color: #586b7d;
+}
+.skin-4 .nav > li.active > a {
+  color: #213a53;
+}
+.skin-4.mini-navbar .nav-header {
+  background: #213a53;
+}
+.skin-4 .navbar-minimalize {
+  background: #23c6c8;
+  border-color: #23c6c8;
+}
+.skin-4 .border-bottom {
+  border-bottom: none !important;
+}
+.skin-4 #top-search {
+  color: #fff;
+}
+body.skin-4 #wrapper {
+  background-color: #ededed;
+}
+.skin-4 .navbar-static-top {
+  background: #213a53;
+}
+.fixed-nav.skin-4 .navbar-fixed-top {
+  background: #213a53;
+  border-bottom: none !important;
+}
+.skin-4 .nav-header {
+  padding: 30px 25px 30px 25px;
+}
+.skin-4 .dashboard-header {
+  background: rgba(255, 255, 255, 0.4);
+  border-bottom: none !important;
+  border-top: none;
+  padding: 20px 30px 20px 30px;
+}
+.skin-4 .wrapper-content {
+  padding: 30px 15px;
+}
+.skin-4 .dashoard-1 .wrapper-content {
+  padding: 0 30px 25px 30px;
+}
+.skin-4 .ibox-title {
+  background: rgba(255, 255, 255, 0.7);
+  border: none;
+  margin-bottom: 1px;
+}
+.skin-4 .ibox-content {
+  background: rgba(255, 255, 255, 0.4);
+  border: none !important;
+}
+.skin-4 #page-wrapper {
+  background: #f6f6f6;
+  background: -webkit-radial-gradient(center, ellipse cover, #f6f6f6 20%, #d5d5d5 100%);
+  background: -o-radial-gradient(center, ellipse cover, #f6f6f6 20%, #d5d5d5 100%);
+  background: -ms-radial-gradient(center, ellipse cover, #f6f6f6 20%, #d5d5d5 100%);
+  background: radial-gradient(ellipse at center, #f6f6f6 20%, #d5d5d5 100%);
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#f6f6f6, endColorstr=#d5d5d5)";
+}
+.skin-4 .ibox-title,
+.skin-4 .ibox-content {
+  border-width: 1px;
+}
+.skin-4 .ibox-content:last-child {
+  border-style: solid solid solid solid;
+}
+.skin-4 .nav > li.active {
+  border: none;
+}
+.skin-4 .nav-header a.dropdown-toggle {
+  color: #edf6ff;
+  margin-top: 10px;
+}
+.skin-4 .nav-header a.dropdown-toggle .text-muted {
+  color: #edf6ff;
+  opacity: 0.8;
+}
+.skin-4 .img-circle {
+  border-radius: 10px;
+}
+.skin-4 .nav.navbar-top-links > li > a:hover,
+.skin-4 .nav.navbar-top-links > li > a:focus {
+  background: #1a2d41;
+}
+.skin-4 .navbar-default .nav > li > a:hover,
+.skin-4 .navbar-default .nav > li > a:focus {
+  background: #e0e0e0;
+  color: #213a53;
+}
+.skin-4 .nav.nav-tabs > li.active > a {
+  color: #555;
+}
+.skin-4 .nav.nav-tabs > li.active {
+  background: transparent;
+}
+
+
+
 body.md-skin {
   font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
   background-color: #ffffff;

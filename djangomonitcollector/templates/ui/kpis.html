@@ -48,42 +48,44 @@
 </div>
   <div class="row clearfix top-buffer">
 
-    <div class="ibox float-e-margins ui-draggable ui-droppable">
-       <div class="ibox-title"> <h5>System Load</h5>
-            <div class="ibox-tools">
+    <div class="box float-e-margins ui-draggable ui-droppable">
+       <div class="box-title"> <h5>System Load</h5>
+            <div class="box-tools">
                 <a class="collapse-link">
                     <i class="fa fa-chevron-up"></i>
                 </a>
             </div>
        </div>
-       <div class="ibox-content">
+       <div class="box-content">
             <div id="graph_load" class="graph" style="width:100%;">
 
             </div>
           </div>
     </div>
 
-   <div class="ibox float-e-margins ui-draggable ui-droppable">
-   <div class="ibox-title"> <h5>CPU Usage</h5>
-        <div class="ibox-tools">
+   <div class="box float-e-margins ui-draggable ui-droppable">
+   <div class="box-title"> <h5>CPU Usage</h5>
+        <div class="box-tools">
         <a class="collapse-link">
             <i class="fa fa-chevron-up"></i>
         </a>
     </div>
    </div>
-   <div class="ibox-content">
+   <div class="box-content">
         <div id="graph_cpu" class="graph" style="width:100%;"></div>
         </div>
       </div>
-   <div class="ibox float-e-margins ui-draggable ui-droppable">
-   <div class="ibox-title"> <h5>System Memory</h5>
-        <div class="ibox-tools">
+
+
+   <div class="box float-e-margins ui-draggable ui-droppable">
+   <div class="box-title"> <h5>System Memory</h5>
+        <div class="box-tools">
         <a class="collapse-link">
             <i class="fa fa-chevron-up"></i>
         </a>
     </div>
    </div>
-   <div class="ibox-content">
+   <div class="box-content">
         <div id="graph_mem" class="graph" style="width:100%;"></div>
         </div>
       </div>
@@ -130,16 +132,16 @@
   })
 </script>
     {% for nic in server.net_set.all %}
-       <div class="ibox float-e-margins ui-draggable ui-droppable">
+       <div class="box float-e-margins ui-draggable ui-droppable">
 
-   <div class="ibox-title"> <h5> Network traffic: <b class="text-info">{{nic.name}}</b></h5>
-        <div class="ibox-tools">
+   <div class="box-title"> <h5> Network traffic: <b class="text-info">{{nic.name}}</b></h5>
+        <div class="box-tools">
         <a class="collapse-link">
             <i class="fa fa-chevron-up"></i>
         </a>
     </div>
    </div>
-   <div class="ibox-content">
+   <div class="box-content">
         <div id="network_graph_packets_{{nic.name}}" class="graph" style="width:100%;">
 
         </div>
@@ -198,16 +200,16 @@
 },writable:false,enumerable:false});
     </script>
     {% for fs in server.filesystem_set.all %}
-       <div class="ibox float-e-margins ui-draggable ui-droppable">
+       <div class="box float-e-margins ui-draggable ui-droppable">
 
-   <div class="ibox-title"> <h5> Filesystem Usage: <b class="text-info">{{fs.display_name}}</b></h5>
-        <div class="ibox-tools">
+   <div class="box-title"> <h5> Filesystem Usage: <b class="text-info">{{fs.display_name}}</b></h5>
+        <div class="box-tools">
         <a class="collapse-link">
             <i class="fa fa-chevron-up"></i>
         </a>
     </div>
    </div>
-   <div class="ibox-content">
+   <div class="box-content">
         <div id="fs_graph_blocks_usage_{{fs.name}}" class="graph" style="width:100%;">
 
         </div>
@@ -238,7 +240,6 @@
           });
 
 
-        $(function(){
          $("#fs_graph_blocks_usage_{{fs.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.fs.{{fs.name}}.blocks_usage', 'Usage'],
@@ -248,9 +249,7 @@
             valueRange: [0,{{fs.blocks_total}}],
             sync: gs
           });
-       });
 
-        $(function(){
          $("#fs_graph_inode_percent_{{fs.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.fs.{{fs.name}}.inode_percent', 'Inodes %'],
@@ -261,9 +260,8 @@
             labelsKMB : false,
             sync: gs
           });
-       });
 
-        $(function(){
+
          $("#fs_graph_inode_usage_{{fs.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.fs.{{fs.name}}.inode_usage', 'Inodes'],
@@ -273,7 +271,6 @@
             valueRange: [0,null],
             sync: gs
           });
-       });
      });
       </script>
     {% endfor %}
@@ -314,12 +311,6 @@
           {% else %}
     var dst_delta= 0 // 1h
         {% endif %}
-/*
-    var sync = Dygraph.synchronize(gs, {
-          range: false,
-          selection:true,
-        });
-*/
 
     $("#periods :input").change(function() {
         active = $(this).parent().hasClass("active")
@@ -337,7 +328,7 @@
                error: function(xhr, errmsg, err) {
 
                   if ($('#results').length){
-                       $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                       $('#results').html("<div class='alert-box alert radius' data-alert> Oops! We have encountered an error: " + errmsg +
                        " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
                   }
 
@@ -349,6 +340,7 @@
 
     var hashTagActive = "";
     $(".scroll").click(function (event) {
+
         if(hashTagActive != this.hash) { //this will prevent if the user click several times the same link to freeze the scroll.
             event.preventDefault();
             //calculate destination place
@@ -364,6 +356,7 @@
             }, 200, 'swing');
             hashTagActive = this.hash;
         }
+
     });
 
 });

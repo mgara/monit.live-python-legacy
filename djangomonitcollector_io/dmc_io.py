@@ -26,7 +26,6 @@ FILENAME = '../logs/kairos_io.log'
 FORMAT = '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
 
 
-
 @app.route('/<path:url>', methods=['GET', 'POST', 'DELETE'])
 def route(url):
     global logger
@@ -191,6 +190,7 @@ if __name__ == "__main__":
     logger.info("Started Monit Collector IO")
     host = options.host
     port = options.port
+
     global BROKER_URL
     BROKER_URL = options.broker_url
     run(host, port)

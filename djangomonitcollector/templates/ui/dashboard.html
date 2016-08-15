@@ -1,54 +1,155 @@
 {% extends "base.html" %}
-{% load i18n %}
 {% load staticfiles %}
+{% load  i18n %}
+{% load extra_tags %}
 {% block title %}Dashboard{% endblock %}
 {% block page_title %} Dashboard {% endblock %}
-{% block head %}
-    <link href="{% static 'css/plugins/chosen/chosen.css' %}" rel="stylesheet">
-    <link href="{% static 'css/plugins/ladda/ladda-themeless.min.css' %}" rel="stylesheet">
+{% block css %}
+  <link href="{% static 'vendors/bower_components/bootstrap-select/dist/css/bootstrap-select.css' %}" rel="stylesheet">
+  <link href="{% static 'vendors/bower_components/chosen/chosen.css' %}" rel="stylesheet">
+  <link href="{% static 'css/plugins/ladda/ladda-themeless.min.css' %}" rel="stylesheet">
+
+
 {% endblock %}
 {% block content %}
-  <div class="container">
 
-  <div class="widget style1">
-  <div class="col-lg-2"></div>
-   <select  data-placeholder="Display Filter..."  class="col-lg-6 chosen-select" multiple="">
-            {% for hg in all_hgs %}
-              <option value="{{hg.id}}">{{hg.slug}}</option>
-            {% endfor %}
 
-            </select>
-            <button class="ladda-button btn btn-primary"  data-style="zoom-in"><i class="fa fa-filter"></i></button>
-</div>
+<div class="card">
+  <div class="card-header">
+    <h2>Filter</h2>
   </div>
-  <div class="row">
 
-      <div class="hr-line-dashed"></div>
-        <p>
-          <div class="ibox float-e-margins p-a-2">
-            <div class="ibox-title">
-              <h5>Active Instances</h5>
-            </div>
-            <div class="ibox-content">
-              {% include 'ui/includes/dashboard_table.html' %}
-            </div>
-          </div>
-        </p>
-
-      {%  if error %}
-        <p class="alert alert-danger">{{ error }}</p>
-      {% endif %}
-
-
+  <div class="card-body">
+    <div class="select-container">
+    <select  data-placeholder="Display Filter..."  class="col-lg-6 chosen-select" multiple="">
+      {% for hg in all_hgs %}
+        <option value="{{hg.id}}">{{hg.slug}}</option>
+      {% endfor %}
+    </select>
+    <button class="ladda-button btn btn-default hec-button waves-effect"  data-style="zoom-in"><i class="fa fa-filter"></i></button>
+  </div>
+  </div>
 </div>
+
+
+<div class="card">
+
+        <div class="card-header">
+          <h2>Active Instances</h2>
+        </div>
+        <div class="card-body">
+          <div id="dashboard_table" class="table-responsive ">
+            {% if user_has_hgs %}
+              <table class="table table-inner table-vmiddle" width="100%"  border="0" cellspacing="0" cellpadding="0">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th >{% trans 'Hostname' %}</th>
+                    <th >{% trans 'Address' %}</th>
+                    <th >{% trans 'Monit version' %}</th>
+                    <th >{% trans 'Uptime' %}</th>
+                    <th >{% trans 'Load avgerages' %}</th>
+                    <th >{% trans 'CPU (user)' %}</th>
+                    <th >{% trans 'Memory' %}</th>
+                    <th >{% trans 'Last data received' %}</th>
+                    <th class="text-center"><i class="fa fa-bell"></i></th>
+                    <th class="text-center"><i class="fa fa-gears"></i></th>
+                    <th class="text-center"><i class="fa fa-wrench"></i></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for hg in hgs %}
+                    <tr>
+                      <td colspan="12" class="td-hg">
+                        <h5 class="capitalize"> Host Group : <span class="text-green">{{ hg }}</span></h5>
+                      </td>
+                    </tr>
+                    {% for server in servers %}
+                      {% if hg == server.host_group %}
+                        {% if not monitoring_enabled  %}
+                          {% include "ui/includes/_dashboard_server_row.html" %}
+                        {% else %}
+                          <tr>
+                            <td></td>
+                            <td>{{ server.localhostname }}</td>
+                            <td>{{ server.address }}</td>
+                            <td>{{ server.monit_version }}</td>
+                            <td>{{ server.uptime|time_str }}</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td><span class="label label-{{ server.system.date_last|time_class }}">{{ server.system.date_last|timestamp_to_date}} </span>
+                            <td><span class="label label-danger"> New Server Detected</span></a></td>
+                            <td>-</td>
+                            <td><a class="btn btn-xs btn-primary" href="{% url 'ui:server_show' server.id %}"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a></td>
+                          </tr>
+                        {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  {% endfor %}
+                </tbody>
+                <tfoot>
+                <tr>
+                  <th></th>
+                  <th>Hostname</th>
+                  <th>Address</th>
+                  <th>Monit version</th>
+                  <th>Uptime</th>
+                  <th>Load avgerages</th>
+                  <th>CPU (user)</th>
+                  <th>Memory</th>
+                  <th>Last data received</th>
+                  <th class="text-center"><i class="fa fa-bell"></i></th>
+                  <th class="text-center"><i class="fa fa-gears"></i></th>
+                  <th class="text-center"><i class="fa fa-wrench"></i></th>
+                </tr>
+                </tfoot>
+              </table>
+            {% else %}
+              <p>
+                <h2 class="text-center"><span class="text-navy">{% trans " There are no instances configured Yet" %}</span></h2>
+                <h2 class="text-center"><span class="text-navy">{% trans " :( " %}</span></h2>
+              </p>
+            {% endif %}
+          </div>
+          <script>
+          $(document).ready(function() {
+   $('[data-toggle="tooltip"]').tooltip();
+
+   $('.btn-toggle-info').click(function(e){
+        e.stopPropagation();
+        var target = $(this).attr("data-href")
+        var tr = $("#"+target)
+        var td = tr.children('td')
+        console.log(tr.css('height'))
+        console.log(tr.css('top'))
+        var div = td.children('div .server-data')
+        if(div.is(":hidden"))
+        {
+            $(this).children().removeClass('fa-arrow-circle-down');
+            $(this).children().addClass('fa-arrow-circle-up');
+            div.slideDown(100)
+        }else
+        {
+            $(this).children().removeClass('fa-arrow-circle-up');
+            $(this).children().addClass('fa-arrow-circle-down');
+            div.slideUp(100)
+        }
+   })
+});
+          </script>
+        </div> <!-- card body -->
+
+      </div> <!-- card -->
+  {%  if error %}
+  <p class="alert alert-danger">{{ error }}</p>
+{% endif %}
 <script src="{% static 'js/jquery-2.1.4.min.js'%}"></script>
 <script src="{% static 'js/csrf.js'%}"></script>
 <script src="{% static 'js/plugins/chosen/chosen.jquery.js' %}"></script>
-
 <script src="{% static 'js/plugins/ladda/spin.min.js'%}"></script>
 <script src="{% static 'js/plugins/ladda/ladda.min.js'%}"></script>
 <script src="{% static 'js/plugins/ladda/ladda.jquery.min.js' %}"></script>
-
 <script>
 $(document).ready(function () {
 

@@ -32,16 +32,16 @@
 {% block content %}
                 {% autopaginate filter.qs 10 as filter_list %}
 
-            <div class="ibox float-e-margins" id="ibox_filter">
-            <div class="ibox-title">
+            <div class="box float-e-margins" id="box_filter">
+            <div class="box-title">
                     <h5>Filter details </h5> <span id="filter-details" class="label label-danger"></span>
-                    <div class="ibox-tools">
+                    <div class="box-tools">
                         <a class="collapse-link">
                             <i class="fa fa-chevron-up"></i>
                         </a>
                     </div>
                 </div>
-                <div class="ibox-content" id="filter_properties">
+                <div class="box-content" id="filter_properties">
                     <div class="row">
                        <form  action="" method="get">
                            <div class="col-md-12">
@@ -100,8 +100,8 @@
                  {% bootstrap_paginate page_obj range=10 show_prev_next="true" show_first_last="true" %}
 </div>
 
-            <div class="ibox float-e-margins">
-                <div class="ibox-content">
+            <div class="box float-e-margins">
+                <div class="box-content">
                     <div class="table-responsive">
                         <table class="table table-striped table-bordered table-hover" id="event_table">
                             <thead>
@@ -247,16 +247,16 @@
             // none = Displayed
             // block = Hidden (yes it's flipped)
             if (style== "none")
-                localStorage.setItem("ibox-collapsed",'on');
+                localStorage.setItem("box-collapsed",'on');
             else
-                localStorage.setItem("ibox-collapsed",'off');
+                localStorage.setItem("box-collapsed",'off');
         })
 
         if (localStorageSupport){
-            ibox_status = localStorage.getItem("ibox-collapsed")
-            if (ibox_status=="off"){
+            box_status = localStorage.getItem("box-collapsed")
+            if (box_status=="off"){
                 $("#filter_properties").css("display", "none");
-                $("#ibox_filter").addClass('border-bottom')
+                $("#box_filter").addClass('border-bottom')
             }
         }
 
@@ -305,7 +305,7 @@
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
-    var ibox_header = ""
+    var box_header = ""
     var event_type = getParameterByName('event_type'); // "lorem"
     var event_id = getParameterByName('event_id'); // "" (present with empty value)
     var event_state = getParameterByName('event_state'); // "" (present with no value)
@@ -316,31 +316,31 @@
 
 
     if(server){
-        ibox_header += " | Server :  <b>"+ $('#id_server option:selected').html()+"</b>"
+        box_header += " | Server :  <b>"+ $('#id_server option:selected').html()+"</b>"
     }
     if(event_type){
-        ibox_header += " | Event type :  <b>"+ $('#id_event_type option:selected').html()+"</b>"
+        box_header += " | Event type :  <b>"+ $('#id_event_type option:selected').html()+"</b>"
     }
     if(event_id){
-        ibox_header += " | Event ID :  <b>"+ $('#id_event_id option:selected').html()+"</b>"
+        box_header += " | Event ID :  <b>"+ $('#id_event_id option:selected').html()+"</b>"
     }
     if(event_state){
-        ibox_header += " | Event State :  <b>"+ $('#id_event_state option:selected').html()+"</b>"
+        box_header += " | Event State :  <b>"+ $('#id_event_state option:selected').html()+"</b>"
     }
     if(event_message){
-        ibox_header += " | Event Message contains  <b>'"+ $('#id_event_message').val()+"'</b>"
+        box_header += " | Event Message contains  <b>'"+ $('#id_event_message').val()+"'</b>"
     }
     if(alarm_raised){
         var val = $('#id_alarm_raised option:selected').html()
         if (val!="Unknown")
-            ibox_header += " | Is Raised? : "+val
+            box_header += " | Is Raised? : "+val
     }
     if(is_ack){
         var val = $('#id_is_ack option:selected').html()
         if (val!="Unknown")
-            ibox_header += " | Is Acknowledged ? : <b>"+ $('#id_is_ack option:selected').html()+"</b>"
+            box_header += " | Is Acknowledged ? : <b>"+ $('#id_is_ack option:selected').html()+"</b>"
     }
-    $('#filter-details').html(ibox_header)
+    $('#filter-details').html(box_header)
 });
 
 
