@@ -1,0 +1,71 @@
+{% load  i18n %}
+{% load extra_tags %}
+{% if request.user.is_authenticated %}
+  {% if not request.user.is_superuser %}
+    <li class="dropdown">
+      <a data-toggle="dropdown" href="">
+        <i class="him-icon zmdi zmdi-notifications"></i>
+        <i class="him-counts"><span id="notification_count"></span></i>
+      </a>
+      <div class="dropdown-menu dropdown-menu-lg pull-right">
+        <div class="list-group list-group-light him-notification">
+          <div class="lg-header">
+            Notification
+            <ul class="actions">
+              <li class="dropdown">
+                <a href="" data-ma-action="clear-notification">
+                  <i class="zmdi zmdi-check-all"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="lg-body">
+            <a class="list-group-item media" href="">
+              <div class="pull-left">
+                <img class="lgi-img" src="" alt="">
+              </div>
+              <div class="media-body">
+                <div class="lgi-heading">David Belle</div>
+                <small class="lgi-text">Cum sociis natoque penatibus et magnis dis parturient montes</small>
+              </div>
+            </a>
+          </div>
+          <a class="view-more view-more-light" href="{% url 'ui:intellievent' %}">View all</a>
+        </div>
+      </div>
+    </li>
+    {% if  request.user.organisation.server_set|get_server_len > 0 %}
+      <li class="dropdown">
+        <a class="dropdown-toggle " data-toggle="dropdown" role="button" aria-haspopup="true"
+          aria-expanded="false"><i class="fa fa-server"></i><span class="him-label">{% trans 'Servers / Instances' %}</span><span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            {% for server in request.user.organisation.server_set.all %}
+              <li><a href="{% url 'ui:server' server.id %}"> {{ server.localhostname }}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endif %}
+      <li class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+          aria-expanded="false"><i class="fa fa-bell"></i><span class="him-label">{% trans "Notifications Center" %}</span><span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="{% url 'n:notificationtype_list' %}"> {% trans "Manage Notifications" %}</a></li>
+            <li><a href="{% url 'n:notificationtype_create' %}"> {% trans "New Notification" %}</a></li>
+          </ul>
+        </li>
+        {% if request.user.organisation_manager %}
+          <li >
+            <a class="nav-link"
+              href="{% url 'ui:settings_update' request.user.organisation.settings.id %}"><i class="fa fa-wrench"></i><span class="him-label">{% trans "Settings" %}</span></a>
+            </li>
+          {% endif %}
+        {% endif %}
+      {% else %}
+        <li >
+          <a id="sign-up-link" class="nav-link"
+            href="{% url 'account_signup' %}"><span class="him-label">{% trans "Sign Up" %}</span></a>
+          </li>
+          <li >
+            <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}"><span class="him-label">{% trans "Log In" %}</span></a>
+          </li>
+        {% endif %}
