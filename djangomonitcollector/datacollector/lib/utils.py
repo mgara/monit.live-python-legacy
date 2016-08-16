@@ -44,8 +44,10 @@ def get_value(xmldoc, parent_element="", child_element="", attribute=""):
         elif parent_element == "":
             element = xmldoc
         elif child_element == "":
-            # first index, because there could be multiple Elements with that tag, second index because there could be multiple childNodes
-            element = xmldoc.getElementsByTagName(parent_element)[0].childNodes[0]
+            # first index, because there could be multiple Elements with that
+            # tag, second index because there could be multiple childNodes
+            element = xmldoc.getElementsByTagName(
+                parent_element)[0].childNodes[0]
         else:
             element = xmldoc.getElementsByTagName(parent_element)[0].getElementsByTagName(child_element)[0].childNodes[
                 0]
@@ -54,7 +56,8 @@ def get_value(xmldoc, parent_element="", child_element="", attribute=""):
         else:
             return element.attributes[attribute].value
     except:
-        # monit sometimes does not pass cpu/memory info (e.g. if it sends event messages), so we have to filter it
+        # monit sometimes does not pass cpu/memory info (e.g. if it sends event
+        # messages), so we have to filter it
         return "none"
 
 
@@ -64,8 +67,10 @@ def json_list_append(json_list, value):
         new_list.append(value)
     except:
         new_list = [value]
-    # maximum allowed table size, if monit reports every monite, this stores data for one week
-    maximum_table_length = int(maximum_store_days * 24. * 60. * 60. / monit_update_period)
+    # maximum allowed table size, if monit reports every monite, this stores
+    # data for one week
+    maximum_table_length = int(
+        maximum_store_days * 24. * 60. * 60. / monit_update_period)
     # just remove the first one, should be better in future
     if len(new_list) > maximum_table_length:
         new_list = new_list[-int(maximum_table_length):]

@@ -18,6 +18,7 @@ from django.template import defaultfilters
 from django.template.loader import render_to_string
 from django.core import serializers
 
+
 def check_item(item, string_list_of_items):
     if not string_list_of_items.strip():
         return True
@@ -182,7 +183,8 @@ def get_notification_plugin_form(request):
                 extra_params_values = ast.literal_eval(NotificationType.objects.get(
                     id=notification_type_id).notification_plugin_extra_params)
 
-        k, extra_params, klass_obj = get_class_name_and_extra_params(plugin_name.lower())
+        k, extra_params, klass_obj = get_class_name_and_extra_params(
+            plugin_name.lower())
         output = ""
 
         if is_update_form:
@@ -276,7 +278,7 @@ def get_event_details(request):
     monit_event = MonitEvent.objects.get(pk=event_id)
 
     html = render_to_string(
-        'ui/includes/_event_details.html', {'monit_event': monit_event, 'current_user': request.user, 'comments':comments})
+        'ui/includes/_event_details.html', {'monit_event': monit_event, 'current_user': request.user, 'comments': comments})
     return JsonResponse(html, safe=False)
 
 
@@ -292,7 +294,7 @@ def get_event_row(request):
 
 
 def remove_unicode_u(unicode_string):
-    no_unicode =  unicode_string.replace("u\'", "'").replace("u\"", '"')
+    no_unicode = unicode_string.replace("u\'", "'").replace("u\"", '"')
     convert_single_quotes = no_unicode.replace('\'', '"')
     print convert_single_quotes
     return convert_single_quotes
@@ -306,13 +308,17 @@ def get_notification_details(request):
     #  I had to do this because I need the string to
     #  be clean on the javascript side as I'm parsing the array to JSON.
     if notification.notification_type:
-        notification.notification_type = remove_unicode_u(notification.notification_type)
+        notification.notification_type = remove_unicode_u(
+            notification.notification_type)
     if notification.notification_service:
-        notification.notification_service = remove_unicode_u(notification.notification_service)
+        notification.notification_service = remove_unicode_u(
+            notification.notification_service)
     if notification.notification_action:
-        notification.notification_action = remove_unicode_u(notification.notification_action)
+        notification.notification_action = remove_unicode_u(
+            notification.notification_action)
     if notification.notification_state:
-        notification.notification_state = remove_unicode_u(notification.notification_state)
+        notification.notification_state = remove_unicode_u(
+            notification.notification_state)
 
     data = serializers.serialize("json", [notification, ])
     return JsonResponse(data, safe=False)
@@ -338,7 +344,7 @@ def postcomment(request):
                 current_user,
                 monit_event,
                 comment
-                )
+            )
         elif action == "update":
             comment_obj = MonitEventComment.objects.get(pk=int(comment_id))
             comment_obj.content = comment
@@ -347,7 +353,8 @@ def postcomment(request):
             comment_obj = MonitEventComment.objects.get(pk=int(comment_id))
             comment_obj.delete()
 
-        comments_count = MonitEventComment.objects.filter(event= monit_event).count()
+        comments_count = MonitEventComment.objects.filter(
+            event=monit_event).count()
         res = {
             'code': 200,
             'error_id': 0,
@@ -384,10 +391,9 @@ def get_comment_html(comment, user):
                              {4}\
                             </div>\
                         </div>".format(
-                            comment.id,
-                            defaultfilters.title(comment.user),
-                            defaultfilters.date(comment.created_at),
-                            comment.content,
-                            toolbox
-                            )
-
+        comment.id,
+        defaultfilters.title(comment.user),
+        defaultfilters.date(comment.created_at),
+        comment.content,
+        toolbox
+    )

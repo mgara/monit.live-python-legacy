@@ -50,7 +50,8 @@ class EventSettingsInterface(object):
         self.event = event_object
         self.server = self.event.server.localhostname
         self.event_service = self.event.service
-        self.service_name = self.event_service.name.replace('___', '/').replace('__', '_').replace('_', '/')
+        self.service_name = self.event_service.name.replace(
+            '___', '/').replace('__', '_').replace('_', '/')
         self.event_message = self.event.event_message
 
         self.event_type_id = int(self.event.event_type)

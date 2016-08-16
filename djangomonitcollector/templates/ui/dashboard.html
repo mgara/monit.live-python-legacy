@@ -14,30 +14,18 @@
 {% block content %}
 
 
-<div class="card">
-  <div class="card-header">
-    <h2>Filter</h2>
-  </div>
-
-  <div class="card-body">
-    <div class="select-container">
+  {% include "ui/includes/_widget.html" with caption="Filter"  %}
     <select  data-placeholder="Display Filter..."  class="col-lg-6 chosen-select" multiple="">
       {% for hg in all_hgs %}
         <option value="{{hg.id}}">{{hg.slug}}</option>
       {% endfor %}
     </select>
     <button class="ladda-button btn btn-default hec-button waves-effect"  data-style="zoom-in"><i class="fa fa-filter"></i></button>
-  </div>
-  </div>
-</div>
+  {% include "ui/includes/_end_widget.html" %}
 
 
-<div class="card">
+  {% include "ui/includes/_widget.html" with caption="Active Instances"  %}
 
-        <div class="card-header">
-          <h2>Active Instances</h2>
-        </div>
-        <div class="card-body  card-padding">
           <div id="dashboard_table" class="table-responsive ">
             {% if user_has_hgs %}
               <table class="table table-inner table-vmiddle" width="100%"  border="0" cellspacing="0" cellpadding="0">
@@ -138,9 +126,8 @@
    })
 });
           </script>
-        </div> <!-- card body -->
+  {% include "ui/includes/_end_widget.html" %}
 
-      </div> <!-- card -->
   {%  if error %}
   <p class="alert alert-danger">{{ error }}</p>
 {% endif %}

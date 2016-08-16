@@ -15,7 +15,8 @@ class Program(Service):
     @classmethod
     def update(cls, xmldoc, server, service):
         service_name = get_value(service, "", "", "name")
-        program, created = cls.objects.get_or_create(server=server, name=service_name)
+        program, created = cls.objects.get_or_create(
+            server=server, name=service_name)
         program.status = get_value(service, "status", "")
         program.service_type = get_value(service, "type", "")
         program.status_hint = get_value(service, "status_hint", "")

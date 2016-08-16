@@ -15,6 +15,8 @@
         <link href="{% static 'vendors/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css' %}" rel="stylesheet">
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+        <link href="{% static 'vendors/bower_components/chosen/chosen.css' %}" rel="stylesheet">
+
 
         <!-- CSS -->
 
@@ -163,15 +165,6 @@
 
 {% include "ui/_footer.html" %}
    <!-- Page Loader -->
-        <div class="page-loader">
-            <div class="preloader pls-white">
-                <svg class="pl-circular" viewBox="25 25 50 50">
-                    <circle class="plc-path" cx="50" cy="50" r="20" />
-                </svg>
-
-                <p>Please wait...</p>
-            </div>
-        </div>
 
 
         <!-- Older IE warning message -->
@@ -219,17 +212,15 @@
 
         <!-- Javascript Libraries -->
         <script src="{% static 'vendors/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
-        <script src="{% static 'vendors/bower_components/flot.curvedlines/curvedLines.js' %}"></script>
         <script src="{% static 'vendors/sparklines/jquery.sparkline.min.js' %}"></script>
         <script src="{% static 'vendors/bower_components/jquery.easy-pie-chart/dist/jquery.easypiechart.min.js' %}"></script>
         <script src="{% static 'vendors/bower_components/moment/min/moment.min.js' %}"></script>
         <script src="{% static 'vendors/bower_components/fullcalendar/dist/fullcalendar.min.js' %}"></script>
         <script src="{% static 'vendors/bower_components/simpleWeather/jquery.simpleWeather.min.js' %}"></script>
         <script src="{% static 'vendors/bower_components/Waves/dist/waves.min.js' %}"></script>
-        <script src="{% static 'vendors/bootstrap-growl/bootstrap-growl.min.js' %}"></script>
         <script src="{% static 'vendors/bower_components/sweetalert/dist/sweetalert.min.js' %}"></script>
         <script src="{% static 'vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js' %}"></script>
-
+            <script src="{% static 'vendors/bower_components/chosen/chosen.jquery.js' %}"></script>
         <!-- Placeholder for IE9 -->
         <!--[if IE 9 ]>
             <script src="{% static 'vendors/bower_components/jquery-placeholder/jquery.placeholder.min.js' %}"></script>

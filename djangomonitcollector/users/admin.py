@@ -10,6 +10,7 @@ from .models import User
 
 
 class MyUserChangeForm(UserChangeForm):
+
     class Meta(UserChangeForm.Meta):
         model = User
 

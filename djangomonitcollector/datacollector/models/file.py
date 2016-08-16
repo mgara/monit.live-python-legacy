@@ -15,7 +15,8 @@ class File(Service):
     @classmethod
     def update(cls, xmldoc, server, service):
         filename = get_value(service, "", "", "name")
-        file_, created = cls.objects.get_or_create(server=server, name=filename)
+        file_, created = cls.objects.get_or_create(
+            server=server, name=filename)
         file_.name = filename
         file_.status = get_value(service, "status", "")
         file_.status_hint = get_value(service, "status_hint", "")

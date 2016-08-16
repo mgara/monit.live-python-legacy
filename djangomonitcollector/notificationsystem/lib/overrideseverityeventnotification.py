@@ -5,7 +5,7 @@ from parameter import Parameter
 SEVERITY = (
     (10, "Info"),
     (11, "Critical"),
-    )
+)
 
 
 class OverrideSeverityEventNotification(EventSettingsInterface):

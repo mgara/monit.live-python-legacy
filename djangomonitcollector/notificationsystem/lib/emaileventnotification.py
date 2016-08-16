@@ -20,11 +20,11 @@ class EmailEventNotification(EventSettingsInterface):
         subjet_prefix = self.extra_params['subjet_prefix']
         to = self.extra_params['to']
         subject = "{0}:[{1}] on [{4}/{2}] action [{3}]".format(
-                subjet_prefix,
-                self.event_id,
-                self.event_service,
-                self.event_action,
-                self.server
+            subjet_prefix,
+            self.event_id,
+            self.event_service,
+            self.event_action,
+            self.server
         )
 
         send_mail(subject, "{0}".format(self.get_event_summary()), 'kairos@mgara.com',

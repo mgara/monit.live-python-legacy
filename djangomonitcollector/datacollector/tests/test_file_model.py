@@ -4,6 +4,7 @@ from ..models import File
 import factories
 import factory
 
+
 class TestFileModel(TestCase):
 
     def setUp(self):

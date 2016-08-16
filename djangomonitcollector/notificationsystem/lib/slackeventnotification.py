@@ -23,7 +23,8 @@ class SlackEventNotification(EventSettingsInterface):
         slack_channel = self.extra_params['slack_channel']
         monit_collector_server = self.extra_params['monit_collector_server']
 
-        link_to_events = "http://{}/ui/server/{}/".format(monit_collector_server,self.event.server.id)
+        link_to_events = "http://{}/ui/server/{}/".format(
+            monit_collector_server, self.event.server.id)
         title = "[{0} event] on [{2}] service [{1}] ".format(
                 self.event_id,
                 self.event_service,
@@ -35,7 +36,8 @@ class SlackEventNotification(EventSettingsInterface):
         slack = Slacker(slack_api_token)
 
         # Send a message to #general channel
-        slack.chat.post_message(slack_channel, "",username="Monit Collector" , attachments=attachments)
+        slack.chat.post_message(
+            slack_channel, "", username="Monit Collector", attachments=attachments)
 
     def finalize(self, event_object):
         # put whatever you want to be done after the process command

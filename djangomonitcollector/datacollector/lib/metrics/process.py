@@ -57,15 +57,18 @@ class MemoryCPUProcessMetrics(object):
     def to_elasticsearch(self):
         _doc = dict()
         _doc['timestamp'] = self.metric.date_last
-        _doc['{}_process_{}_cpu_percent'.format(self.server_name, self.process_name)] = self.metric.cpu_percent
-        _doc['{}_process_{}_memory_percent'.format(self.server_name, self.process_name)] = self.metric.memory_percent
-        _doc['{}_process_{}_memory_kilobyte'.format(self.server_name, self.process_name)] = self.metric.memory_kilobyte
+        _doc['{}_process_{}_cpu_percent'.format(
+            self.server_name, self.process_name)] = self.metric.cpu_percent
+        _doc['{}_process_{}_memory_percent'.format(
+            self.server_name, self.process_name)] = self.metric.memory_percent
+        _doc['{}_process_{}_memory_kilobyte'.format(
+            self.server_name, self.process_name)] = self.metric.memory_kilobyte
 
         publish_to_elasticsearch(
             "monit",
             "process-stats",
             _doc
-            )
+        )
 
     def to_broker(self):
         pass

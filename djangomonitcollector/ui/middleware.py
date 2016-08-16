@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 
 class TimezoneMiddleware(object):
+
     def process_request(self, request):
         try:
             tzname = request.user.user_timezone

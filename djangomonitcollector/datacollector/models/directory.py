@@ -13,7 +13,8 @@ class Directory(Service):
     @classmethod
     def update(cls, xmldoc, server, service):
         directory_name = get_value(service, "", "", "name")
-        directory, created = cls.objects.get_or_create(server=server, name=directory_name)
+        directory, created = cls.objects.get_or_create(
+            server=server, name=directory_name)
         directory.name = directory_name
         directory.status = get_value(service, "status", "")
         directory.status_hint = get_value(service, "status_hint", "")

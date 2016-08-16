@@ -107,12 +107,13 @@ def collect_data(xml_str, ck, ip_addr, host_group):
     return True, "OK"
 
 
-
 #  API Calls
 
 '''
 Entry point for the collector
 '''
+
+
 @csrf_exempt
 def collector(request, collector_key, host_group=None):
 
@@ -123,7 +124,8 @@ def collector(request, collector_key, host_group=None):
     ip_addr = get_client_ip(request)
 
     try:
-        collected, status = collect_data(data, collector_key, ip_addr, host_group)
+        collected, status = collect_data(
+            data, collector_key, ip_addr, host_group)
     except CollectorKeyError as e:
         collected = False
         status = e.message

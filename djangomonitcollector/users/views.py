@@ -42,7 +42,8 @@ class UserListView(LoginRequiredMixin, ListView):
         else:
             if user.organisation_manager:
                 org = user.organisation
-                # if the user is an organization manager, return all users that are not superusers.
+                # if the user is an organization manager, return all users that
+                # are not superusers.
                 return self.model.objects.filter(organisation=org, is_superuser=False)
 
 
@@ -52,7 +53,7 @@ class UserCreate(LoginRequiredMixin, CreateView):
     slug_field = "username"
     slug_url_kwarg = "username"
 
-    #def form_invalid(self, form):
+    # def form_invalid(self, form):
     #    response = super(UserCreate, self).form_invalid(form)
     #    print "DEBUG form_invalid"
     #    print self.__dict__
@@ -154,9 +155,9 @@ def delete_collector_key(request):
     CollectorKey.delete(Collector_key_instance)
 
     res = {
-            'status': "OK",
-            'ck': ck
-        }
+        'status': "OK",
+        'ck': ck
+    }
     return JsonResponse(res)
 
 

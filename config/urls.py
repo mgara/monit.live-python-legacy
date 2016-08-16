@@ -11,19 +11,23 @@ from django.views import defaults as default_views
 urlpatterns = [
     url(r'^$', 'djangomonitcollector.ui.views.dashboard', name="home"),
 
-    url(r'^about/$', TemplateView.as_view(template_name='pages/about.html'), name="about"),
+    url(r'^about/$',
+        TemplateView.as_view(template_name='pages/about.html'), name="about"),
 
     # Django Admin, use {% url 'admin:index' %}
     url(settings.ADMIN_URL, include(admin.site.urls)),
 
     # User management
-    url(r'^users/', include("djangomonitcollector.users.urls", namespace="users")),
+    url(r'^users/',
+        include("djangomonitcollector.users.urls", namespace="users")),
     url(r'^accounts/', include('allauth.urls')),
 
     # Your stuff: custom urls includes go here
-    url(r'^dc/', include("djangomonitcollector.datacollector.urls", namespace="datacollector")),
+    url(r'^dc/', include("djangomonitcollector.datacollector.urls",
+                         namespace="datacollector")),
     url(r'^ui/', include("djangomonitcollector.ui.urls", namespace="ui")),
-    url(r'^notification/', include("djangomonitcollector.notificationsystem.urls", namespace="n")),
+    url(r'^notification/',
+        include("djangomonitcollector.notificationsystem.urls", namespace="n")),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

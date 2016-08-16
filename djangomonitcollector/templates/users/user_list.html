@@ -2,13 +2,13 @@
 {% load static %}
 {% load i18n %}
 {% load extra_tags %}
-{% block page_title %} Users List{% endblock %}
+{% block page_title %} Users Management {% endblock %}
 {% block title %}Users List{% endblock %}
 
 {% block content %}
-    <div class="container">
 
-    <div class="row clearfix">
+    <div class="row">
+  {% include "ui/includes/_widget.html" with caption="Users List"  %}
 
         <table class="table table-hover table-hover table-striped table-bordered">
             <thead>
@@ -16,6 +16,7 @@
                     <th> Username</th>
                     <th> Firstname</th>
                     <th> Lastname </th>
+                    <th> Email </th>
                     <th> Last Login</th>
                     <th> Host Groups</th>
                     {% if request.user.is_superuser %}
@@ -29,11 +30,12 @@
                 {% for user in object_list %}
                     <tr  {% if user.is_superuser %}class="danger"{% endif %}>
                         <td>
-                            {{ user.username }}
+                            <strong>{{ user.username }}</strong>
                         </td>
                         <td>{{ user.first_name }}</td>
                         <td>{{ user.last_name }}</td>
-                        <td>{{ user.last_login }} <b>{{ user.last_login|time_diff|format_timedelta }}</b></td>
+                        <td><small class="">{{user.email}}</small></td>
+                        <td><a href="#" data-toggle="tooltip" data-placement="top" title="{{ user.last_login }}">{{ user.last_login|time_diff|format_timedelta }}</a></td>
                         <td>
 
                             {% for hg in user.host_groups.all %}
@@ -57,14 +59,16 @@
                 {% endfor %}
             </tbody>
         </table>
+          {% include "ui/includes/_end_widget.html" %}
 
     </div>
-      <div class="hr-line-dashed"></div>
 
     <div class="row clearfix">
-        <div>
+      {% include "ui/includes/_widget_buttonbar.html" %}
+
             <a href="{% url 'users:create' %}" class="btn btn-primary">New</a>
-        </div>
+                      {% include "ui/includes/_end_widget.html" %}
+
     </div>
-    </div>
+
 {% endblock content %}

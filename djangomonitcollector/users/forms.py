@@ -20,6 +20,7 @@ class MyUserChangeForm(UserChangeForm):
 class MySignUpForm(SignupForm):
     pass
 
+
 class MyUserCreationForm(UserCreationForm):
     error_message = UserCreationForm.error_messages.update({
         'duplicate_username': 'This username has already been taken.'
@@ -32,7 +33,7 @@ class MyUserCreationForm(UserCreationForm):
     organisation = forms.ModelChoiceField(
         queryset=Organisation.objects.all(),
         required=False
-        )
+    )
 
     organisation_manager = forms.BooleanField(required=False)
 
@@ -41,7 +42,7 @@ class MyUserCreationForm(UserCreationForm):
         widget=forms.Select,
         choices=INSPINIA_SKINS,
         required=False
-        )
+    )
 
     user_timezone = forms.ChoiceField(
         label=_("User Timezone"),
@@ -49,7 +50,7 @@ class MyUserCreationForm(UserCreationForm):
         choices=TIMEZONES_CHOICES,
         required=False,
         initial="Canada/Eastern"
-        )
+    )
 
     class Meta(UserCreationForm.Meta):
         model = User
@@ -61,7 +62,6 @@ class MyUserCreationForm(UserCreationForm):
         except User.DoesNotExist:
             return username
         raise forms.ValidationError(self.error_messages['duplicate_username'])
-
 
     def clean_organisation(self):
         organisation = self.cleaned_data["organisation"]
@@ -76,7 +76,8 @@ class MyUserCreationForm(UserCreationForm):
         self.instance.email = self.cleaned_data["email"]
         self.instance.user_timezone = self.cleaned_data["user_timezone"]
         self.instance.inspinia_skin = self.cleaned_data["inspinia_skin"]
-        self.instance.organisation_manager = self.cleaned_data["organisation_manager"]
+        self.instance.organisation_manager = self.cleaned_data[
+            "organisation_manager"]
         self.instance.organisation = self.cleaned_data['organisation']
         if commit:
             self.instance.save()

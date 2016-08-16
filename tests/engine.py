@@ -14,6 +14,7 @@ PROJECT_DIRECTORY = path.abspath(path.join(path.dirname(__file__), '..'))
 
 
 class ExecutionEngine(hitchtest.ExecutionEngine):
+
     """Engine for orchestating and interacting with the app."""
 
     def set_up(self):
@@ -40,12 +41,14 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
             shutdown_timeout=float(self.settings["shutdown_timeout"]),
         )
 
-        postgres_user = hitchpostgres.PostgresUser("djangomonitcollector", "password")
+        postgres_user = hitchpostgres.PostgresUser(
+            "djangomonitcollector", "password")
 
         self.services['Postgres'] = hitchpostgres.PostgresService(
             postgres_package=postgres_package,
             users=[postgres_user, ],
-            databases=[hitchpostgres.PostgresDatabase("djangomonitcollector", postgres_user), ]
+            databases=[hitchpostgres.PostgresDatabase(
+                "djangomonitcollector", postgres_user), ]
         )
 
         self.services['HitchSMTP'] = hitchsmtp.HitchSMTPService(port=1025)
@@ -77,7 +80,8 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
 
         self.services.startup(interactive=False)
 
-        # Docs : https://hitchtest.readthedocs.org/en/latest/plugins/hitchselenium.html
+        # Docs :
+        # https://hitchtest.readthedocs.org/en/latest/plugins/hitchselenium.html
         self.driver = self.services['Firefox'].driver
 
         self.webapp = hitchselenium.SeleniumStepLibrary(
@@ -93,7 +97,8 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         self.click_and_dont_wait_for_page_load = self.webapp.click_and_dont_wait_for_page_load
 
         # Configure selenium driver
-        self.driver.set_window_size(self.settings['window_size']['height'], self.settings['window_size']['width'])
+        self.driver.set_window_size(
+            self.settings['window_size']['height'], self.settings['window_size']['width'])
         self.driver.set_window_position(0, 0)
         self.driver.implicitly_wait(2.0)
         self.driver.accept_next_alert = True
@@ -128,7 +133,8 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
     def wait_for_email(self, containing=None):
         """Wait for, and return email."""
         self.services['HitchSMTP'].logs.out.tail.until_json(
-            lambda email: containing in email['payload'] or containing in email['subject'],
+            lambda email: containing in email[
+                'payload'] or containing in email['subject'],
             timeout=25,
             lines_back=1,
         )

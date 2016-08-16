@@ -82,7 +82,7 @@ EVENT_ACTION_CHOICES = (
     (4, 'Exec'),
     (5, 'Unmonitor'),
     (6, 'Reload')
-    )
+)
 
 EVENT_STATE_CHOICES = (
     (0, 'Sucess'),
@@ -90,7 +90,7 @@ EVENT_STATE_CHOICES = (
     (2, 'Change'),
     (3, 'Link mode not changed'),
     (4, 'Host Down'),
-    )
+)
 
 EVENT_ID_CHOICES = (
     (1, 'checksum'),
@@ -117,7 +117,7 @@ EVENT_ID_CHOICES = (
     (16777216, 'link mode/speed'),
     (2097152, 'status'),
     (4194304, 'uptime')
-    )
+)
 
 EVENT_TYPE_CHOICES = (
     (0, 'FileSystem'),
@@ -129,4 +129,4 @@ EVENT_TYPE_CHOICES = (
     (6, 'Fifo'),
     (7, 'Program'),
     (8, 'Network'),
-    )
+)

@@ -58,7 +58,8 @@ class OrganisationPermission(models.Model):
 
 class Organisation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(_('Organisation Name'), null=True, max_length=100, default="Default")
+    name = models.CharField(
+        _('Organisation Name'), null=True, max_length=100, default="Default")
     is_active = models.BooleanField(_('Is Active'), default=True)
     permissions = models.ManyToManyField(OrganisationPermission)
 
@@ -123,7 +124,8 @@ INSPINIA_SKINS = (
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     organisation = models.ForeignKey(Organisation)
-    organisation_manager = models.BooleanField(_('Is Organisation Manager'), default=False)
+    organisation_manager = models.BooleanField(
+        _('Is Organisation Manager'), default=False)
     host_groups = models.ManyToManyField(HostGroup)
 
     inspinia_skin = models.CharField(
@@ -137,7 +139,7 @@ class User(AbstractUser):
         max_length=30,
         choices=TIMEZONES_CHOICES,
         default="Canada/Eastern"
-        )
+    )
 
     def __str__(self):
         return self.username
@@ -167,7 +169,8 @@ def validate_user(user):
 
 
 class CollectorKey(models.Model):
-    collector_key = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    collector_key = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False)
     organisation = models.ForeignKey(Organisation)
     is_enabled = models.BooleanField(default=True)
 
@@ -211,7 +214,7 @@ class Settings(models.Model):
         max_length=40,
         default="UTC",
         null=True
-        )
+    )
 
     #  Flapping
     flapping_threshold = models.IntegerField(default=5)

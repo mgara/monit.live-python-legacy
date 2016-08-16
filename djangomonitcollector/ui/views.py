@@ -196,7 +196,6 @@ def load_dashboard_table(request):
     return JsonResponse({'table_html': table_html})
 
 
-
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def confirm_delete(request, server_id):
     server = Server.objects.get(id=server_id)

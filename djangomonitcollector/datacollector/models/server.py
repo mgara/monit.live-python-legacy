@@ -64,7 +64,8 @@ class Server(models.Model):
     http_password = models.CharField(max_length=45, null=True, default="admin")
     http_username = models.CharField(max_length=45, null=True, default="monit")
     disable_monitoring = models.BooleanField(default=True)
-    localhostname = models.TextField(db_index=True, default="default-hostname", null=True)
+    localhostname = models.TextField(
+        db_index=True, default="default-hostname", null=True)
     monit_id = models.CharField(max_length=32, unique=True)
     monit_update_period = models.IntegerField(default=60)
     monit_version = models.TextField(null=True)
@@ -118,7 +119,7 @@ class Server(models.Model):
             server.http_password = get_string(
                 xmldoc, "server.credentials.password")
             server.http_address = "{0}://{1}:{2}@{3}{4}/".format(
-                protocol, server.http_username, server.http_password, server.external_ip , port_str)
+                protocol, server.http_username, server.http_password, server.external_ip, port_str)
 
             server.monit_update_period = get_int(xmldoc, "server.poll")
             server.save()
@@ -222,10 +223,13 @@ class ServiceGroup(models.Model):
 class MonitEvent(models.Model):
     server = models.ForeignKey(Server)
     service = models.ForeignKey(Service)
-    event_type = models.PositiveIntegerField(choices=EVENT_TYPE_CHOICES, null=True)
+    event_type = models.PositiveIntegerField(
+        choices=EVENT_TYPE_CHOICES, null=True)
     event_id = models.PositiveIntegerField(choices=EVENT_ID_CHOICES, null=True)
-    event_state = models.PositiveIntegerField(choices=EVENT_STATE_CHOICES, null=True)
-    event_action = models.PositiveIntegerField(choices=EVENT_ACTION_CHOICES, null=True)
+    event_state = models.PositiveIntegerField(
+        choices=EVENT_STATE_CHOICES, null=True)
+    event_action = models.PositiveIntegerField(
+        choices=EVENT_ACTION_CHOICES, null=True)
     event_message = models.TextField(null=True)
     event_time = models.DateTimeField(null=True)
 
@@ -283,7 +287,7 @@ class MonitEvent(models.Model):
         if event_obj.event_state == 1:
             found, duplicates = cls.check_for_events_in_time_window(
                 event_obj
-                )
+            )
             if found:
                 dups = []
                 for e in duplicates:
@@ -307,7 +311,7 @@ class MonitEvent(models.Model):
         if event_obj.event_state == 0:
             found, to_be_cleared = cls.check_for_events_in_time_window(
                 event_obj
-                )
+            )
             if found:
                 clears = []
                 for e in to_be_cleared:
@@ -436,7 +440,8 @@ class MonitEvent(models.Model):
         event_dict = dict()
         event_dict["id"] = self.id
         event_dict["server"] = self.server.localhostname
-        event_dict["service"] = self.service.name.replace('___', '/').replace('__', '_').replace('_', '/')
+        event_dict["service"] = self.service.name.replace(
+            '___', '/').replace('__', '_').replace('_', '/')
         event_dict["message"] = self.event_message
         # Strings
         event_dict["state"] = event_status_to_string(self.event_id)
@@ -505,7 +510,8 @@ def check_host_group_match(hg, host_groups_comma_seperated):
                 return True
             if re.search(mask, hg.display_name):
                 return True
-        #  The only case the function return False is when we don't find any match !
+        # The only case the function return False is when we don't find any
+        # match !
         return False
     #  We return True if we don't have list
     return True
@@ -540,7 +546,8 @@ def process_event(event_object):
     for nt in mute_notifications:
         if nt.notification_enabled:
             hg_matches = check_host_group_match(hg, nt.notification_host_group)
-            server_matches = check_server_name_match(server_name, nt.notification_server)
+            server_matches = check_server_name_match(
+                server_name, nt.notification_server)
             name_matches = check_item(
                 event_object.service.name, nt.notification_service)
             state_matches = check_item(
@@ -559,30 +566,32 @@ def process_event(event_object):
     if not event_object.is_ack:
         broadcast_event_to_websocket_channel(event_object)
         for nt in remaining_notifications:
-                if nt.notification_enabled:
-                    hg_matches = check_host_group_match(hg, nt.notification_host_group)
-                    server_matches = check_server_name_match(server_name, nt.notification_server)
-                    name_matches = check_item(
-                        event_object.service.name, nt.notification_service)
-                    state_matches = check_item(
-                        event_object.event_state, nt.notification_state)
-                    action_matches = check_item(
-                        event_object.event_action, nt.notification_action)
-                    type_matches = check_item(
-                        event_object.event_type, nt.notification_type)
-                    messages_matches = True if re.search(
-                        nt.notification_message, event_object.event_message) else False
+            if nt.notification_enabled:
+                hg_matches = check_host_group_match(
+                    hg, nt.notification_host_group)
+                server_matches = check_server_name_match(
+                    server_name, nt.notification_server)
+                name_matches = check_item(
+                    event_object.service.name, nt.notification_service)
+                state_matches = check_item(
+                    event_object.event_state, nt.notification_state)
+                action_matches = check_item(
+                    event_object.event_action, nt.notification_action)
+                type_matches = check_item(
+                    event_object.event_type, nt.notification_type)
+                messages_matches = True if re.search(
+                    nt.notification_message, event_object.event_message) else False
 
-                    if name_matches and state_matches and action_matches and type_matches and messages_matches and hg_matches and server_matches:
-                        notification_handler_module = importlib.import_module(
-                            "djangomonitcollector.notificationsystem.lib.{0}".format(nt.notification_class.lower()))
-                        class_ = getattr(
-                            notification_handler_module, nt.notification_class)
-                        notification_class_instance = class_()
-                        notification_class_instance.set_event(event_object)
-                        notification_class_instance.set_extra_params(
-                            nt.notification_plugin_extra_params)
-                        notification_class_instance.process()
+                if name_matches and state_matches and action_matches and type_matches and messages_matches and hg_matches and server_matches:
+                    notification_handler_module = importlib.import_module(
+                        "djangomonitcollector.notificationsystem.lib.{0}".format(nt.notification_class.lower()))
+                    class_ = getattr(
+                        notification_handler_module, nt.notification_class)
+                    notification_class_instance = class_()
+                    notification_class_instance.set_event(event_object)
+                    notification_class_instance.set_extra_params(
+                        nt.notification_plugin_extra_params)
+                    notification_class_instance.process()
 
 
 def get_service_by_name(server, event_type, service_name):
@@ -621,7 +630,8 @@ def get_service_by_name(server, event_type, service_name):
 
 def broadcast_muted_event_to_websocket_channel(event_object):
     response = dict()
-    response['channel'] = "organisation_muted_events_{0}".format(str(event_object.server.organisation.id).replace('-', '_'))
+    response['channel'] = "organisation_muted_events_{0}".format(
+        str(event_object.server.organisation.id).replace('-', '_'))
     response['event'] = event_object.to_dict()
     response_str = json.dumps(response)
     to_queue(response_str)
@@ -629,7 +639,8 @@ def broadcast_muted_event_to_websocket_channel(event_object):
 
 def broadcast_event_to_websocket_channel(event_object):
     response = dict()
-    response['channel'] = "organisation_events_{0}".format(str(event_object.server.organisation.id).replace('-', '_'))
+    response['channel'] = "organisation_events_{0}".format(
+        str(event_object.server.organisation.id).replace('-', '_'))
     response['event'] = event_object.to_dict()
     response_str = json.dumps(response)
     to_queue(response_str)

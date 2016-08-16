@@ -2,9 +2,11 @@ __author__ = 'mehergara'
 
 
 class Parameter(object):
+
     """
     Type can be a str / choices
     """
+
     def __init__(self, id, label, value="", _choices=None):
         self.__id = id
         self.__label = label

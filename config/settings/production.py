@@ -20,7 +20,8 @@ from .common import *  # noqa
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 # Raises ImproperlyConfigured exception if DJANGO_SECRET_KEY not in os.environ
-SECRET_KEY = env("DJANGO_SECRET_KEY", default='%6nue!!u11n47bo7_bkr06-ch_n38@60@92j9r&4li06!ugp*h')
+SECRET_KEY = env("DJANGO_SECRET_KEY",
+                 default='%6nue!!u11n47bo7_bkr06-ch_n38@60@92j9r&4li06!ugp*h')
 
 # This ensures that Django will be able to detect a secure connection
 # properly on Heroku.

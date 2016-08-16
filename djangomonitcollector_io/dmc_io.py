@@ -75,7 +75,7 @@ class Broker(kombu.mixins.ConsumerMixin):
         global logger
         logger.info('Broker Started on: {}'.format(broker_url))
         self.connection = kombu.Connection(
-                broker_url)
+            broker_url)
 
     def on_message(self, body, message):
         try:
@@ -103,9 +103,9 @@ class Broker(kombu.mixins.ConsumerMixin):
         exchange = Exchange('dmc', type='topic')
 
         queue = kombu.Queue(
-                'dmc',
-                exchange=exchange,
-                routing_key='dmc')
+            'dmc',
+            exchange=exchange,
+            routing_key='dmc')
 
         return [consumer([queue],
                          callbacks=[self.on_message],
@@ -129,7 +129,7 @@ if __name__ == "__main__":
         dest="broker_url",
         help="RabbitMQ Url",
         metavar="BROKER_URL"
-        )
+    )
 
     group.add_option(
         "-H",
@@ -137,7 +137,7 @@ if __name__ == "__main__":
         dest="host",
         help="Websocket IO Binding Address",
         metavar="HOST"
-        )
+    )
 
     group.add_option(
         "-P",
@@ -146,7 +146,7 @@ if __name__ == "__main__":
         type=int,
         help="Websocket IO Binding port",
         metavar="PORT"
-        )
+    )
     parser.add_option_group(group)
 
     group = OptionGroup(parser, "Debug Options")
@@ -158,7 +158,7 @@ if __name__ == "__main__":
         help="Application Log Level (Default : INFO) ",
         metavar="LOG_LEVEL",
         default='INFO'
-        )
+    )
 
     group.add_option(
         "-q",
@@ -167,7 +167,7 @@ if __name__ == "__main__":
         dest="verbose",
         default=True,
         help="don't print status messages to stdout"
-        )
+    )
     parser.add_option_group(group)
 
     (options, args) = parser.parse_args()
@@ -194,4 +194,3 @@ if __name__ == "__main__":
     global BROKER_URL
     BROKER_URL = options.broker_url
     run(host, port)
-

@@ -66,16 +66,18 @@ class Command(BaseCommand):
  ago, monit update period [{}] seconds  ".format(
                     server['localhostname'],
                     delta, server['monit_update_period'])
-                 )
+                )
 
                 if delta > server_monit_update_period:
 
                     if server['monitid'] not in hosts_down:
                         hosts_down.append(server['monitid'])
-                        self.logger.debug("Generating Host Down Alert {}".format(h))
+                        self.logger.debug(
+                            "Generating Host Down Alert {}".format(h))
                         self.host_went_down(server, delta, options)
                     else:
-                        self.logger.debug("We Know about this host .... {}".format(h))
+                        self.logger.debug(
+                            "We Know about this host .... {}".format(h))
                 else:
                     if server['monitid'] in hosts_down:
                         hosts_down.remove(server['monitid'])
@@ -105,7 +107,8 @@ class Command(BaseCommand):
             event_id=4,
             event_state=1,
             event_action=1,
-            event_message="Host timeout {0} last received data {1} seconds ago".format(server['localhostname'], delta)
+            event_message="Host timeout {0} last received data {1} seconds ago".format(
+                server['localhostname'], delta)
         )
         options['org_id'] = server['org_id']
         options['host_group'] = server['host_group']

@@ -54,4 +54,3 @@ class FileSystem(Service):
     def get_by_name(cls, server, name):
         service, created = cls.objects.get_or_create(server=server, name=name)
         return service
-
