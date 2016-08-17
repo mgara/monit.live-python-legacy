@@ -429,7 +429,8 @@ def event_status_to_string(status):
         16777216: 'link mode/speed',
         2097152: 'status',
         4194304: 'uptime',
-        8388608: 'linkstatus'
+        8388608: 'linkstatus',
+        134217728: 'linkusage'
     }
 
     try:

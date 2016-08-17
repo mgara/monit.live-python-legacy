@@ -1,73 +1,65 @@
 {% extends "base.html" %}
 {% load static %}
 {% load extra_tags %}
-
 {% block title %}User: {{ object.username }}{% endblock %}
 {% block page_title %} User <small>{{ object.username }}</small>{% endblock %}
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-md-5">
-                    <h1 class="text-navy"><i class="fa fa-user"></i>{{ object.name }}</h1>
-                {% if object.first_name %}
-                    <h4>Firstname : </h4>
-                    <p>{{ object.first_name }}</p>
-                {% endif %}
-                {% if object.last_name %}
-                    <h4>Lastname : </h4>
-                    <p>{{ object.last_name }}</p>
-                {% endif %}
-                 {% if object.user_timezone %}
-                    <h4>Timezone :</h4>
-                    <p>{{ object.user_timezone }}</p>
-                {% endif %}
-                {% if object.inspinia_skin %}
-                    <h4>Inspinia Skin :</h4>
-                    <p>{{ object.inspinia_skin|get_skin_name }}</p>
-                {% endif %}
-                {% if request.user.is_superuser %}
-                    <h4>Organisation Manager :</h4>
-                    <p>{{ object.organisation_manager|boolean_widget|safe }}</p>
-                {% endif %}
-
-                    <h4>Host Groups:</h4>
-                    <p>{% for hg in object.host_groups.all %}
-                        <span  class="label label-default"> {{ hg}}</span>
-                        {% empty %}
-                         No host groups assigned, contact organisation Manager
-                    {% endfor %}
-                    </p>
-
-            </div>
-        </div>
-
-        {% if object == request.user %}
-            <!-- Action buttons -->
-               <div class="row">
-                <div class="hr-line-dashed"></div>
-            </div>
-            <div class="row">
-
-                <div class="col-sm-6 ">
-                    <a class="btn btn-primary" href="{% url 'users:update' request.user.id %}">My Info</a>
-                    <a class="btn btn-primary" href="{% url 'account_email' %}">E-Mail</a>
-                    <!-- Your Stuff: Custom user template urls -->
-                </div>
-            </div>
-            <!-- End Action buttons -->
-        {% else %}
-           <!-- Action buttons -->
-            <div class="row">
-                <div class="col-sm-6 ">
-                    <a class="btn btn-primary" href="{% url 'users:update' object.id %}">Update</a>
-                    <!-- Your Stuff: Custom user template urls -->
-                </div>
-            </div>
-        {% endif %}
-
+    {% include "ui/includes/_widget.html" with caption="Users Profile"  %}
+    <div class="row">
+        <div class="col-md-5">
+            <h1 class="text-navy"><i class="fa fa-user"></i>{{ object.name }}</h1>
+            {% if object.first_name %}
+                <h4>Firstname : </h4>
+                <p>{{ object.first_name }}</p>
+            {% endif %}
+            {% if object.last_name %}
+                <h4>Lastname : </h4>
+                <p>{{ object.last_name }}</p>
+            {% endif %}
+            {% if object.user_timezone %}
+                <h4>Timezone :</h4>
+                <p>{{ object.user_timezone }}</p>
+            {% endif %}
+            {% if object.inspinia_skin %}
+                <h4>Inspinia Skin :</h4>
+                <p>{{ object.inspinia_skin|get_skin_name }}</p>
+            {% endif %}
+            {% if request.user.is_superuser %}
+                <h4>Organisation Manager :</h4>
+                <p>{{ object.organisation_manager|boolean_widget|safe }}</p>
+            {% endif %}
+            <h4>Host Groups:</h4>
+            <p>{% for hg in object.host_groups.all %}
+                <span  class="label label-default"> {{ hg}}</span>
+                {% empty %}
+                No host groups assigned, contact organisation Manager
+            {% endfor %}
+        </p>
     </div>
-
+</div>
+{% include "ui/includes/_end_widget.html" %}
+{% include "ui/includes/_widget_buttonbar.html" with caption="Users List"  %}
+{% if object == request.user %}
+    <!-- Action buttons -->
+    <div class="row">
+        <div class="hr-line-dashed"></div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6 ">
+            <a class="btn btn-primary" href="{% url 'users:update' request.user.id %}">My Info</a>
+            <a class="btn btn-primary" href="{% url 'account_email' %}">E-Mail</a>
+            <!-- Your Stuff: Custom user template urls -->
+        </div>
+    </div>
+    <!-- End Action buttons -->
+{% else %}
+    <!-- Action buttons -->
+    <div class="row">
+        <div class="col-sm-6 ">
+            <a class="btn btn-primary" href="{% url 'users:update' object.id %}">Update</a>
+            <!-- Your Stuff: Custom user template urls -->
+        </div>
+    </div>
+{% endif %}
+{% include "ui/includes/_end_widget.html" %}
 {% endblock content %}
-
-
-

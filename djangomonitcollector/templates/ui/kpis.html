@@ -3,7 +3,7 @@
 {% load extra_tags %}
 
 {% block page_title %}
- Key Performance Indicators  <br/> Server : <strong class="text-red"> {{ server.localhostname }} </strong> <br/>
+ Key Performance Indicators  <br/> Server : <strong class="c-red"> {{ server.localhostname }} </strong> <br/>
  IP :  <strong class="c-red">{{ server.external_ip }}</strong>
   {% endblock %}
 
@@ -46,7 +46,7 @@
 
 
 </div>
-  <div class="row clearfix top-buffer">
+  <div class="row clearfix m-t-10">
 
       {% include "ui/includes/_widget_hide_show.html" with caption="CPU Usage" %}
             <div id="graph_load" class="graph" style="width:100%;"></div>
