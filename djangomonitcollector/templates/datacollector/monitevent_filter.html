@@ -32,158 +32,160 @@
 {% block content %}
                 {% autopaginate filter.qs 10 as filter_list %}
 
-            <div class="box float-e-margins" id="box_filter">
-            <div class="box-title">
-                    <h5>Filter details </h5> <span id="filter-details" class="label label-danger"></span>
-                    <div class="box-tools">
-                        <a class="collapse-link">
-                            <i class="fa fa-chevron-up"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="box-content" id="filter_properties">
-                    <div class="row">
-                       <form  action="" method="get">
-                           <div class="col-md-12">
+<div class="card">
+    <div class="card-header ch-alt ">
+        <h2> Filter details <small class="c-yellow m-t-5" id="filter-details">{{description}}</small></h2>
+        <button class="btn btn-default btn-float waves-effect waves-circle waves-float minimize {{theme}}" ><i class="zmdi zmdi-minus"></i></button>
+    </div>
+    <div class="card-body card-padding">
+<script language="javascript">
+    $(".minimize").click(function(){
+        header = $(this).parent()
 
-                          <div class="form-group col-md-3">
-                            <label for="id_server">{% trans 'Server' %}:</label>
-                            {{ filter.form.server|add_class:"form-control input-sm" }}
-                          </div>
-                          <div class="form-group col-md-3">
-                            <label for="id_service">{% trans 'Service' %}:</label>
-                            {{ filter.form.service|add_class:"form-control input-sm" }}
-                          </div>
-                          <div class="form-group col-md-3">
-                            <label for="id_event_type">{% trans 'Event Type' %}:</label>
-                            {{ filter.form.event_type|add_class:"form-control input-sm" }}
-                          </div>
+        title = header.children('h2')
+        card = header.parent()
+        card_body = card.children('div.card-body')
+        card_body.toggle(300)
+        if (card_body.hasClass("toggled")){
+                $(this).html('<i class="zmdi zmdi-minus"></i>')
+                card_body.removeClass("toggled")
+                title.fadeTo( "slow" , 1)
+        }else{
+                $(this).html('<i class="zmdi zmdi-plus"></i>')
+                card_body.addClass("toggled")
+                title.fadeTo( "slow" , 0.4)
+        }
+    })
+    </script>
 
-                           <div class="form-group col-md-3">
-                            <label for="id_event_id">{% trans 'Event ID' %}:</label>
-                            {{ filter.form.event_id|add_class:"form-control input-sm" }}
-                          </div>
-                          <div class="form-group col-md-3">
-                            <label for="id_event_state">{% trans 'Event State' %}:</label>
-                            {{ filter.form.event_state|add_class:"form-control input-sm" }}
-                          </div>
-                          <div class="form-group col-md-3">
-                            <label for="id_event_message">{% trans 'Event Message' %}:</label>
-                            {{ filter.form.event_message|add_class:"form-control input-sm" }}
-                          </div>
-                         <div class="form-group col-md-3">
-                            <label for="id_alarm_raised">{% trans 'Raised ?' %}:</label>
-                            {{ filter.form.alarm_raised|add_class:"form-control input-sm" }}
-                          </div>
-                            <div class="form-group col-md-3">
-                            <label for="id_is_ack">{% trans 'Is Acknowledged ?' %}:</label>
-                            {{ filter.form.is_ack|add_class:"form-control input-sm" }}
-                          </div>
-                           <div class="form-group col-md-4">
-                            {{ filter.form.event_time.label_tag }}
-                            {{ filter.form.event_time|add_class:"form-control input-sm"|attr:'autocomplete:off' }}
-                          </div>
-
-
-                          </div>
-                          <div class="col-md-12">
-                             <div class="hr-line-dashed"></div>
-                            <input class="btn btn-primary" type="submit" value="{% trans 'Filter' %}" />
-                             <div class="hr-line-dashed"></div>
-
-                          </div>
-                    </form>
-                    </div>
-                </div>
-              </div>
+<form  action="" method="get">
+    <div class="row">
+        <div class="form-group col-md-3">
+            <label for="id_server">{% trans 'Server' %}:</label>
+            {{ filter.form.server|add_class:"form-control input-sm chosen" }}
+        </div>
+        <div class="form-group col-md-3">
+            <label for="id_service">{% trans 'Service' %}:</label>
+            {{ filter.form.service|add_class:"form-control input-sm chosen" }}
+        </div>
+        <div class="form-group col-md-3">
+            <label for="id_event_type">{% trans 'Event Type' %}:</label>
+            {{ filter.form.event_type|add_class:"form-control input-sm chosen" }}
+        </div>
+        <div class="form-group col-md-3">
+            <label for="id_event_id">{% trans 'Event ID' %}:</label>
+            {{ filter.form.event_id|add_class:"form-control input-sm chosen" }}
+        </div>
+        <div class="form-group col-md-3">
+            <label for="id_event_state">{% trans 'Event State' %}:</label>
+            {{ filter.form.event_state|add_class:"form-control input-sm chosen" }}
+        </div>
+        <div class="form-group col-md-3 fg-line">
+            <label for="id_event_message">{% trans 'Event Message' %}:</label>
+            {{ filter.form.event_message|add_class:"form-control input-sm" }}
+        </div>
+        <div class="form-group col-md-3">
+            <label for="id_alarm_raised">{% trans 'Raised ?' %}:</label>
+            {{ filter.form.alarm_raised|add_class:"form-control input-sm chosen" }}
+        </div>
+        <div class="form-group col-md-3">
+            <label for="id_is_ack">{% trans 'Is Acknowledged ?' %}:</label>
+            {{ filter.form.is_ack|add_class:"form-control input-sm chosen" }}
+        </div>
+        <div class="form-group col-md-4">
+            {{ filter.form.event_time.label_tag }}
+            {{ filter.form.event_time|add_class:"form-control input-sm"|attr:'autocomplete:off' }}
+        </div>
+    </div>
+    <div class="row">
+        {% include "ui/includes/_widget_buttonbar.html" with caption="Disk Usage"  %}
+        <button class="btn btn-primary" type="submit" >{% trans 'Filter' %}</button>
+        {% include "ui/includes/_end_widget.html" %}
+    </div>
+</form>
+</div>
+</div>
 <div class="row text-center">
-                 {% bootstrap_paginate page_obj range=10 show_prev_next="true" show_first_last="true" %}
+{% bootstrap_paginate page_obj range=10 show_prev_next="true" show_first_last="true" %}
 </div>
+<div class="box float-e-margins">
+<div class="box-content">
+<div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover fixed-header-table" id="event_table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Server</th>
+                <th>Message</th>
+                <th>Event</th>
+                <th>Type</th>
+                <th>Monit Action</th>
+                <th>Raised</th>
+                <th class="col-sm-1">Duplicate of</th>
+                <th>cleared by</th>
+                <th>cleared </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for monit_event in filter_list %}
+                <tr id="event-{{ monit_event.id }}" class="{% if monit_event.alarm_raised and not monit_event.cleared_by %} c-red {% else %} fade_me {% endif %}">
+                <td class="text-center"><small><span class="label bgm-indigo" >{{ monit_event.id }}<span></small></td>
+                <td><a class="c-blue" target="_blank" href="{% url 'ui:server' monit_event.server.id %}" >{{ monit_event.server.localhostname }}</a></td>
+                <td>
+                    <div class="p-1">
+                        <span class="pull-right btn btn-xs c-lime" data-toggle="tooltip" data-placement="top" title="{{ monit_event.event_time}}"> {{ monit_event.event_time|time_diff|format_timedelta }}</span>
+                        <p class="m-b-xs">
+                            {{ monit_event.event_message }}
+                        </p>
 
-            <div class="box float-e-margins">
-                <div class="box-content">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-bordered table-hover" id="event_table">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>Server</th>
-                                    <th>Message</th>
-                                    <th>Event</th>
-                                    <th>Type</th>
-                                    <th>Monit Action</th>
-                                    <th>Raised</th>
-                                    <th class="col-sm-1">Duplicate of</th>
-                                    <th>cleared by</th>
-                                    <th>cleared </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for monit_event in filter_list %}
+                        <div class="btn-group btn-group-xs" role="group">
+                                    <button data-toggle="tooltip" data-placement="right" title="Comments" event-id="{{monit_event.id }}" type="button" class="btn btn-primary {{ monit_event.moniteventcomment_set.all|length|comments_style}} waves-effect view-event-comments "><i class="fa fa-comment-o"></i> <span>{{ monit_event.moniteventcomment_set.all|length}} </span> </button>
+                                    <button data-toggle="tooltip" data-placement="top" title="Details" event-id="{{monit_event.id }}" type="button" class="btn btn-primary waves-effect view-event-details">View</button>
+                                </div>
 
-                                        <tr id="event-{{ monit_event.id }}" class="{% if monit_event.alarm_raised and not monit_event.cleared_by %}danger {% else %} fade_me {% endif %}">
-                                            <td class="text-center"><small><span class="label" >{{ monit_event.id }}<span></small></td>
-                                            <td><a class="text-success" target="_blank" href="{% url 'ui:server' monit_event.server.id %}" >{{ monit_event.server.localhostname }}</a></td>
-                                            <td>
-
-
-                                            <div class="media-body ">
-                            <button class="pull-right btn btn-xs btn-danger btn-outline " data-toggle="tooltip" data-placement="top" title="{{ monit_event.event_time}}"> {{ monit_event.event_time|time_diff|format_timedelta }}</button>
-                            <p class="m-b-xs">
-                                 {{ monit_event.event_message }}
-                            </p>
-                            <small>   <a type="button" event-id="{{monit_event.id }}" class="view-event-comments label label-{{ monit_event.moniteventcomment_set.all|length|status_alert}}"><i class="fa fa-comment-o"></i>  <span>{{ monit_event.moniteventcomment_set.all|length}} </span> </a>
-                                                <a type="button" class="view-event-details label label-default" event-id="{{  monit_event.id }}" href="#" onclick="return false;"><i class="fa fa-eye"></i> View</a></small>
-                        </div>
-
-
-
-
-
-
-                                            </td>
-                                            <td><b>{{ monit_event.event_id|event_status_to_string }}</b><br/><b><span class="label label-{{ monit_event.event_state|event_state_to_style }}">{{ monit_event.event_state|event_state_to_string }}</b></span></td>
-                                            <td>{{ monit_event.event_type|type_to_string }}<br/><strong>{{ monit_event.service}} </strong></td>
-                                            <td>{{ monit_event.event_action|action_to_string }}</td>
-                                            <td>{% if monit_event.event_state == 1  %} {{ monit_event.alarm_raised|to_icon|safe }} {% else %} - {% endif%}</td>
-                                            <td>{% if monit_event.event_state == 1  %} {{ monit_event.is_duplicate_of|to_btns|safe }} {% else %} - {% endif%}</td>
-                                            <td>{% if monit_event.event_state == 1 and monit_event.cleared_by  %} {{ monit_event.cleared_by|to_btn|safe }} {% else %} - {% endif%}</td>
-                                            <td>{% if monit_event.event_state == 0  %} {{ monit_event.cleared_alarms|to_btns|safe }} {% else %} - {% endif%}</td>
-                                    </tr>
-                                         <script type="text/javascript">
-
-
-
-                                        </script>
-                                {% endfor %}
-                            </tbody>
-                                                   <tfoot>
-                                <tr>
-                                    <th></th>
-                                    <th>Server</th>
-                                    <th>Message</th>
-                                    <th>Event</th>
-                                    <th>Type</th>
-                                    <th>Monit Action</th>
-                                    <th>Raised</th>
-                                    <th>Duplicate of</th>
-                                    <th>cleared by</th>
-                                    <th>cleared </th>
-                                    </tr>
-                                </tfoot>
-                        </table>
                     </div>
+                </td>
+                <td><b>{{ monit_event.event_id|event_status_to_string }}</b><br/><b><span class="label label-{{ monit_event.event_state|event_state_to_style }}">{{ monit_event.event_state|event_state_to_string }}</b></span></td>
+                <td>{{ monit_event.event_type|type_to_string }}<br/><strong>{{ monit_event.service}} </strong></td>
+                <td>{{ monit_event.event_action|action_to_string }}</td>
+                <td>{% if monit_event.event_state == 1  %} {{ monit_event.alarm_raised|to_icon|safe }} {% else %} - {% endif%}</td>
+                <td>{% if monit_event.event_state == 1  %} {{ monit_event.is_duplicate_of|to_btns|safe }} {% else %} - {% endif%}</td>
+                <td>{% if monit_event.event_state == 1 and monit_event.cleared_by  %} {{ monit_event.cleared_by|to_btn|safe }} {% else %} - {% endif%}</td>
+                <td>{% if monit_event.event_state == 0  %} {{ monit_event.cleared_alarms|to_btns|safe }} {% else %} - {% endif%}</td>
+            </tr>
+            <script type="text/javascript">
+            </script>
+            {% empty %}
+            <tr >
+                <td colspan="10"><div class="alert alert-danger"> Nothing to show here...</div></td>
+            </tr>
+        {% endfor %}
 
-                   <div class="row text-center">
-                 {% bootstrap_paginate page_obj range=10 show_prev_next="true" show_first_last="true" %}
+    </tbody>
+    <tfoot>
+    <tr>
+        <th></th>
+        <th>Server</th>
+        <th>Message</th>
+        <th>Event</th>
+        <th>Type</th>
+        <th>Monit Action</th>
+        <th>Raised</th>
+        <th>Duplicate of</th>
+        <th>cleared by</th>
+        <th>cleared </th>
+    </tr>
+    </tfoot>
+</table>
 </div>
-
-                </div>
-            </div>
-
+<div class="row text-center">
+{% bootstrap_paginate page_obj range=10 show_prev_next="true" show_first_last="true" %}
+</div>
+</div>
+</div>
 <div class="modal inmodal" id="event_modal" tabindex="-1" role="dialog" aria-hidden="true"></div>
 {% endblock %}
-{% block customjs %}
+{% block javascript %}
 
 
     <!-- Bootstrap markdown -->
@@ -296,13 +298,13 @@
 
 
      function getParameterByName(name, url) {
-    if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)", "i"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)", "i"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
     var box_header = ""
@@ -343,7 +345,5 @@
     $('#filter-details').html(box_header)
 });
 
-
-
         </script>
-    {% endblock customjs %}
+    {% endblock javascript %}

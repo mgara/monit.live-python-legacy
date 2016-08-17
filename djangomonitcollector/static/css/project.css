@@ -148,37 +148,7 @@
 .btn-space{
   margin: 5px;
 }
-.progress-mini{
-  border-width: 0.5px;
-  border-style: solid;
-}
 
-.progress-bar-border-navy-light {
-  border-color: #3dc7ab;
-}
-.progress-bar-border-success {
-  border-color: #00a65a;
-}
-.progress-bar-border-primary {
-  border-color: #23c6c8;
-}
-.progress-bar-border-info {
-  border-color: #23c6c8;
-}
-.progress-bar-border-warning {
-  border-color: #f8ac59;
-}
-.progress-bar-border-danger {
-  border-color: #ed5565;
-}
-
-.server-data{
-  padding:0px !important;
-}
-
-.pad-8{
-  padding:8px !important;
-}
 
 .ladda-button {
   width: 33px;

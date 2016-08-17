@@ -26,7 +26,6 @@ except:
 @register.filter
 def gravatar_url(email, size=80):
     default = ""
-    print "https://www.gravatar.com/avatar/%s?%s" % (hashlib.md5(email.lower()).hexdigest(), urllib.urlencode({'d': default, 's': str(size)}))
     return "https://www.gravatar.com/avatar/%s?%s" % (hashlib.md5(email.lower()).hexdigest(), urllib.urlencode({'d': default, 's': str(size)}))
 
 # return an image tag with the gravatar
@@ -257,6 +256,14 @@ def status_alert(alert_counts):
         return "bgm-green"
     return "bgm-red"
 
+@register.filter
+def comments_style(alert_counts):
+    if not alert_counts:
+        return ""
+    if int(alert_counts) == 0:
+        return ""
+    return "bgm-red"
+
 
 @register.filter
 def status_tr_class(status, monitor):
@@ -311,7 +318,7 @@ def get_int(value):
 def to_btn(value):
     var = '{}'
     if value:
-        return "<button onclick=\"$('#event-{0}').effect('highlight', {1}, 1500);\" class=\"btn btn-reverse btn-xs\" type=\"button\" id=\"highlight-{0}\" data-id=\"{0}\">{0}</button>".format(value, var)
+        return "<button onclick=\"$('#event-{0}').effect('highlight', {1}, 1500);\" class=\"btn bgm-black btn-xs\" type=\"button\" id=\"highlight-{0}\" data-id=\"{0}\">{0}</button>".format(value, var)
 
 
 @register.filter

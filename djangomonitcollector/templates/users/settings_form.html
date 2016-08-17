@@ -4,7 +4,7 @@
 {% load widget_tweaks %}
 {% load staticfiles %}
 {% load extra_tags %}
-{% block page_title %} Settings {% endblock %}
+{% block page_title %} {% trans 'Organisation Settings' %} {% endblock %}
 {% block submenu %}
     <li class="nav-item">
         <a class="nav-link" href="#general_tab"><i class="fa fa-bullseye"></i> {% trans "General" %}</a>
@@ -28,12 +28,13 @@
     </style>
 {% endblock %}
 {% block content %}
-    <div class="container">
+            {% include "ui/includes/_widget.html" with caption="Settings" %}
+
         <div class="row">
             <div class="col-md-8">
-                    <div>
+                    <div role="tabpanel" class="tab">
                         <!-- Nav tabs -->
-                        <ul class="nav nav-tabs" role="tablist">
+                        <ul class="tab-nav" role="tablist">
                             <li role="presentation" class="active"><a href="#general_tab" aria-controls="general_tab" role="tab" data-toggle="tab">General</a></li>
                             <li role="presentation"><a href="#collector_key_tab" aria-controls="collector_key_tab" role="tab" data-toggle="tab">Collector Keys</a></li>
                             <li role="presentation"><a href="#api_tab" aria-controls="snmp_tab" role="tab" data-toggle="tab">API Settings</a></li>
@@ -95,7 +96,7 @@
                                                             {{ form.flapping_threshold.label_tag }}
                                                         </div>
                                                         <div class="col-md-4">
-                                                            {{ form.flapping_threshold|add_class:"form-control" }}
+                                                            {{ form.flapping_threshold|add_class:"form-control fg-line" }}
                                                         </div>
                                                         {% if form.name.errors %}
                                                             <div class="col-md-4 error">
@@ -163,7 +164,7 @@
                                             </div>
                                             <div class="row top-buffer">
 
-                                            <ul class="list-group" id="collector_keys_ul">
+                                            <ul id="collector_keys_ul">
 
                                             </ul>
                                             </div>
@@ -189,33 +190,16 @@
                 </div>
             </div>
         </div>
-    </div>
+        {% include "ui/includes/_end_widget.html" %}
+
 {% endblock %}
 {% block javascript %}
 <script src="{% static 'js/plugins/sweetalert/sweetalert.min.js' %}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
 <script type="text/javascript">
           $(document).ready(function() {
-
-
-              $('#id_snmp_version').selectpicker({
-                  style: 'btn-primary',
-                  size: 3
-              });
-              $('#id_email_use_ssl').selectpicker({
-                  style: 'btn-primary',
-                  size: 3
-              });
-              $('#id_loggin_level').selectpicker({
-                  style: 'btn-primary',
-                  size: 6
-              });
-          });
-
-
-          $(function() {
-              create(false);
-          });
+            create(false);
+          })
 
           var use=function(btn){
             var collector_key=$(btn).attr("data-key");

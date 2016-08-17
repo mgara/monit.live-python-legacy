@@ -4,7 +4,7 @@
 
 {% block page_title %}
  Key Performance Indicators  <br/> Server : <strong class="text-red"> {{ server.localhostname }} </strong> <br/>
- IP :  <strong class="text-red">{{ server.external_ip }}</strong>
+ IP :  <strong class="c-red">{{ server.external_ip }}</strong>
   {% endblock %}
 
 {% block submenu %}
@@ -48,15 +48,15 @@
 </div>
   <div class="row clearfix top-buffer">
 
-      {% include "ui/includes/_widget.html" with caption="CPU Usage" %}
+      {% include "ui/includes/_widget_hide_show.html" with caption="CPU Usage" %}
             <div id="graph_load" class="graph" style="width:100%;"></div>
       {% include "ui/includes/_end_widget.html" %}
 
-      {% include "ui/includes/_widget.html" with caption="CPU Usage" %}
+      {% include "ui/includes/_widget_hide_show.html" with caption="CPU Usage" %}
         <div id="graph_cpu" class="graph" style="width:100%;"></div>
       {% include "ui/includes/_end_widget.html" %}
 
-      {% include "ui/includes/_widget.html" with caption="Memory Usage" %}
+      {% include "ui/includes/_widget_hide_show.html" with caption="Memory Usage" %}
         <div id="graph_mem" class="graph" style="width:100%;"></div>
       {% include "ui/includes/_end_widget.html" %}
 
@@ -204,7 +204,7 @@
 
          $("#fs_graph_blocks_percent_{{fs.name}}").dygraphite({
             target: [
-              ['summarize({{server.localhostname|normalize}}.fs.{{fs.name}}.blocks_percent,\'avg\')', 'Blocks %'],
+              ['{{server.localhostname|normalize}}.fs.{{fs.name}}.blocks_percent', 'Blocks %'],
             ]
           },{
             ylabel : "%",
@@ -336,5 +336,4 @@
 });
 
     </script>
-    <script src="{% static 'js/server.js' %}"></script>
   {% endblock javascript %}

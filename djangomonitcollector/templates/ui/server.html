@@ -1,47 +1,70 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load extra_tags %}
-
-{% block page_title %} Server : <strong class="text-red">{{ server.localhostname }}</strong> <br/> IP : <strong class="text-blue">{{ server.external_ip }}</strong> {% endblock %}
+{% load i18n %}
+{% block page_title %} Server : <strong class="c-red">{{ server.localhostname }}</strong> <br/> IP : <strong class="c-red">{{ server.external_ip }}</strong> <br/> Server Uptime : <strong class="c-red">{{ server.uptime|time_str }}</strong> {% endblock %}
 
 {% block submenu %}
   <li class="nav-item">
     <a class="nav-link" href="{% url 'ui:server_alerts' server.id %}"><i class="fa fa-bell"></i>Active Alerts <span
-    class="label label-{{ alerts_count|status_alert }} pull-right">{{ alerts_count }}</span></a>
+    class="label {{ alerts_count|status_alert }} pull-right">{{ alerts_count }}</span></a>
   </li>
    <li class="nav-item">
     <a class="nav-link" href="{% url 'ui:server_kpis' server.id %}"><i class="fa fa-bar-chart"></i> Key Performance Indicators</a>
   </li>
-  <li class="nav-item">
-        <a class="nav-link scroll" href="#processes"><i class="fa fa-bullseye"></i> Processes</a>
-    </li>
-          <li class="nav-item">
-        <a class="nav-link scroll" href="#programs"><i class="fa fa-bullseye"></i> Programs</a>
-    </li>
-      <li class="nav-item">
-        <a class="nav-link scroll" href="#filesystems"><i class="fa fa-bullseye"></i> FileSystems</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link scroll" href="#directory"><i class="fa fa-bullseye"></i> Directories </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link scroll" href="#files" ><i class="fa fa-bullseye"></i> Files</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link scroll" href="#network"><i class="fa fa-bullseye"></i> Network</a>
-    </li>
+
+   {% if processes %}
         <li class="nav-item">
-        <a class="nav-link scroll" href="#host"><i class="fa fa-bullseye"></i> Host</a>
-    </li>
+          <a class="nav-link scroll" href="#processes"><i class="fa fa-bullseye"></i> {% trans 'Processes' %} <span class="label bgm-indigo pull-right">{{ processes|length  }}</span></a>
+
+        </li>
+      {%  endif %}
+
+      {% if programs %}
+        <li class="nav-item">
+          <a class="nav-link scroll" href="#programs"><i class="fa fa-bullseye"></i>  {% trans 'Programs' %} <span class="label bgm-indigo pull-right">{{ programs|length  }}</span></a>
+        </li>
+      {% endif %}
+
+      {% if filesystems %}
+        <li class="nav-item">
+          <a class="nav-link scroll" href="#filesystems"><i class="fa fa-bullseye"></i>  {% trans 'FileSystems' %} <span class="label bgm-indigo pull-right">{{ filesystems|length  }}</span></a>
+        </li>
+      {% endif %}
+
+      {% if directories %}
+        <li class="nav-item">
+          <a class="nav-link scroll" href="#directories"><i class="fa fa-bullseye"></i>{% trans ' Directories' %} <span class="label bgm-indigo pull-right">{{ directories|length  }}</span> </a>
+        </li>
+      {% endif %}
+
+      {% if files %}
+        <li class="nav-item">
+          <a class="nav-link scroll" href="#files" ><i class="fa fa-bullseye"></i>  {% trans 'Files' %} <span class="label bgm-indigo pull-right">{{ files|length  }}</span></a>
+        </li>
+      {% endif %}
+
+      {% if nets %}
+        <li class="nav-item">
+          <a class="nav-link scroll" href="#networks"><i class="fa fa-bullseye"></i>  {% trans 'Network' %} <span class="label bgm-indigo pull-right">{{ nets|length  }}</span></a>
+        </li>
+      {% endif %}
+
+      {% if hosts %}
+        <li class="nav-item">
+          <a class="nav-link scroll" href="#hosts"><i class="fa fa-bullseye"></i>  {% trans 'Host' %} <span class="label bgm-indigo pull-right">{{ hosts|length  }}</span></a>
+        </li>
+      {% endif %}
+
   <li class="nav-item">
-    <a class="nav-link" href="{% url 'ui:server_show' server.id %}"><i class="fa fa-wrench"></i> Server Settings</a>
+    <a class="nav-link" href="{% url 'ui:server_show' server.id %}"><i class="fa fa-wrench"></i>  {% trans 'Server Settings' %} </a>
   </li>
 {% endblock %}
 {% block content %}
 
 
 <div class="row">
-    <div class="col-md-12 gauges">
+
         <div class="col-md-4 col-md-6 column">
             {% include "ui/includes/_widget.html" with caption="CPU Usage"  %}
             <div class="p-t-25 p-b-20 text-center">
@@ -84,12 +107,11 @@
                 </div>
             {% include "ui/includes/_end_widget.html" %}
         </div>
-    </div>
+
 </div>
 
 <div class="row">
-    <div class="col-md-12 graphs">
-      <div class="col-md-4 col-md-6 column">
+     <div class="col-md-4 col-md-6 column">
           {% include "ui/includes/_widget.html" with caption="Load" description="Last 15 minutes" %}
                 <div id="graph_load" class="graph" style="width:100%;"></div>
            {% include "ui/includes/_end_widget.html" %}
@@ -105,47 +127,46 @@
                 <div id="graph_mem" class="graph" style="width:100%;"></div>
           {% include "ui/includes/_end_widget.html" %}
       </div>
-    </div>
 </div>
 
     {% if processes %}
-          {% include "ui/includes/_widget.html" with caption="processes" %}
+          {% include "ui/includes/_widget.html" with caption="processes" html_id="processes" %}
             {% include "ui/includes/server_table.html" %}
           {% include "ui/includes/_end_widget.html" %}
       {%  endif %}
 
       {% if programs %}
-          {% include "ui/includes/_widget.html" with caption="Programs" %}
+          {% include "ui/includes/_widget.html" with caption="Programs"  html_id="programs" %}
             {% include "ui/includes/program_table.html" %}
           {% include "ui/includes/_end_widget.html" %}
       {% endif %}
 
       {% if filesystems %}
-          {% include "ui/includes/_widget.html" with caption="Filesystems" description="Filesystems and Mount points" %}
+          {% include "ui/includes/_widget.html" with caption="Filesystems" description="Filesystems and Mount points" html_id="filesystems" %}
             {% include "ui/includes/filesystem_table.html" %}
           {% include "ui/includes/_end_widget.html" %}
       {% endif %}
 
       {% if directories %}
-          {% include "ui/includes/_widget.html" with caption="Directories" %}
+          {% include "ui/includes/_widget.html" with caption="Directories" html_id="directories" %}
             {% include "ui/includes/directory_table.html" %}
           {% include "ui/includes/_end_widget.html" %}
       {% endif %}
 
       {% if files %}
-            {% include "ui/includes/_widget.html" with caption="Files" %}
+            {% include "ui/includes/_widget.html" with caption="Files" html_id="files" %}
                 {% include "ui/includes/file_table.html" %}
             {% include "ui/includes/_end_widget.html" %}
       {% endif %}
 
       {% if nets %}
-            {% include "ui/includes/_widget.html" with caption="Nets" description="Network Interfaces" %}
+            {% include "ui/includes/_widget.html" with caption="Nets" description="Network Interfaces" html_id="networks" %}
                 {% include "ui/includes/net_table.html" %}
             {% include "ui/includes/_end_widget.html" %}
       {% endif %}
 
       {% if hosts %}
-            {% include "ui/includes/_widget.html" with caption="Hosts" description="" %}
+            {% include "ui/includes/_widget.html" with caption="Hosts" description=""  html_id="hosts" %}
                 {% include "ui/includes/host_table.html" %}
             {% include "ui/includes/_end_widget.html" %}
       {% endif %}

@@ -2,168 +2,160 @@
 {% load i18n %}
 <div class="modal-dialog">
     <div class="modal-content animated fadeIn">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
-            <i class="fa fa-bell-o modal-icon"></i>
-            <h4 class="modal-title">Event Details</h4>
-            <small>{{ monit_event.event_message }}</small>
-        </div>
-        <div class="modal-body">
-            <div>
-                <!-- Nav tabs -->
-                <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" {% if not comments %}class="active"{% endif %}><a href="#event_details" aria-controls="event_details" role="tab" data-toggle="tab">Event Details</a></li>
-                    <li role="presentation" {% if comments %}class="active"{% endif %}><a href="#comments" aria-controls="comments" role="tab" data-toggle="tab">Comments</a></li>
-                </ul>
-                <!-- Tab panes -->
-                <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane fade in {% if not comments %}active{% endif %} " id="event_details">
-                     <p>
-
-                    <div class="list-group">
-                        <div class="row clearfix list-group-item">
-                            <div class="col-md-12">
-                                <div class="col-md-3 list-group-item-text">
-                                    <b>Event</b>
-                                </div>
-                                <div class="col-md-9 list-group-item-text">
-                                    <span class="label label-warning" >{{ monit_event.id }}<span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row list-group-item">
-                            <div class="col-md-12">
-                                <div class="col-md-3 list-group-item-text">
-                                    <b>Status</b>
-                                </div>
-                                <div class="col-md-9 list-group-item-text">
-                                    {% if monit_event.event_state == 1  %}
-                                        {% if monit_event.alarm_raised and not monit_event.cleared_by %} Raised {% elif monit_event.alarm_raised and monit_event.cleared_by %} Raised and Cleared {% else %} Duplicate {% endif %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row list-group-item">
-                            <div class="col-md-12">
-                                <div class="col-md-3 list-group-item-text">
-                                    <b>Event Type </b>
-                                </div>
-                                <div class="col-md-9 list-group-item-text">
-                                    {{ monit_event.event_type|type_to_string }}<br/><b>{{ monit_event.service}} </b>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row list-group-item">
-                            <div class="col-md-12">
-                                <div class="col-md-3 list-group-item-text">
-                                    <b>Host</b>
-                                </div>
-                                <div class="col-md-9 list-group-item-text">
-                                    {{ monit_event.server.localhostname }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row list-group-item">
-                            <div class="col-md-12">
-                                <div class="col-md-3 list-group-item-text">
-                                    <b>Date </b>
-                                </div>
-                                <div class="col-md-9 list-group-item-text">
-                                    {{ monit_event.event_time}} <br/> {{ monit_event.event_time|time_diff|format_timedelta }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row list-group-item">
-                            <div class="col-md-12">
-                                <div class="col-md-3 list-group-item-text">
-                                    <b>Event ID </b>
-                                </div>
-                                <div class="col-md-9 list-group-item-text">
-                                    {{ monit_event.event_id|event_status_to_string }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row list-group-item">
-                            <div class="col-md-12">
-                                <div class="col-md-3 list-group-item-text">
-                                    <b>Event State </b>
-                                </div>
-                                <div class="col-md-9 list-group-item-text">
-                                    <span class="label label-{{ monit_event.event_state|event_state_to_style }}"> <b>{{ monit_event.event_state|event_state_to_string }}</b></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row list-group-item">
-                            <div class="col-md-12">
-                                <div class="col-md-3 list-group-item-text">
-                                    <b>Monit Action </b>
-                                </div>
-                                <div class="col-md-9 list-group-item-text">
-                                    {{ monit_event.event_action|action_to_string }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </p>
+        <div class="card">
+            <div class="card-header ch-alt ">
+                <h2> <i class="fa fa-bell-o modal-icon"></i> Event details <small>{{ monit_event.event_message }}</small></h2>
+                <div class="actions">
                 </div>
-                <div role="tabpanel" class="tab-pane fade in {% if comments %}active{% endif %}" id="comments">
-                 <p>
-                    <div class="list-group">
-                        <div class="row clearfix list-group-item no-comments" style="display:none">
-                            <div class="col-md-12 list-group-item-text">
-                                {% trans 'There are no comments yet on this event.' %}
-                            </div>
-                        </div>
-                     {% for comment in monit_event.moniteventcomment_set.all %}
+                <button class="btn btn-default btn-float waves-effect waves-circle waves-float minimize bgm-red"  data-dismiss="modal" ><i class="zmdi zmdi-close"></i></button>
+            </div>
+            <div class="card-body card-padding">
+                <div role="tabpanel" class="tab">
+                    <!-- Nav tabs -->
+                    <ul class="tab-nav" role="tablist">
+                        <li role="presentation" {% if not comments %}class="active"{% endif %}><a href="#event_details" aria-controls="event_details" role="tab" data-toggle="tab">Event Details</a></li>
+                        <li role="presentation" {% if comments %}class="active"{% endif %}><a href="#comments" aria-controls="comments" role="tab" data-toggle="tab">Comments</a></li>
+                    </ul>
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade in {% if not comments %}active{% endif %} " id="event_details">
 
+                            <div class="p-5">
+                                <div class="row ">
+                                    <div class="col-md-12 m-10">
+                                        <div class="col-md-3 -text">
+                                            <b>Event</b>
+                                        </div>
+                                        <div class="col-md-9 -text">
+                                            <span class="label label-warning" >{{ monit_event.id }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row ">
+                                        <div class="col-md-12 m-10">
+                                            <div class="col-md-3 -text">
+                                                <b>Status</b>
+                                            </div>
+                                            <div class="col-md-9 -text">
+                                                {% if monit_event.event_state == 1  %}
+                                                    {% if monit_event.alarm_raised and not monit_event.cleared_by %} Raised {% elif monit_event.alarm_raised and monit_event.cleared_by %} Raised and Cleared {% else %} Duplicate {% endif %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row ">
+                                        <div class="col-md-12 m-10">
+                                            <div class="col-md-3 -text">
+                                                <b>Event Type </b>
+                                            </div>
+                                            <div class="col-md-9 -text">
+                                                {{ monit_event.event_type|type_to_string }}<br/><b>{{ monit_event.service}} </b>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row ">
+                                        <div class="col-md-12 m-10">
+                                            <div class="col-md-3 -text">
+                                                <b>Host</b>
+                                            </div>
+                                            <div class="col-md-9 -text">
+                                                {{ monit_event.server.localhostname }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row ">
+                                        <div class="col-md-12 m-10">
+                                            <div class="col-md-3 -text">
+                                                <b>Date </b>
+                                            </div>
+                                            <div class="col-md-9 -text">
+                                                {{ monit_event.event_time}} <br/> {{ monit_event.event_time|time_diff|format_timedelta }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row ">
+                                        <div class="col-md-12 m-10">
+                                            <div class="col-md-3 -text">
+                                                <b>Event ID </b>
+                                            </div>
+                                            <div class="col-md-9 -text">
+                                                {{ monit_event.event_id|event_status_to_string }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row ">
+                                        <div class="col-md-12 m-10">
+                                            <div class="col-md-3 -text">
+                                                <b>Event State </b>
+                                            </div>
+                                            <div class="col-md-9 -text">
+                                                <span class="label label-{{ monit_event.event_state|event_state_to_style }}"> <b>{{ monit_event.event_state|event_state_to_string }}</b></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row ">
+                                        <div class="col-md-12 m-10">
+                                            <div class="col-md-3 -text">
+                                                <b>Monit Action </b>
+                                            </div>
+                                            <div class="col-md-9 -text">
+                                                {{ monit_event.event_action|action_to_string }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> <!-- p-5 -->
+                        </div> <!--tabpanel -->
+                        <div role="tabpanel" class="tab-pane fade in {% if comments %}active{% endif %}" id="comments">
 
-                     <div class="row clearfix list-group-item" id="comment-{{comment.id}}">
-                            <div class="col-md-12 list-group-item-text">
-                             <b>{{comment.user|title}}</b> added a comment - {{comment.created_at}}
-                             <p class="text-info markdown-content" id="comment-text-{{comment.id}}">
-                             {{comment.content}}
-                            </p>
-                             {% if current_user == comment.user %}
-                             <div  role="group" aria-label="First group">
-                                <button type="button" class="btn btn-circle btn-danger pull-right btn-delete" comment-id="{{comment.id}}"><i class="fa fa-trash"></i></button>
-                                <button type="button" class="btn btn-circle btn-primary pull-right btn-edit" comment-id="{{comment.id}}"><i class="fa fa-edit"></i></button>
-                            </div>
-                             {% endif %}
-                            </div>
-
-                        </div>
-                     {% empty %}
-                        <div class="row clearfix list-group-item no-comments">
-                            <div class="col-md-12 list-group-item-text">
-                                {% trans 'There are no comments yet on this event.' %}
-                            </div>
-                        </div>
-                    {% endfor %}
-                        <div class="row editor clearfix list-group-item">
-                            <div class="col-md-12 list-group-item-text">
-                            <textarea id="comment-textarea"  class="form-control" rows="5" style="display: none"></textarea>
-                            </div>
-                        </div>
-                        <div class="row  list-group-item">
-                            <div class="col-md-12">
-                                <div class="col-md-3 list-group-item-text">
-                                    <button type="button" class="btn btn-white btn-comment"> <i class="fa fa-comment-o"></i> Comment</button>
-                                    <button type="button" class="btn btn-primary btn-add" style="display: none" is-new="true">Add</button>
+                            <div class="m-10">
+                                <div class="row clearfix  no-comments" style="display:none">
+                                    <div class="col-md-12 -text">
+                                        {% trans 'There are no comments yet on this event.' %}
+                                    </div>
+                                </div>
+                                {% for comment in monit_event.moniteventcomment_set.all %}
+                                    <div class="row clearfix " id="comment-{{comment.id}}">
+                                        <div class="col-md-12 m-10">
+                                            <b>{{comment.user|title}}</b> added a comment - {{comment.created_at}}
+                                            <p class="text-info markdown-content" id="comment-text-{{comment.id}}">
+                                                {{comment.content}}
+                                            </p>
+                                            {% if current_user == comment.user %}
+                                                <div  role="group" aria-label="First group">
+                                                    <button type="button" class="btn btn-circle btn-danger pull-right btn-delete" comment-id="{{comment.id}}"><i class="fa fa-trash"></i></button>
+                                                    <button type="button" class="btn btn-circle btn-primary pull-right btn-edit" comment-id="{{comment.id}}"><i class="fa fa-edit"></i></button>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="row clearfix  no-comments">
+                                        <div class="col-md-12 c-red">
+                                            {% trans 'There are no comments yet on this event.' %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                <div class="row editor clearfix ">
+                                    <div class="col-md-12 fg-line m-t-10">
+                                        <textarea id="comment-textarea"  class="form-control" rows="5" style="display: none"></textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 m-20">
+                                        <div class="col-md-3 -text">
+                                            <button type="button" class="btn btn-white btn-comment"> <i class="fa fa-comment-o"></i> Comment</button>
+                                            <button type="button" class="btn btn-primary btn-add" style="display: none" is-new="true">Add</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </p>
-                </div>
-            </div>
-        </div>
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
+                        </div><!--tabpanel -->
+                    </div><!-- tabcontent -->
+                </div> <!-- tabpanel -->
+            </div><! --cardbody -->
+        </div><!-- card -->
+     </div><!-- modal content -->
+</div><! -- modal -->
 <script type="text/javascript">
 $(".btn-comment").click(function(){
  //       $("#comment-textarea").markdown({autofocus:false,savable:false,iconlibrary:"fa"})
@@ -179,7 +171,6 @@ $(".btn-add").click(function(){
     if ($("#comment-textarea").val().length > 0)
     {
         is_new_attribue = $(this).attr("is-new")
-        console.log(is_new_attribue)
         if (is_new_attribue=="true")
             comment_action("new",0)
         else
@@ -195,7 +186,6 @@ $(".btn-delete").click(function(){
 $(".btn-edit").click(function(){
     comment_id = $(this).attr("comment-id")
     comment_text = $("#comment-text-"+comment_id).html()
-    console.log(comment_text)
  //   $("#comment-textarea").markdown({autofocus:false,savable:false})
     $("#comment-textarea").show()
      $("#comment-textarea").val(comment_text)
@@ -227,6 +217,7 @@ var comment_action = function(action, comment_id){
              success: function(data) {
                 if (action=="new"){
                         $('.no-comments').hide();
+                        $("#comment-textarea").val("")
                         $(data.html).insertBefore(".editor");
                     }
                 else{

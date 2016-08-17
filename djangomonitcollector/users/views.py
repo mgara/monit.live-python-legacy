@@ -192,7 +192,7 @@ def new_collector_key(request):
 
 
 def build_collector_key_view(ck):
-    res = ' <li class="list-group-item" id="{0}">\
+    res = ' <li class="p-10  ck-item" id="{0}">\
     <h2 style="font-family: \'Abel\', cursive;"><span class="btn btn-circle \
     btn-danger" data-toggle="tooltip" data-placement="left" title="" data-original-title="Delete" onclick="delete_key(this)" data-key="{0}" ><i class="\
     fa fa-trash"></i></span><span class="btn btn-circle \

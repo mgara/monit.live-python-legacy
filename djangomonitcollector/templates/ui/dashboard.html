@@ -14,13 +14,16 @@
 {% block content %}
 
 
-  {% include "ui/includes/_widget.html" with caption="Filter"  %}
-    <select  data-placeholder="Display Filter..."  class="col-lg-6 chosen-select" multiple="">
+  {% include "ui/includes/_widget_hide_show.html" with caption="Filter"  %}
+  <div class="col-md-6">
+    <select  data-placeholder="Display Filter..."  class="chosen chosen-select" multiple="">
       {% for hg in all_hgs %}
         <option value="{{hg.id}}">{{hg.slug}}</option>
       {% endfor %}
     </select>
+    </div>
     <button class="ladda-button btn btn-default hec-button waves-effect"  data-style="zoom-in"><i class="fa fa-filter"></i></button>
+
   {% include "ui/includes/_end_widget.html" %}
 
 
@@ -102,29 +105,29 @@
           </div>
           <script>
           $(document).ready(function() {
-   $('[data-toggle="tooltip"]').tooltip();
+             $('[data-toggle="tooltip"]').tooltip();
 
-   $('.btn-toggle-info').click(function(e){
-        e.stopPropagation();
-        var target = $(this).attr("data-href")
-        var tr = $("#"+target)
-        var td = tr.children('td')
-        console.log(tr.css('height'))
-        console.log(tr.css('top'))
-        var div = td.children('div .server-data')
-        if(div.is(":hidden"))
-        {
-            $(this).children().removeClass('fa-arrow-circle-down');
-            $(this).children().addClass('fa-arrow-circle-up');
-            div.slideDown(100)
-        }else
-        {
-            $(this).children().removeClass('fa-arrow-circle-up');
-            $(this).children().addClass('fa-arrow-circle-down');
-            div.slideUp(100)
-        }
-   })
-});
+             $('.btn-toggle-info').click(function(e){
+                  e.stopPropagation();
+                  var target = $(this).attr("data-href")
+                  var tr = $("#"+target)
+                  var td = tr.children('td')
+                  console.log(tr.css('height'))
+                  console.log(tr.css('top'))
+                  var div = td.children('div .server-data')
+                  if(div.is(":hidden"))
+                  {
+                      $(this).children().removeClass('fa-arrow-circle-down');
+                      $(this).children().addClass('fa-arrow-circle-up');
+                      div.slideDown(100)
+                  }else
+                  {
+                      $(this).children().removeClass('fa-arrow-circle-up');
+                      $(this).children().addClass('fa-arrow-circle-down');
+                      div.slideUp(100)
+                  }
+             })
+          });
           </script>
   {% include "ui/includes/_end_widget.html" %}
 
@@ -177,6 +180,8 @@ $(document).ready(function () {
    });
   });
 
+ $(".chosen-select").chosen();
+
 
   //  Select the actual selected list by the user
   {% for hg in request.user.host_groups.all %}
@@ -186,7 +191,6 @@ $(document).ready(function () {
         });
   {% endfor %}
 
- $(".chosen-select").chosen();
 
 });
 </script>
