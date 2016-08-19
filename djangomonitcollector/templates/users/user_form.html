@@ -72,84 +72,84 @@
         </div>
     {% endif %}
     <div class="form-group fg-line {% if form.first_name.errors %} has-error {% endif %}">
-    {{ form.first_name.label_tag }}
-    {{ form.first_name|add_class:"form-control" }}
-    {% if form.first_name.errors %}
-        <small class="help-block">
-        {{ form.first_name.errors }}
-        </small>
-    {% endif %}
-</div>
-<div class="form-group fg-line  {% if form.last_name.errors %} has-error {% endif %}">
-{{ form.last_name.label_tag }}
-{{ form.last_name|add_class:"form-control" }}
-{% if form.last_name.errors %}
+        {{ form.first_name.label_tag }}
+        {{ form.first_name|add_class:"form-control" }}
+        {% if form.first_name.errors %}
+            <small class="help-block">
+                {{ form.first_name.errors }}
+            </small>
+        {% endif %}
+    </div>
+    <div class="form-group fg-line  {% if form.last_name.errors %} has-error {% endif %}">
+        {{ form.last_name.label_tag }}
+        {{ form.last_name|add_class:"form-control" }}
+        {% if form.last_name.errors %}
+            <small class="help-block">
+                {{ form.last_name.errors }}
+            </small>
+        {% endif %}
+    </div>
+    <div class="form-group fg-line {% if form.user_timezone.errors %} has-error {% endif %}">
+        {{ form.user_timezone.label_tag }}
+        {{ form.user_timezone|add_class:"form-control chosen" }}
+        {% if form.user_timezone.errors %}
+            <small class="help-block">
+                {{ form.user_timezone.errors }}
+            </small>
+        {% endif %}
+    </div>
+    <div class="form-group fg-line {% if form.inspinia_skin.errors %} has-error {% endif %}">
+        {{ form.inspinia_skin.label_tag }}
+        {{ form.inspinia_skin|add_class:"form-control chosen" }}
+        {% if form.inspinia_skin.errors %}
+            <small class="help-block">
+                {{ form.inspinia_skin.errors }}
+            </small>
+        {% endif %}
+    </div>
+    {% if request.user.organisation_manager %}
+        <div class="form-group fg-line  {% if form.organisation_manager.errors %} has-error {% endif %}">
+        <div class="toggle-switch toggle-switch-demo" data-ts-color="red">
+        {{ form.organisation_manager.label_tag }}
+        {{ form.organisation_manager }}
+        <label for="ts5" class="ts-helper"></label>
+        </div>
+        </div>
+    <div class="form-group fg-line {% if form.host_groups.errors %} has-error {% endif %}">
+    {{ form.host_groups.label_tag }}
+    {{ form.host_groups|add_class:"form-control chosen" }}
+    {% if form.host_groups.errors %}
     <small class="help-block">
-    {{ form.last_name.errors }}
+    {{ form.host_groups.errors }}
     </small>
-{% endif %}
-</div>
-<div class="form-group fg-line {% if form.user_timezone.errors %} has-error {% endif %}">
-{{ form.user_timezone.label_tag }}
-{{ form.user_timezone|add_class:"form-control chosen" }}
-{% if form.user_timezone.errors %}
-<small class="help-block">
-{{ form.user_timezone.errors }}
-</small>
-{% endif %}
-</div>
-<div class="form-group fg-line {% if form.inspinia_skin.errors %} has-error {% endif %}">
-{{ form.inspinia_skin.label_tag }}
-{{ form.inspinia_skin|add_class:"form-control chosen" }}
-{% if form.inspinia_skin.errors %}
-<small class="help-block">
-{{ form.inspinia_skin.errors }}
-</small>
-{% endif %}
-</div>
-{% if request.user.organisation_manager %}
-<div class="form-group fg-line  {% if form.organisation_manager.errors %} has-error {% endif %}">
-<div class="toggle-switch toggle-switch-demo" data-ts-color="red">
-{{ form.organisation_manager.label_tag }}
-{{ form.organisation_manager }}
-<label for="ts5" class="ts-helper"></label>
-</div>
-</div>
-<div class="form-group fg-line {% if form.host_groups.errors %} has-error {% endif %}">
-{{ form.host_groups.label_tag }}
-{{ form.host_groups|add_class:"form-control chosen" }}
-{% if form.host_groups.errors %}
-<small class="help-block">
-{{ form.host_groups.errors }}
-</small>
-{% endif %}
-</div>
-{% if not object.id %}
-<div class="form-group fg-line">
-{{ form.organisation.label_tag }}
-{{ request.user.organisation.name|title}}
-</div>
-{% endif %}
-{% endif %}
-{% if request.user.is_superuser %}
-<div class="form-group fg-line  {% if form.organisation_manager.errors %} has-error {% endif %}">
-{{ form.organisation_manager.label_tag }}
-{{ form.organisation_manager }}
-</div>
-<div class="form-group fg-line">
-{{ form.organisation.label_tag }}
-{{ form.organisation|add_class:"form-control chosen" }}
-</div>
-{% endif %}
-</div>
-</div>
-{% include "ui/includes/_end_widget.html" %}
-{% include "ui/includes/_widget_buttonbar.html" %}
-<div class="row ">
-<button type="submit" class="btn btn-primary">{% if object.id %}{% trans 'Update' %}{% else %}{% trans 'Create' %}{% endif %}</button>
-</div>
-</div>
-{% include "ui/includes/_end_widget.html" %}
+    {% endif %}
+    </div>
+    {% if not object.id %}
+    <div class="form-group fg-line">
+    {{ form.organisation.label_tag }}
+    {{ request.user.organisation.name|title}}
+    </div>
+    {% endif %}
+    {% endif %}
+    {% if request.user.is_superuser %}
+    <div class="form-group fg-line  {% if form.organisation_manager.errors %} has-error {% endif %}">
+    {{ form.organisation_manager.label_tag }}
+    {{ form.organisation_manager }}
+    </div>
+    <div class="form-group fg-line">
+    {{ form.organisation.label_tag }}
+    {{ form.organisation|add_class:"form-control chosen" }}
+    </div>
+    {% endif %}
+    </div>
+    </div>
+    {% include "ui/includes/_end_widget.html" %}
+    {% include "ui/includes/_widget_buttonbar.html" %}
+    <div class="row ">
+    <button type="submit" class="btn btn-primary">{% if object.id %}{% trans 'Update' %}{% else %}{% trans 'Create' %}{% endif %}</button>
+    </div>
+    </div>
+    {% include "ui/includes/_end_widget.html" %}
 </form>
 {% endblock %}
 {% block javascript %}

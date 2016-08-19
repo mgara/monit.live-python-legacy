@@ -279,7 +279,7 @@
     // Override with the options argument for per-case setup
     // or set $.fn.graphite.defaults.<value> for global changes
     $.fn.graphite.defaults = {
-        from: "-24hours",
+        from: "-48hours",
         height: "300",
         until: "now",
         url: "/render/",

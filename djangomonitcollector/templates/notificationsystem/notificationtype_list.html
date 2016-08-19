@@ -10,56 +10,51 @@
 
 
 {% block content %}
-
-<div class="container">
-    <div class="row">
-
-        {% if object_list %}
-            <table class="table table-hover table-hover table-striped table-bordered">
+{% include "ui/includes/_widget.html" with caption="Configured Notification Rules"  %}
+<div class="row">
+    {% if object_list %}
+        <table class="table table-hover  table-inner table-vmiddle">
+            <thead>
                 <tr>
-                    <th class="col-sm-1"></th>
                     <th class="col-sm-1">Status</th>
-                    <th class="col-sm-6">Notification Label</th>
+                    <th class="col-sm-5">Notification Label</th>
                     <th class="col-sm-3">Created At</th>
                     <th class="col-sm-1">Created By</th>
+                    <th class="col-sm-2"><i class="fa fa-wrench"></i></th>
                 </tr>
+            </thead>
+            {% for nt in object_list %}
 
-                {% for nt in object_list %}
-                    <tr class="link" >
-                        <td>
+                <tr class="link" >
 
-                            <div class="btn-group pull-right" role="group" aria-label="...">
-                                <button type="button" class="btn btn-xs btn-info" onclick="document.location = '{% url 'n:notificationtype_view' nt.id %}';" ><i class="fa fa-eye"></i></button>
-                                <button type="button" class="btn btn-xs btn-info" onclick="document.location = '{% url 'n:notificationtype_update' nt.id %}';"><i class="fa fa-edit"></i></button>
-                                <button type="button" class="btn btn-xs btn-danger" onclick="document.location = '{% url 'n:notificationtype_delete'  nt.id %}';"><i class="fa fa-trash-o"></i></button>
-                            </div>
-
-                        </td>
-                        <td>{{ nt.notification_enabled|nt_status_to_label|safe }}</td>
-                        <td>{{ nt.notification_label }}</td>
-                        <td>{{ nt.created_at }}</td>
-                        <td>{{ nt.notification_user }}</td>
-                    </tr>
-                {% endfor %}
-            </table>
-        {% else %}
-            <div class="container">
-
-               <div class="row">
-                    <p>  <h2><span class="text-navy">{% trans " There are no notification rules configured Yet" %}</span></h2>
-                    </p>
-
-                </div>
-                 <div class="hr-line-dashed"></div>
-                    <div class="row clearfix">
-                        <a href="{% url 'n:notificationtype_create' %}" class="btn btn-primary">{% trans "New Notification Rule" %}</a>
-                    </div>
+                    <td>{{ nt.notification_enabled|nt_status_to_label|safe }}</td>
+                    <td>{{ nt.notification_label }}</td>
+                    <td><a href="#" data-toggle="tooltip" data-placement="top" title="{{ nt.created_at }}">{{ nt.created_at|time_diff|format_timedelta }}</a></td>
+                    <td>{{ nt.notification_user|title }}</td>
+                                        <td>
+                            <a data-toggle="tooltip" data-placement="top" title="View" class="btn btn-xs   bgm-indigo" href='{% url 'n:notificationtype_view' nt.id %}';" ><i class="zmdi zmdi-view-stream"></i></a>
+                            <a  data-toggle="tooltip" data-placement="top" title="Edit" class="btn btn-xs   bgm-indigo" href='{% url 'n:notificationtype_update' nt.id %}';"><i class="zmdi zmdi-edit"></i></a>
+                            <a  data-toggle="tooltip" data-placement="top" title="Delete" class="btn btn-xs bgm-red" href='{% url 'n:notificationtype_delete'  nt.id %}';"><i class="zmdi zmdi-delete"></i></a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <div class="p-20">
+            <div class="alert alert-info ">
+                {% trans " There are no notification rules configured yet" %}
             </div>
-          </div>
         </div>
-        {% endif %}
+    {% endif %}
 </div>
-    </div>
+{% include "ui/includes/_end_widget.html" %}
+{% include "ui/includes/_widget_buttonbar.html"  %}
+<div class="row ">
+    <a href="{% url 'n:notificationtype_create' %}" class="btn btn-primary"> <i class="zmdi zmdi-notifications-add"></i>
+ {% trans "New Notification Rule" %}</a>
+</div>
+{% include "ui/includes/_end_widget.html" %}
+
     <script language="javascript">
         function toggle(source) {
             checkboxes = document.getElementsByName('delete_item');

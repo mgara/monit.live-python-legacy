@@ -3,20 +3,17 @@ import re
 
 from braces.views import LoginRequiredMixin
 from django import forms
+from django.core import serializers
 from django.core.urlresolvers import reverse_lazy
 from django.http import JsonResponse
 from django.shortcuts import redirect
+from django.template import defaultfilters
+from django.template.loader import render_to_string
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-
 from djangomonitcollector.datacollector.models import Server, MonitEvent, MonitEventComment
 from forms import NotificationTypeForm, get_class_name_and_extra_params
 from models import NotificationType
-from django.contrib import messages
-from django.template import defaultfilters
-
-from django.template.loader import render_to_string
-from django.core import serializers
 
 
 def check_item(item, string_list_of_items):
@@ -25,8 +22,6 @@ def check_item(item, string_list_of_items):
     try:
         list_of_items = ast.literal_eval(string_list_of_items)
     except StandardError as e:
-        print "exception while parsing {} ".format(string_list_of_items)
-        print "exception details {}".format(e)
         return "Error"
     if len(list_of_items) == 0:
         return True
@@ -64,8 +59,8 @@ def notificationtype_mute_all(request, pk):
             messages_matches = True if re.search(
                 nt.notification_message, event_object.event_message) else False
 
-        if name_matches and state_matches and action_matches and type_matches and messages_matches:
-            MonitEvent.mute(event_object)
+            if name_matches and state_matches and action_matches and type_matches and messages_matches:
+                MonitEvent.mute(event_object)
 
     return redirect('n:notificationtype_view', pk=pk)
 
@@ -81,7 +76,7 @@ def clean_file_name_and_filesystem_name(filesystem_raw_service_name):
 
 def get_user_services(org):
     '''
-    This function returns the list of the services assigned to the current user
+    This function returns the list of the services assigned to the current organisation
     '''
     user_servers = Server.objects.filter(organisation=org)
     service_list = tuple()
@@ -126,6 +121,10 @@ class NotificationTypeView(LoginRequiredMixin, DetailView):
 class NotificationTypeCreate(LoginRequiredMixin, CreateView):
     form_class = NotificationTypeForm
     model = NotificationType
+
+    def form_invalid(self, form):
+        print form.__dict__
+        return super(NotificationTypeCreate, self).form_invalid(form)
 
     def form_valid(self, form):
         form.instance.organisation = self.request.user.organisation
@@ -183,7 +182,7 @@ def get_notification_plugin_form(request):
                 extra_params_values = ast.literal_eval(NotificationType.objects.get(
                     id=notification_type_id).notification_plugin_extra_params)
 
-        k, extra_params, klass_obj = get_class_name_and_extra_params(
+        k, extra_params, klass = get_class_name_and_extra_params(
             plugin_name.lower())
         output = ""
 
@@ -194,25 +193,32 @@ def get_notification_plugin_form(request):
                     field].id in extra_params_values else ""
                 field_label = extra_params[field].label
                 field_choices = extra_params[field].choices
+                field_help_block = extra_params[field].help_block
                 output += get_component(
                     field_id,
                     field_label,
                     field_value,
-                    field_choices
+                    field_choices,
+                    field_help_block
                 )
         else:
             for field in extra_params.keys():
+                print extra_params[field].__dict__
                 output += get_component(
                     extra_params[field].id,
                     extra_params[field].label,
                     '',
-                    extra_params[field].choices
+                    extra_params[field].choices,
+                    extra_params[field].help_block
                 )
+                print extra_params[field].help_block
+            plugin_help_message = klass().get_helpmessage()
 
         res = {
             'code': 200,
             'error_id': 0,
-            'html_form': output
+            'html_form': output,
+            'help_message': plugin_help_message
         }
 
     except StandardError as e:
@@ -226,18 +232,25 @@ def get_notification_plugin_form(request):
     return JsonResponse(res, status=res['code'])
 
 
-def get_component(_id, _label, _value='', _choices=None):
-    prefix = '<div id="div_id_{0}" class="form-group has-warning">' \
+def get_component(_id, _label, _value='', _choices=None, _help_block=None):
+    fg_line = "fg-line"
+    if _choices:
+        fg_line = ""
+    prefix = '<div id="div_id_{0}" class="form-group">' \
         '<label for="id_{0}" class="control-label  requiredField">{1}</label>' \
-        '<div class="controls ">'.format(_id, _label)
-
-    suffix = '</div></div> '
+        '<div class="controls {2}">'.format(_id, _label, fg_line)
+    if _help_block:
+        help_block = '<span class="help-block m-b-none">{}</span>'.format(
+            _help_block)
+        suffix = '</div>{}</div> '.format(help_block)
+    else:
+        suffix = '</div></div>'
 
     if _choices:
         select_control = build_select_choices(_choices, _id, _value)
-        return '{0}{1}{2}'.format(prefix, select_control, suffix)
+        comp = '{0}{1}{2}'.format(prefix, select_control, suffix)
     else:
-        return '{2}<input class="textinput textInput form-control" id="id_{0}"\
+        comp = '{2}<input class="textinput textInput form-control" id="id_{0}"\
          maxlength="100" name="{0}" type="text" value="{1}">{3}'.format(
             _id,
             _value,
@@ -245,9 +258,11 @@ def get_component(_id, _label, _value='', _choices=None):
             suffix
         )
 
+    return comp
+
 
 def build_select_choices(choices, _id, selected_value):
-    prefix = '<select class="form-control input-sm" id="id_{0}" name="{0}">'.format(
+    prefix = '<select class="form-control col-md-3" id="id_{0}" name="{0}">'.format(
         _id)
     suffix = '</select>'
 

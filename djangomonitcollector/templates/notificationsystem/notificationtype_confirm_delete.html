@@ -5,26 +5,22 @@
 {% block title %}Notification: {{ object.notification_label }}{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <div class="page-header">
-            <h1>Delete
-                <small>{{ object.notification_label }}</small>
-            </h1>
-        </div>
-        <form action="" method="post">{% csrf_token %}
 
-            <div class="row">
-                <p>Are you sure you want to delete "{{ object.notification_label }}"?</p>
-            </div>
-            <hr class="divider"/>
-            <div class="row">
-                <div class="control-group">
-                    <div class="form-controls">
-                        <input type="submit" value="Confirm" class="btn btn-danger"/>
-                        <button type="button" value="Cancel" class="btn btn-info" onclick="window.history.back()">Cancel</button>
-                    </div>
+   <form action="" method="post">{% csrf_token %}
+        {% include "ui/includes/_widget.html" with caption="Are you sure?"  %}
+        <div class="row m-l-20">
+            <p>Are you sure you want to delete <b>"{{ object.notification_label }}"</b>?</p>
+        </div>
+        {% include "ui/includes/_end_widget.html" %}
+        {% include "ui/includes/_widget_buttonbar.html" %}
+        <div class="row">
+            <div class="control-group">
+                <div class="form-controls">
+                    <button type="submit" value="Confirm" class="btn btn-danger">Confirm</button>
+                    <button type="button" value="Cancel" class="btn btn-primary" onclick="window.history.back()">Cancel</button>
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
+        {% include "ui/includes/_end_widget.html" %}
+    </form>
 {% endblock content %}

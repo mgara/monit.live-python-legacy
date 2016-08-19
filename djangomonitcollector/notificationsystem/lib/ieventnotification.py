@@ -22,12 +22,20 @@ class EventSettingsInterface(object):
 
     PLUGIN_NAME = "PLUGIN_NAME"
     PLUGIN_ICON = "PLUGIN_ICON"
+    HELP_MESSAGE = ""
+    TOOLTIP = ""
 
     def get_freindlyname(self):
         return self.PLUGIN_NAME
 
     def get_icon(self):
         return u"fa fa-{}".format(self.PLUGIN_ICON)
+
+    def get_helpmessage(self):
+        return self.HELP_MESSAGE
+
+    def get_tooltip(self):
+        return self.TOOLTIP
 
     '''
     this function takes as a parametr the event object and will

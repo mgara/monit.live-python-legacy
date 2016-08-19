@@ -12,7 +12,7 @@ class SlackEventNotification(EventSettingsInterface):
 
     }
 
-    PLUGIN_NAME = "Send Notification"
+    PLUGIN_NAME = "Slack Notification"
     PLUGIN_ICON = "slack"
 
     def __init__(self):

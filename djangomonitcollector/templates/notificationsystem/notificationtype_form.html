@@ -5,205 +5,198 @@
 {% load staticfiles %}
 {% load extra_tags %}
 {% load crispy_forms_tags %}
-{% block page_title %} {% if object.id%} Update Notification <small class="text-navy"> {{ object.notification_label }}</small>{% else %} New Notification {% endif %}{% endblock %}
+{% block page_title %} {% if object.id%} Update Notification <small class=""> {{ object.notification_label }}</small>{% else %} New Notification {% endif %}{% endblock %}
 
-{% block head %}
+{% block css %}
     <link href="{% static 'css/bootstrap-taginput.css' %}" rel="stylesheet">
-    <link href="{% static 'css/bootstrap-select.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/multiselect.css' %}" rel="stylesheet">
+    <style type="text/css">
+        .help-block{
+            font-size: 0.7em;
+        }
+          .errorlist > li{
+        list-style: none;
+    }
+
+    .has-error > label  {
+        color: #f6675d;
+    }
+
+    .transiant {
+      -webkit-transition: background-color .30s cubic-bezier(.4,0,.2,1);
+      transition: background-color .30s cubic-bezier(.4,0,.2,1);
+    }
+    .toggle-switch > label {
+        display: inline-block;
+        margin: 0 20px 0 0;
+        vertical-align: top;
+        -webkit-transition: color .56s cubic-bezier(.4,0,.2,1);
+        transition: color .56s cubic-bezier(.4,0,.2,1);
+    }
+
+
+
+    </style>
 {% endblock %}
 
 {% block content %}
-    <div class="container">
-            <form id="notification_type_form" class="forn-horizontal" method="post" action="">
+
+    <form id="notification_type_form" class="forn-horizontal" method="post" action="">
+
+{% include "ui/includes/_widget.html" with caption="Notification Rule"  %}
+
+<div class="row">
+                <div class="col-md-8">
+
                 {% csrf_token %}
-                <div class="form-group">
-                    <div class="row ">
-                        <div class="col-md-2 control-label">
-                            {{ form.notification_label.label_tag|title }}
-                        </div>
-                        <div class="col-md-6">
-                            {{ form.notification_label|add_class:"form-control"}}
-                        </div>
-                        {% if form.notification_label.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.notification_label.errors }}
-                            </div>
-                        {% endif %}
+                <div class="form-group fg-line {% if form.notification_label.errors %} has-error {% endif %}">
+                    {{ form.notification_label.label_tag|title }}
+                    {{ form.notification_label|add_class:"form-control"}}
+                    {% if form.notification_label.errors %}
+                        <small class="help-block">
+                            {{ form.notification_label.errors }}
+                        </small>
+                    {% endif %}
+                    </div>
+                <div class="form-group  fg-line {% if form.notification_message.errors %} has-error {% endif %}">
+                    {{ form.notification_message.label_tag|title }}
+                    {{ form.notification_message|add_class:"form-control"}}
+                    {% if form.notification_message.errors %}
+                        <small class="help-block">
+                            {{ form.notification_message.errors }}
+                        </small>
+                    {% endif %}
+                </div>
+                <div class="form-group fg-line  {% if form.notification_enabled.errors %} has-error {% endif %}">
+                    <div class="toggle-switch toggle-switch-demo" data-ts-color="red">
+                        {{ form.notification_enabled.label_tag }}
+                        {{ form.notification_enabled }}
+                        <label for="ts5" class="ts-helper"></label>
                     </div>
                 </div>
-                <div class="form-group">
-                    <div class="row ">
-                        <div class="col-md-2 control-label">
-                            {{ form.notification_message.label_tag|title }}
-                        </div>
-                        <div class="col-md-6">
-                            {{ form.notification_message|add_class:"form-control"}}
-                        </div>
-                        {% if form.notification_message.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.notification_message.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
+                <div class="form-group  fg-line {% if form.notification_host_group.errors %} has-error {% endif %}">
+                    {{ form.notification_host_group.label_tag|title }}
+                    {{ form.notification_host_group|add_class:"form-control"}}
+                        <span class="help-block m-b-none">{{ form.notification_host_group.help_text}}</span>
+                    {% if form.notification_host_group.errors %}
+                        <small class="help-block">
+                            {{ form.notification_host_group.errors }}
+                        </small>
+                    {% endif %}
                 </div>
-                <div class="form-group">
-                    <div class="row ">
-                        <div class="col-md-2 control-label">
-                            {{ form.notification_enabled.label_tag|title }}
-                        </div>
-                        <div class="col-md-5">
-                            {{ form.notification_enabled|add_class:"i-checks"}}
-                        </div>
-                        {% if form.notification_enabled.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.notification_enabled.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
+                <div class="form-group  fg-line {% if form.notification_server.errors %} has-error {% endif %}">
+                    {{ form.notification_server.label_tag|title }}
+                    {{ form.notification_server|add_class:"form-control"}}
+                    <span class="help-block m-b-none">{{ form.notification_server.help_text}}</span>
+                    {% if form.notification_server.errors %}
+                        <small class="help-block">
+                            {{ form.notification_server.errors }}
+                        </small>
+                    {% endif %}
                 </div>
-                <div class="form-group">
-                    <div class="row ">
-                        <div class="col-md-2 control-label">
-                            {{ form.notification_host_group.label_tag|title }}
-                        </div>
-                        <div class="col-md-6">
-                            {{ form.notification_host_group|add_class:"form-control"}}
-                            <span class="help-block m-b-none">{{ form.notification_host_group.help_text}}</span>
-                        </div>
-
-                        {% if form.notification_host_group.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.notification_host_group.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
+                <div class="form-group {% if form.notification_service.errors %} has-error {% endif %}">
+                    {{ form.notification_service.label_tag|title }}
+                    {{ form.notification_service}}
+                    {% if form.notification_service.errors %}
+                        <small class="help-block">
+                        {{ form.notification_service.errors }}
+                        </small>
+                    {% endif %}
                 </div>
-                <div class="form-group">
-                    <div class="row ">
-                        <div class="col-md-2 control-label">
-                            {{ form.notification_server.label_tag|title }}
-                        </div>
-                        <div class="col-md-6">
-                            {{ form.notification_server|add_class:"form-control"}}
-                             <span class="help-block m-b-none">{{ form.notification_server.help_text}}</span>
-                        </div>
-                        {% if form.notification_server.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.notification_server.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
+                <div class="form-group {% if form.notification_type.errors %} has-error {% endif %}">
+                    {{ form.notification_type.label_tag|title }}
+                    {{ form.notification_type}}
+                    {% if form.notification_type.errors %}
+                        <small class="help-block">
+                            {{ form.notification_type.errors }}
+                        </small>
+                    {% endif %}
                 </div>
-                <div class="form-group">
-                    <div class="row ">
-                        <div class="col-md-2 control-label">
-                            {{ form.notification_service.label_tag|title }}
-                        </div>
-                        <div class="col-md-5 ">
-                            {{ form.notification_service}}
-                        </div>
-                        {% if form.notification_service.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.notification_service.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
+                <div class="form-group {% if form.notification_state.errors %} has-error {% endif %}">
+                    {{ form.notification_state.label_tag|title }}
+                    {{ form.notification_state}}
+                    {% if form.notification_state.errors %}
+                        <small class="help-block">
+                            {{ form.notification_state.errors }}
+                        </small>
+                    {% endif %}
                 </div>
-                <div class="form-group">
-                    <div class="row ">
-                        <div class="col-md-2 control-label">
-                            {{ form.notification_type.label_tag|title }}
-                        </div>
-                        <div class="col-md-5 ">
-                            {{ form.notification_type}}
-                        </div>
-                        {% if form.notification_type.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.notification_type.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="row ">
-                        <div class="col-md-2 control-label">
-                            {{ form.notification_state.label_tag|title }}
-                        </div>
-                        <div class="col-md-5 ">
-                            {{ form.notification_state}}
-                        </div>
-                        {% if form.notification_state.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.notification_state.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="row ">
-                        <div class="col-md-2 control-label">
-                            {{ form.notification_action.label_tag|title }}
-                        </div>
-                        <div class="col-md-5 ">
-                            {{ form.notification_action}}
-                        </div>
-                        {% if form.notification_action.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.notification_action.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
+                <div class="form-group {% if form.notification_action.errors %} has-error {% endif %}">
+                    {{ form.notification_action.label_tag|title }}
+                    {{ form.notification_action}}
+                    {% if form.notification_action.errors %}
+                        <small class="help-block">
+                            {{ form.notification_action.errors }}
+                        </small>
+                    {% endif %}
                 </div>
 
-                <div class="form-group">
-                    <div class="row ">
-                        <div class="col-md-2 control-label">
-                            {{ form.notification_class.label_tag|title }}
-                        </div>
-                        <div  class="col-md-5 ">
-                            <div id="class_container"></div>
-                            {{ form.notification_class}}
-                        </div>
-                        {% if form.notification_class.errors %}
-                            <div class="col-md-3 error">
-                                {{ form.notification_class.errors }}
+                <div class="form-group {% if form.notification_class.errors %} has-error {% endif %}">
+                    {{ form.notification_class.label_tag|title }}
+                      {% if form.notification_class.errors %}
+                        <small class="help-block">
+                            {{ form.notification_class.errors }}
+                        </small>
+                    {% endif %}
+                    <div id="class_container" class="p-25"></div>
+                        {{ form.notification_class}}
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                                <h2>Plugin's Parameters <small id="plugin_help_message">
+
+                                </small></h2>
                             </div>
-                        {% endif %}
-                    </div>
+                            <div class="card-body card-padding">
+                                <div id="extra_params_container" class="extra_params_class p-25"></div>
+                            </div>
                 </div>
+        </div>
+    </div>
 
-                <div id="extra_params_container" class="extra_params_class"></div>
-                <div class="hr-line-dashed"></div>
-                <div class="control-group">
-                    <div class="form-controls">
-                        <button type="submit" class="btn btn-primary"> {% if object.id%} Update {% else %} Create {% endif %}</button>
-                    </div>
-                </div>
-
-            </form>
-        <script language="javascript">
-            // Submit post on submit
-            $('#id_notification_class').on("change", function (event) {
-                get_plugin_form($(this).val());
-            });
-        </script>
+{% include "ui/includes/_end_widget.html" %}
+{% include "ui/includes/_widget_buttonbar.html"  %}
+<div class="row ">
+    <button type="submit" class="btn btn-primary"> {% if object.id%} Update {% else %} Create {% endif %}</button>
 </div>
+ </form>
+
+{% include "ui/includes/_end_widget.html" %}
+
+    <script language="javascript">
+        // Submit post on submit
+        $('#id_notification_class').on("change", function (event) {
+            select_plugin($(this).val());
+        });
+    </script>
+
 {% endblock content %}
 
-{% block customjs %}
-    <script src="{% static 'js/bootstrap-select.min.js' %}"></script>
+{% block javascript %}
     <script src="{% static 'js/jquery.multiselect.js' %}"></script>
     <script src="{% static 'js/bootstrap-taginput.js' %}"></script>
 
     <script language="JavaScript">
      $(document).ready(function(){
+        $(".ms-list").mCustomScrollbar();
+
+        $('#id_notification_service').multiSelect({cssClass:"multiselect"});
+        $('#id_notification_type').multiSelect({cssClass:"multiselect"});
+        $('#id_notification_action').multiSelect({cssClass:"multiselect"});
+        $('#id_notification_state').multiSelect({cssClass:"multiselect"});
 
 
-        //select_size = $('#id_notification_class option').length;
-        //$('#id_notification_class').selectpicker({
-        //    style: 'btn-primary',
-        //    size: select_size
-        //});
+        {% if object.id %}
+            var prefix = "{% trans 'Update Notification Rule' %}"
+        {% else %}
+            var prefix = "{% trans 'Create New Rule' %}"
+        {% endif %}
+            var text_field = $("#id_notification_label")
+            text_field.bind("change keyup input",function() {
+                $("#card_header").html(prefix +" <small>"+ this.value+"</small>")
+        })
+
+        $("#card_header").html(prefix +" <small>"+ text_field.val()+"</small>")
 
 
         var btnGroup = "<div class='btn-group'></div>";
@@ -214,27 +207,28 @@
             var item_id = $(this).attr("id")
             var item_value = $(this).html()
             var item_icon = $(this).attr("data-icon")
+            var item_tooltip_message = $(this).attr("data-tooltip-text")
 
-            console.log(item_icon)
-            var the_button = $("<button type='button' class='btn-class btn-sq btn btn-primary btn-space' id='"+item_id+"'><i class='"+item_icon+" fa-4x'></i> <br/>" + item_value + "</button>");
+            var the_button = $("<button type='button' class='btn-class btn-sq-lg btn bgm-bluegray m-5 p-5'  data-toggle='tooltip' data-placement='top' title='"+item_tooltip_message+"' id='"+item_id+"'><i class='"+item_icon+" fa-4x'></i> <br/>" + item_value + "</button>");
             the_button.on('click',function(){
                 var value=$(this).attr("id")
-                $('#id_notification_class').val(value)
-                get_plugin_form(value)
+                $('#id_notification_class').val(item_id)
+                select_plugin(value)
             })
             $(".btn-group").after(the_button);
         });
 
-        $("#id_notification_class").hide();
 
 
-
-        get_plugin_form($('#id_notification_class option:first').attr("id"));
-
-        $('#id_notification_service').multiSelect({cssClass:"multiselect"});
-        $('#id_notification_type').multiSelect({cssClass:"multiselect"});
-        $('#id_notification_action').multiSelect({cssClass:"multiselect"});
-        $('#id_notification_state').multiSelect({cssClass:"multiselect"});
+        {% if object.id %}
+            initial_form = "{{ object.notification_class }}"
+            $( "#id_notification_class" ).replaceWith( "<input type='hidden' value='{{ object.notification_class }}'  id='id_notification_class' name='notification_class'/>" );
+            select_plugin(initial_form);
+        {% else %}
+            initial_form = $('#id_notification_class option:first').attr("id")
+            select_plugin(initial_form);
+            $( "#id_notification_class" ).replaceWith( "<input type='hidden'  id='id_notification_class' name='notification_class'/>" );
+        {% endif %}
 
         //   If we are updating the object
         {% if object.id %}
@@ -281,13 +275,11 @@
 
 
         $('#id_notification_server').tagsinput({
+
         });
         $('#id_notification_host_group').tagsinput({
+
         });
-           $('#id_notification_enabled').iCheck({
-                    checkboxClass: 'icheckbox_square-green',
-                    radioClass: 'iradio_square-green',
-                });
 
 
     });
@@ -314,6 +306,13 @@
         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
     }
 
+    function select_plugin(plugin_name){
+
+         $( "#class_container *" ).removeClass( "bgm-indigo" );
+        $('#'+plugin_name).addClass("bgm-indigo transiant")
+        get_plugin_form(plugin_name)
+    }
+
     // AJAX for posting
     function get_plugin_form(plugin_name) {
         $.ajax({
@@ -322,7 +321,16 @@
             data: {"plugin_name": plugin_name,"notification_type_id" : $('#id_object_id').val() },
             success: function (json) {
                 html_form = json.html_form
+                help_message = json.help_message
                 $('#extra_params_container').html(html_form)
+                $('#plugin_help_message').html(help_message)
+            },
+            beforeSend: function (xhr, settings) {
+                $('#extra_params_container').html('<div class="preloader pl-xxl">\
+                    <svg class="pl-circular" viewBox="25 25 50 50">\
+                        <circle class="plc-path" cx="50" cy="50" r="20"></circle>\
+                    </svg></div>')
+
             },
 
             // handle a non-successful response
@@ -339,8 +347,9 @@
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
+
         }
     });
 
     </script>
-{% endblock customjs %}
+{% endblock %}

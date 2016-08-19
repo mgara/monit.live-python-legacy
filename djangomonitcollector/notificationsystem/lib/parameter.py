@@ -7,11 +7,16 @@ class Parameter(object):
     Type can be a str / choices
     """
 
-    def __init__(self, id, label, value="", _choices=None):
+    def __init__(self, id, label, value="", _help_block=None, _choices=None):
         self.__id = id
         self.__label = label
         self.__value = value
         self.__choices = _choices
+        self.__help_block = _help_block
+
+    @property
+    def help_block(self):
+        return self.__help_block
 
     @property
     def id(self):

@@ -15,18 +15,28 @@
                 <small class="text-navy">{{ object.notification_label }}</small>
 {% endblock %}
 {% block content %}
-    <div class="container">
 
-    <div class="box">
-        <div class="box-content">
+{% include "ui/includes/_widget.html" with caption="Notification Rule"  %}
 
-            {% if "Mute" in object.notification_class %}
-            <div class="row">
-                <a class="btn btn-outline btn-danger pull-right" href="{% url 'n:notification_mute_all' object.id %}">Apply "{{ object.notification_label}}" on previous alerts</a>
-                </div>
-                <div class="hr-line-dashed">
-            {% endif %}
-            </div>
+
+{% if "Mute" in object.notification_class %}
+{% if object.notification_enabled %}
+</div>
+</div>
+<div class="card">
+    <div class="card-header bgm-red">
+    <h2>Apply "{{ object.notification_label}}" on previous alerts <small>This will hide / acknowledge all the previous alerts having the same criteria, this action is not reversible</small></h2>
+        <a class="btn bgm-white btn-float waves-effect waves-circle waves-float" href="{% url 'n:notification_mute_all' object.id %}"><i class="zmdi zmdi-run"></i></a>
+
+    </div>
+</div>
+<div class="card">
+<div class="card-body card-padding">
+{% endif %}
+{% endif %}
+
+<div class="row">
+            <div class="col-md-8">
 
                 {% if object.notification_server %}
                     <p><span class="text-uppercase"> if Server in:  </span> <span
@@ -55,14 +65,14 @@
 
                 {% if object.notification_message %}
                     <p><span class="text-uppercase">And monit messages matches :  </span> <span
-                            class="lead"><h5><span class="label label-info">{{ object.notification_message }}</span>
-                    </h5></span></p>
+                            class="lead"><h4><span class="label bgm-indigo">{{ object.notification_message }}</span>
+                    </h4></span></p>
                 {% endif %}
 
                 {% if object.notification_class %}
                     <p><span class="text-uppercase">Apply Plugin Class :  </span> <span
-                            class="lead"><h5><span class="label label-info">{{ object.notification_class }}</span>
-                    </h5> </span>
+                            class="lead"><h4><span class="label bgm-indigo">{{ object.notification_class }}</span>
+                    </h4> </span>
                     </p>
                 {% endif %}
 
@@ -76,13 +86,15 @@
                 {% endif %}
                 <p><span class="text-uppercase">Enabled :  </span> <span
                         class="lead"><h5>
-                    {% if object.notification_enabled %}
-                        <span class="label label-success">ON</span>
-                    {% else %}
-                        <span class="label label-danger">OFF</span>
-                    {% endif %}
+
+                        {{ object.notification_enabled|nt_status_to_label|safe }}
+
                 </h5> </span></p>
-<div class="hr-line-dashed"></div>
+        </div>
+    </div>
+
+{% include "ui/includes/_end_widget.html" %}
+{% include "ui/includes/_widget_buttonbar.html"  %}
     <!-- Action buttons -->
     <div class="row">
 
@@ -92,10 +104,6 @@
             <a class="btn btn-danger pull-right" href="{% url 'n:notificationtype_delete'  object.id %}">Delete</a>
         </div>
     </div>
-    </div>
-</div>
-</div>
-{% endblock content %}
-{% block customjs %}
+{% include "ui/includes/_end_widget.html" %}
 
-{% endblock customjs %}
+{% endblock %}

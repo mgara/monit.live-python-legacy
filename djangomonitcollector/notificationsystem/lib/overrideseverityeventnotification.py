@@ -14,7 +14,7 @@ class OverrideSeverityEventNotification(EventSettingsInterface):
     PLUGIN_ICON = "random"
 
     extra_params = {
-        'severity': Parameter('severity', 'New Severity', '', SEVERITY),
+        'severity': Parameter('severity', 'New Severity', '', '', SEVERITY),
     }
 
     def process(self):

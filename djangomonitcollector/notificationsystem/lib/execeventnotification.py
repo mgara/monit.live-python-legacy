@@ -6,13 +6,15 @@ from parameter import Parameter
 
 class ExecEventNotification(EventSettingsInterface):
     extra_params = {
-        'exec_command': Parameter('exec_command', 'Exec Command'),
-        'stdr_out': Parameter('stdr_out', 'Standard Output File'),
-        'stdr_err': Parameter('stdr_err', 'Standard Error File'),
+        'exec_command': Parameter('exec_command', 'Exec Command','','The executable to call here ... use it at your own risk !'),
+        'stdr_out': Parameter('stdr_out', 'Standard Output File', '', 'Can be /dev/null, default is /tmp/output_plugin_'),
+        'stdr_err': Parameter('stdr_err', 'Standard Error File', '', 'Can be /dev/null, default is /tmp/output_plugin_err_'),
     }
 
     PLUGIN_NAME = "Exec Notification"
     PLUGIN_ICON = "gears"
+    HELP_MESSAGE = "Can be used to execute an arbitrary program and send an alert. If you choose this action you must state the program to be executed and if the program requires arguments you must enclose the program and its arguments in a quoted string. You may optionally specify the uid and gid the executed program should switch to upon start. "
+    TOOLTIP = "Exec Notification"
 
     def process(self):
         os.environ['MONIT_DESCRIPTION'] = str(self.event_message)

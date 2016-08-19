@@ -540,8 +540,8 @@ def get_current_notification_number():
 @register.filter
 def nt_status_to_label(status):
     if status:
-        return '<span class="label label-success small">On</span>'
-    return '<span class="label label-danger small">Off</span>'
+        return '<a data-toggle="tooltip" data-placement="top" title="Active" ><span class="btn btn-xs bgm-green  "><i class="zmdi zmdi-notifications-active" ></i></span></a>'
+    return '<a data-toggle="tooltip" data-placement="top" title="Off"><span class="btn btn-xs bgm-red "><i class="zmdi zmdi-notifications-off"></i> </span></a>'
 
 
 @register.filter

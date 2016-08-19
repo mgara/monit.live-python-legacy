@@ -22,7 +22,7 @@ def parse_service_list(data):
     service_list = ast.literal_eval(data)
     output = '<ul style="list-style: none; ">'
     for service in service_list:
-        output = '{0}<li > <h5> <span class="label label-info" >{1}</span></h5> </li>'.format(
+        output = '{0}<li > <h4> <span class="label bgm-indigo" >{1}</span></h4> </li>'.format(
             output, service.replace("_/", "_").replace("___", "__").replace("__", "_").replace("_", "/"))
     return "{0}</ul>".format(output)
 
@@ -46,7 +46,7 @@ def to_string(data, lookup_tuple):
     notification_type_list = ast.literal_eval(data)
     output = '<ul style="list-style: none; ">'
     for nt_type in notification_type_list:
-        output = '{0}<li ><h5> <span class="label label-info" >{1}</span></h5> </li>'.format(output,
+        output = '{0}<li ><h4> <span class="label bgm-indigo" >{1}</span></h4> </li>'.format(output,
                                                                                              from_value(int(nt_type),
                                                                                                         lookup_tuple))
     return "{0}</ul>".format(output)
@@ -63,6 +63,6 @@ def parse_comma_seperated_list(comma_seperated_list):
     service_list = comma_seperated_list.split(',')
     output = '<ul style="list-style: none; ">'
     for service in service_list:
-        output = '{0}<li > <h5> <span class="label label-info" >{1}</span></h5> </li>'.format(
+        output = '{0}<li > <h4> <span class="label bgm-indigo" >{1}</span></h4> </li>'.format(
             output, service)
     return "{0}</ul>".format(output)

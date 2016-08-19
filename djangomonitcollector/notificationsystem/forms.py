@@ -118,10 +118,12 @@ class MyClassSelect(forms.Select):
 
         option_label = obj().get_freindlyname()
         option_icon = obj().get_icon()
+        tooltip = obj().get_tooltip()
 
-        return u'<option id="{}" data-icon="{}">{}</option>'.format(
+        return u'<option id="{}" data-icon="{}" data-toggle="tooltip" data-placement="top" data-tooltip-text="{}">{}</option>'.format(
             option_value,
             option_icon,
+            tooltip,
             option_label
         )
 
@@ -202,7 +204,7 @@ class NotificationTypeForm(forms.ModelForm):
             nt.notification_server = ""
 
         notification_class = self.cleaned_data['notification_class']
-        k, plugin_fields = get_class_name_and_extra_params(
+        k, plugin_fields, obj = get_class_name_and_extra_params(
             notification_class.lower())
         notification_extra_params_dict = dict()
         for plugin_field in plugin_fields:
