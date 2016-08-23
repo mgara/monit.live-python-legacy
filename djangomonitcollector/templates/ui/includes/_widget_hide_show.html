@@ -2,7 +2,7 @@
                         <div class="card-header ch-alt ">
                             <h2> {{ caption }} <small>{{description}}</small></h2>
 
-                            <button class="btn btn-default btn-float waves-effect waves-circle waves-float minimize {{theme}}" onclick="minimize(this)" ><i class="zmdi zmdi-minus"></i></button>
+                            <button id="{{id}}" class="btn btn-default btn-float waves-effect waves-circle waves-float minimize {{theme}}" onclick="minimize(this,'{{request.path|urlencode}}')" ><i class="zmdi zmdi-minus"></i></button>
                         </div>
 
                         <div class="card-body card-padding">

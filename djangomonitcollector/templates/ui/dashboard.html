@@ -14,7 +14,7 @@
 {% block content %}
 
 
-  {% include "ui/includes/_widget_hide_show.html" with caption="Filter"  %}
+  {% include "ui/includes/_widget_hide_show.html" with caption="Filter" id="filter"  %}
   <div class="col-md-6">
     <select  data-placeholder="Display Filter..."  class="chosen chosen-select" multiple="">
       {% for hg in all_hgs %}
@@ -24,10 +24,10 @@
     </div>
     <button class="ladda-button btn btn-default hec-button waves-effect"  data-style="zoom-in"><i class="fa fa-filter"></i></button>
 
-  {% include "ui/includes/_end_widget.html" %}
+    {% include "ui/includes/_end_widget.html" %}
 
 
-  {% include "ui/includes/_widget.html" with caption="Active Instances"  %}
+    {% include "ui/includes/_widget.html" with caption="Active Instances"  %}
 
           <div id="dashboard_table" class="table-responsive ">
             {% if user_has_hgs %}
