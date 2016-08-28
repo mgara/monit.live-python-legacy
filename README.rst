@@ -1,4 +1,4 @@
-monit collector v16.05-1
+Kairos v1.9.1B
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Django application for collecting monit metrics, host data management and host alerts management
@@ -47,13 +47,17 @@ Many Packages requires EPEL Repository
 
 Download the epel rpm package and install it ::
 
-    yum install http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-6.noarch.rpm
+    yum install epel-release
 
 2. Installing **Postgresql**
 
-Postgrsql can be installed from here ::
+* Add the postgresql 9.5 repository ::
 
     yum install http://yum.postgresql.org/9.5/redhat/rhel-7-x86_64/pgdg-centos95-9.5-2.noarch.rpm
+
+* Postgresql Installation ::
+
+    yum install postgresql95-server
 
 * Postgresql Configuration ::
 
