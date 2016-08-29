@@ -7,7 +7,7 @@ from django.contrib.auth.forms import UserChangeForm, UserCreationForm, AdminPas
 from allauth.account.forms import SignupForm
 from django.utils.translation import ugettext as _
 
-from .models import User, Organisation, INSPINIA_SKINS
+from .models import User, Organisation
 from djangomonitcollector.datacollector.lib.utils import TIMEZONES_CHOICES
 
 
@@ -36,13 +36,6 @@ class MyUserCreationForm(UserCreationForm):
     )
 
     organisation_manager = forms.BooleanField(required=False)
-
-    inspinia_skin = forms.ChoiceField(
-        label=_("Inspinia Skin"),
-        widget=forms.Select,
-        choices=INSPINIA_SKINS,
-        required=False
-    )
 
     user_timezone = forms.ChoiceField(
         label=_("User Timezone"),
@@ -75,7 +68,6 @@ class MyUserCreationForm(UserCreationForm):
         self.instance.last_name = self.cleaned_data["last_name"]
         self.instance.email = self.cleaned_data["email"]
         self.instance.user_timezone = self.cleaned_data["user_timezone"]
-        self.instance.inspinia_skin = self.cleaned_data["inspinia_skin"]
         self.instance.organisation_manager = self.cleaned_data[
             "organisation_manager"]
         self.instance.organisation = self.cleaned_data['organisation']

@@ -8,7 +8,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}{{ request.resolver_match.url_name|get_title }}{% endblock %} &middot; VMC</title>
+    <title>{% block title %}{{ request.resolver_match.url_name|get_title }}{% endblock %} &middot; {{APPNAME}}</title>
     <!-- Vendor CSS -->
     <link href="{% static 'vendors/bower_components/fullcalendar/dist/fullcalendar.min.css' %}" rel="stylesheet">
     <link href="{% static 'vendors/bower_components/animate.css/animate.min.css' %}" rel="stylesheet">
@@ -42,25 +42,13 @@
                 </div>
             </li>
             <li class="hi-logo hidden-xs">
-                <a href="{% url 'ui:dashboard' %}"><b>vmc</b>v0.9.1b</a>
+                <a href="{% url 'ui:dashboard' %}"><b>{{APPNAME}}</b>v{{APPVERSION}}</a>
             </li>
             <li class="pull-right">
                 <ul class="hi-menu">
-                    <li data-ma-action="search-open">
-                        <a href=""><i class="him-icon zmdi zmdi-search"></i></a>
-                    </li>
+
                     {% include "ui/_topnavbar2.html" %}
-                    <li class="dropdown">
-                        <a data-toggle="dropdown" href=""><i class="him-icon zmdi zmdi-more-vert"></i></a>
-                        <ul class="dropdown-menu dm-icon pull-right">
-                            <li class="hidden-xs">
-                                <a data-ma-action="fullscreen" href=""><i class="zmdi zmdi-fullscreen"></i> Toggle Fullscreen</a>
-                            </li>
-                            <li>
-                                <a data-ma-action="clear-localstorage" href=""><i class="zmdi zmdi-delete"></i> Clear Local Storage</a>
-                            </li>
-                        </ul>
-                    </li>
+
                 </ul>
             </li>
         </ul>

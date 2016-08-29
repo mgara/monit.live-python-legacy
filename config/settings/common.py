@@ -180,6 +180,7 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
                 # Your stuff: custom template context processors go here
+                'djangomonitcollector.ui.context_processors.app_settings',
             ],
         },
     },
@@ -275,6 +276,6 @@ ENABLE_MULTI_TENANT = True
 ENABLE_MANUAL_APPROVAL = False
 
 
-NUMBER_OF_TRANSITIONS_PER_FLAPPING_PERIOD = 2
-
-SERVICE_FLAPPING_PERIOD = 60
+#APPNAME = "καιρός"
+APPNAME = "VMC"
+APPVERSION = "1.9.1b"

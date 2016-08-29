@@ -112,13 +112,6 @@ class HostGroup(models.Model):
             self.save(force_insert=True)
         super(HostGroup, self).save(*args, **kwargs)
 
-INSPINIA_SKINS = (
-    ('-', 'default'),
-    ('skin-1', 'Azure'),
-    ('skin-2', 'Navy Blue'),
-    ('skin-3', 'Sahara'),
-)
-
 
 @python_2_unicode_compatible
 class User(AbstractUser):
@@ -128,12 +121,6 @@ class User(AbstractUser):
         _('Is Organisation Manager'), default=False)
     host_groups = models.ManyToManyField(HostGroup)
 
-    inspinia_skin = models.CharField(
-        _("Application Skin"),
-        choices=INSPINIA_SKINS,
-        default='default',
-        max_length=10
-    )
     user_timezone = models.CharField(
         _('User TimeZone'),
         max_length=30,
@@ -158,6 +145,20 @@ class User(AbstractUser):
             self.id = hashlib.sha1(str(random.random())).hexdigest()
             self.save(force_insert=True)
         super(User, self).save(*args, **kwargs)
+
+
+class UserSettings(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User)
+    key = models.CharField(max_length=40)
+    val = models.CharField(max_length=40)
+
+    def save(self, *args, **kwargs):
+
+        if not self.id:
+            self.id = hashlib.sha1(str(random.random())).hexdigest()
+            self.save(force_insert=True)
+        super(UserSettings, self).save(*args, **kwargs)
 
 
 def validate_user(user):

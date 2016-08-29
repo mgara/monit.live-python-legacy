@@ -79,7 +79,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': './logs/kairos_main_app.log',
+            'filename': '/var/log/kairos/kairos.log',
         },
     },
     'loggers': {

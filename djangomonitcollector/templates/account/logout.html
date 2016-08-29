@@ -6,7 +6,9 @@
 {% block page_title %}{% trans "Sign Out" %}{% endblock %}
 
 {% block content %}
-<div class="container">
+
+{% include "ui/includes/_widget.html" with caption="Sign Out" %}
+
   <div class="row">
     <div class="col-md-5">
 
@@ -23,6 +25,7 @@
     </div>
   </div>
 </div>
+{% include "ui/includes/_end_widget.html" %}
 
 {% endblock %}
 

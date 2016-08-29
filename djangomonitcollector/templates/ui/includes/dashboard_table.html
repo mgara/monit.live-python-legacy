@@ -77,12 +77,9 @@
         </tfoot>
     </table>
 {% else %}
-           <p >
-                <h2 class="text-center"><span class="text-navy">{% trans " There are no instances configured Yet" %}</span></h2>
-                <h2 class="text-center"><span class="text-navy">{% trans " :( " %}</span></h2>
-
-            </p>
-
+              <div class="alert alert-info">
+                  {% trans " There are no instances configured Yet" %}
+              </div>
 {% endif %}
 </div>
 

@@ -1,11 +1,16 @@
 {% extends "account/nologin.html" %}
-
+{% load i18n %}
 {% block content %}
-Next Gen monitoring application
-<br/>
-This app collects data from monit instances on one or multiple servers, stores them and visualizes them.
-<br/>
-<strong>kairos</strong> : a propitious moment for decision or action.
-
-
+    <div class="row">
+        Next Gen monitoring application
+        <br/>
+        This app collects data from monit instances on one or multiple servers, stores them and visualizes them.
+        <br/>
+        <strong>{{APPNAME}}</strong> : a propitious moment for decision or action.
+    </div>
+    {% if request.user.is_authenticated %}
+        <div class="row">
+            <a class="btn btn-primary" onclick="window.history.back()"> {% trans "Back" %}</a>
+        </div>
+    {% endif %}
 {% endblock %}

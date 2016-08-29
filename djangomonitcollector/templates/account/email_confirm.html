@@ -1,4 +1,4 @@
-{% extends "account/base.html" %}
+{% extends "account/nologin.html" %}
 
 {% load i18n %}
 {% load account %}
@@ -8,10 +8,8 @@
 
 
 {% block content %}
-{% include "ui/includes/_widget.html" with caption="Confirm E-mail Address" %}
 
   <div class="row">
-    <div class="col-xs-12">
 
         {% if confirmation %}
 
@@ -31,9 +29,7 @@
         <p>{% blocktrans %}This e-mail confirmation link expired or is invalid. Please <a href="{{ email_url }}">issue a new e-mail confirmation request</a>.{% endblocktrans %}</p>
 
         {% endif %}
-    </div>
   </div>
-  {% include "ui/includes/_end_widget.html" %}
 
 {% endblock %}
 

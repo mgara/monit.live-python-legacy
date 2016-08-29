@@ -3,7 +3,7 @@
 {% load  i18n %}
 {% load extra_tags %}
 {% block title %}Dashboard{% endblock %}
-{% block page_title %} Dashboard {% endblock %}
+{% block page_title %} {% if not request.user.is_superuser %} Dashboard {% else %} Superuser Mode{% endif %} {% endblock %}
 {% block css %}
   <link href="{% static 'vendors/bower_components/bootstrap-select/dist/css/bootstrap-select.css' %}" rel="stylesheet">
   <link href="{% static 'vendors/bower_components/chosen/chosen.css' %}" rel="stylesheet">
@@ -13,6 +13,11 @@
 {% endblock %}
 {% block content %}
 
+
+
+
+{% if request.user.is_authenticated %}
+  {% if not request.user.is_superuser %}
 
   {% include "ui/includes/_widget_hide_show.html" with caption="Filter" id="filter"  %}
   <div class="col-md-6">
@@ -97,10 +102,9 @@
                 </tfoot>
               </table>
             {% else %}
-              <p>
-                <h2 class="text-center"><span class="text-navy">{% trans " There are no instances configured Yet" %}</span></h2>
-                <h2 class="text-center"><span class="text-navy">{% trans " :( " %}</span></h2>
-              </p>
+              <div class="alert alert-info ">
+                  {% trans " There are no instances configured Yet" %}
+              </div>
             {% endif %}
           </div>
           <script>
@@ -129,10 +133,14 @@
              })
           });
           </script>
-  {% include "ui/includes/_end_widget.html" %}
+      {% include "ui/includes/_end_widget.html" %}
 
-  {%  if error %}
-  <p class="alert alert-danger">{{ error }}</p>
+    {%  if error %}
+      <p class="alert alert-danger">{{ error }}</p>
+    {% endif %}
+  {% else %}
+    <div class="alert alert-danger">{% trans "This is the superuser mode for managing organisations and users" %}</div>
+  {% endif %}
 {% endif %}
 {% endblock %}
 {% block javascript %}
