@@ -2,8 +2,6 @@
 
 (function($) {
 
-
-
     $.fn.dygraphite = function(options, dysettings) {
         if (options === "update") {
             $.fn.graphite.update(this, arguments[1]);

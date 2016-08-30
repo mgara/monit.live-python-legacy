@@ -107,7 +107,7 @@ class Server(models.Model):
                 tzinfo=timezone("UTC"))
             server.monit_version = xmldoc.getElementsByTagName(
                 'monit')[0].attributes["version"].value
-
+            server.server_up = True
             server.external_ip = external_ip
             server.localhostname = get_value(xmldoc, "localhostname", "")
             server.data_timezone = org.settings.general_default_timezone_for_servers
@@ -125,12 +125,6 @@ class Server(models.Model):
             server.save()
 
             Platform.update(xmldoc, server)
-        else:
-            print monit_id
-            print org
-            print external_ip
-            print host_group
-            print server.localhostname
 
         event_doc = xmldoc.getElementsByTagName('event')
 
@@ -139,6 +133,7 @@ class Server(models.Model):
             MonitEvent.create(
                 event_xml,
                 server,
+                externalevent
             )
 
         else:
@@ -247,8 +242,7 @@ class MonitEvent(models.Model):
         return self.__str__()
 
     @classmethod
-    def create(cls, xml_doc, server):
-
+    def create(cls, xml_doc, server, externalevent):
         # Parse XML
         tz = timezone(server.data_timezone)
         unix_timestamp = "{}".format(get_value(xml_doc, "collected_sec", ""))
@@ -278,11 +272,11 @@ class MonitEvent(models.Model):
         event_obj.event_action = event_action
         event_obj.event_message = event_message
         event_obj.event_time = event_time
+        event_obj.externalevent = externalevent
 
         #  Check if we received Monit Stopped Event
         event_obj = cls.update_server_running_status(event_obj, server)
 
-        print event_obj.event_state
         #  We received an error alarm
         if event_obj.event_state == 1:
             found, duplicates = cls.check_for_events_in_time_window(
@@ -375,15 +369,17 @@ class MonitEvent(models.Model):
 
     @classmethod
     def update_server_running_status(cls, event_obj, server):
-        monit_stopped_pattern = re.compile("^Monit.*stopped$|.*Host.*Down.*")
-        monit_started_pattern = re.compile("^Monit.*started$")
 
+        monit_stopped_pattern = re.compile("^Monit.*stopped$|.*Host.*Down.*")
         server.server_up = True
-        if event_obj.event_action == 3 and monit_stopped_pattern.match(event_obj.event_message):
-            server.server_up = False
-            event_obj.event_state = 1
-        if event_obj.event_action == 3 and monit_started_pattern.match(event_obj.event_message):
-            event_obj.event_state = 0
+        if not event_obj.externalevent:
+            if event_obj.event_action == 3 and monit_stopped_pattern.match(event_obj.event_message):
+                server.server_up = False
+                event_obj.event_state = 1
+        else:
+            if event_obj.event_state == 1:
+                server.server_up = False
+                server.save()
         server.save()
         return event_obj
 

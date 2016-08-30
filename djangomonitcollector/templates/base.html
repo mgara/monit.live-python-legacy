@@ -174,16 +174,14 @@
     <script src="{% static 'vendors/bower_components/fullcalendar/dist/fullcalendar.min.js' %}"></script>
     <script src="{% static 'vendors/bower_components/simpleWeather/jquery.simpleWeather.min.js' %}"></script>
     <script src="{% static 'vendors/bootstrap-growl/bootstrap-growl.min.js' %}"></script>
-
     <script src="{% static 'vendors/bower_components/Waves/dist/waves.min.js' %}"></script>
     <script src="{% static 'vendors/bower_components/sweetalert/dist/sweetalert.min.js' %}"></script>
-    <script src="{% static 'vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js' %}"></script>
     <script src="{% static 'vendors/bower_components/chosen/chosen.jquery.js' %}"></script>
-    <script type="text/javascript" src="{% static 'vendors/bower_components/bootstrap-select/dist/js/bootstrap-select.js' %}"></script>
     <!-- Placeholder for IE9 -->
     <!--[if IE 9 ]>
     <script src="{% static 'vendors/bower_components/jquery-placeholder/jquery.placeholder.min.js' %}"></script>
     <![endif]-->
+    <script src="{% static 'vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js' %}"></script>
     <script src="{% static 'js/app.min.js' %}"></script>
     <script src="{% static 'js/jquery.printElement.min.js' %}"></script>
     <script type="text/javascript">
@@ -194,80 +192,78 @@
     $("#sound").html('<audio autoplay="autoplay"><source src="{% static 'sounds/gets-in-the-way.mp3' %}" type="audio/mpeg" /><source src="{% static 'sounds/gets-in-the-way.ogg' %}" type="audio/ogg" /><embed hidden="true" autostart="true" loop="false" src="{% static 'sounds/gets-in-the-way.mp3' %}" /></audio>');
     }
     </script>
-                    <script type="text/javascript">
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#notification_count').hide()
+            //  Check if the browser supports local storage
+            if (window.localStorage) {
+                localStorageSupport = true
+            }
+
+        var alerts_sockets = io('/organisation_events_{{ request.user.organisation.id|clean }}');
+        alerts_sockets.on('dmc', function(msg) {
+            var data = msg.data;
+            playSound()
+            if ( $( "#event_table" ).length ) {
+
+                $.ajax({
+                     url: "{% url 'n:get_event_row' %}", // the endpoint
+                     type: "POST", // http method
+                     data: {
+                         "event_id": data.event.id
+                     },
+                     // handle a successful response
+                     success: function(json) {
+                        // Simple bottom row removal
+                         $('#event_table tr:last').remove();
+                        data_row_html = json.row
+                         $("#event_table tbody").prepend(data_row_html);
+
+                     },
+                     // handle a non-successful response
+                     error: function(xhr, errmsg, err) {
+                        if ($('#results').length){
+                             $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                             " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                        }
+
+                         console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                     }
+                 });
+
+                }else{
+
+                    if (localStorageSupport){
+                        notifications_count = localStorage.getItem("notifications_count")
+                        new_notification_count = 0
+                        if (notifications_count){
+                            new_notification_count = parseInt(notifications_count)
+                        }
+                            new_notification_count+= 1
+                            $('#notification_count').show()
+                            localStorage.setItem("notifications_count", new_notification_count);
+                            $('#notification_count').html(new_notification_count)
+                            $('#notification_count').addClass("label label-danger")
+                    }
 
 
-                        $(document).ready(function() {
-                            $('#notification_count').hide()
-                            //  Check if the browser supports local storage
-                            if (window.localStorage) {
-                                localStorageSupport = true
-                            }
+                }
+         }
 
-                        var alerts_sockets = io('/organisation_events_{{ request.user.organisation.id|clean }}');
-                        alerts_sockets.on('dmc', function(msg) {
-                            var data = msg.data;
-                            playSound()
-                            if ( $( "#event_table" ).length ) {
+        );
+             if (localStorageSupport){
+                        notifications_count = localStorage.getItem("notifications_count")
+                        if (notifications_count){
+                            $('#notification_count').show()
+                            new_notification_count = parseInt(notifications_count)
+                            $('#notification_count').html(new_notification_count)
+                            $('#notification_count').addClass("label label-danger")
+                        }
 
-                                $.ajax({
-                                     url: "{% url 'n:get_event_row' %}", // the endpoint
-                                     type: "POST", // http method
-                                     data: {
-                                         "event_id": data.event.id
-                                     },
-                                     // handle a successful response
-                                     success: function(json) {
-                                        // Simple bottom row removal
-                                         $('#event_table tr:last').remove();
-                                        data_row_html = json.row
-                                         $("#event_table tbody").prepend(data_row_html);
+                    }
 
-                                     },
-                                     // handle a non-successful response
-                                     error: function(xhr, errmsg, err) {
-                                        if ($('#results').length){
-                                             $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
-                                             " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-                                        }
-
-                                         console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-                                     }
-                                 });
-
-                                }else{
-
-                                    if (localStorageSupport){
-                                        notifications_count = localStorage.getItem("notifications_count")
-                                        new_notification_count = 0
-                                        if (notifications_count){
-                                            new_notification_count = parseInt(notifications_count)
-                                        }
-                                            new_notification_count+= 1
-                                            $('#notification_count').show()
-                                            localStorage.setItem("notifications_count", new_notification_count);
-                                            $('#notification_count').html(new_notification_count)
-                                            $('#notification_count').addClass("label label-danger")
-                                    }
-
-
-                                }
-                         }
-
-                        );
-                             if (localStorageSupport){
-                                        notifications_count = localStorage.getItem("notifications_count")
-                                        if (notifications_count){
-                                            $('#notification_count').show()
-                                            new_notification_count = parseInt(notifications_count)
-                                            $('#notification_count').html(new_notification_count)
-                                            $('#notification_count').addClass("label label-danger")
-                                        }
-
-                                    }
-
-                        });
-                </script>
+        });
+    </script>
 
     <script src="{% static 'js/server.js' %}"></script>
 
@@ -292,8 +288,7 @@
 
         {% block javascript %}
         {% endblock javascript %}
-        {% block ajaxcalls %}
-        {% endblock ajaxcalls %}
+
         <div id="sound"></div>
 
     </body>

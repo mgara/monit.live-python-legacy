@@ -10,37 +10,33 @@
 {% block submenu %}
   <li class="nav-item">
     <a class="nav-link" href="{% url 'ui:server_alerts' server.id %}"><i class="fa fa-bell"></i>Active Alerts <span
-    class="label label-{{ alerts_count|status_alert }} pull-right">{{ alerts_count }}</span></a>
+    class="label {{ alerts_count|status_alert }} pull-right">{{ alerts_count }}</span></a>
   </li>
-  <li class="nav-item">
-    <a class="nav-link" href="{% url 'ui:server_show' server.id %}"><i class="fa fa-wrench"></i> Server Settings</a>
+   <li class="nav-item">
+    <a class="nav-link" href="{% url 'ui:server_kpis' server.id %}"><i class="fa fa-bar-chart"></i> Key Performance Indicators</a>
   </li>
 {% endblock %}
 {% block content %}
   <div class="row clearfix text-center">
 
-<div id="periods" class="btn-group" data-toggle="buttons">
-  <label class="btn btn-default btn-outline ">
-    <input type="radio" id="1h" autocomplete="off"> 1h
+<div id="periods" class="btn-group m-b-20 m-t-20" data-toggle="buttons">
+  <label class="btn btn-primary">
+    <input name="range_selector" type="radio" data-graph="-1hour" id="1h" autocomplete="off"> 1h
   </label>
-   <label class="btn btn-default btn-outline ">
-    <input type="radio" id="3h" autocomplete="off"> 3h
+   <label class="btn   btn-primary">
+    <input name="range_selector" type="radio" data-graph="-3hours" id="3h" autocomplete="off"> 3h
   </label>
-  <label class="btn btn-default btn-outline active">
-    <input type="radio" id="1d" autocomplete="off"> 1d
+  <label class="btn  btn-primary active">
+    <input name="range_selector" type="radio" data-graph="-24hours" id="1d" autocomplete="off"> 1d
   </label>
-    <label class="btn btn-default btn-outline">
-    <input type="radio" id="1w" autocomplete="off"> 1w
+    <label class="btn  btn-primary">
+    <input name="range_selector" type="radio" data-graph="-1month" id="1m" autocomplete="off"> 1m
   </label>
-      <label class="btn btn-default btn-outline">
-    <input type="radio" id="1m" autocomplete="off"> 1m
+       <label class="btn  btn-primary">
+    <input name="range_selector" type="radio" data-graph="-1year" id="1y" autocomplete="off"> 1y
   </label>
-       <label class="btn btn-default btn-outline">
-    <input type="radio" id="1y" autocomplete="off"> 1y
-  </label>
-
-  <label class="btn btn-default btn-outline">
-    <input type="radio" id="max" autocomplete="off"> max
+  <label class="btn  btn-primary">
+    <input name="range_selector" type="radio" data-graph="-7years" id="max" autocomplete="off"> max
   </label>
 </div>
 
@@ -48,7 +44,7 @@
 </div>
   <div class="row clearfix m-t-10">
 
-      {% include "ui/includes/_widget_hide_show.html" with caption="CPU Usage" %}
+      {% include "ui/includes/_widget_hide_show.html" with caption="System Load" %}
             <div id="graph_load" class="graph" style="width:100%;"></div>
       {% include "ui/includes/_end_widget.html" %}
 
@@ -255,7 +251,6 @@
     {% csrf_token %}
   {% endblock %}
   {% block javascript %}
-    <script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
     <script src="{% static 'js/dygraph-combined.js' %}"></script>
     <script src="{% static 'js/csrf.js' %}"></script>
     <script src="{% static 'js/synchronizer.js' %}"></script>
@@ -263,54 +258,15 @@
     <script>
     $(function() {
 
-    // server side code
-    var update_period = 1000 * {{monit_update_period}};
-
-    // client side code will be consolidated in one file
-    var gs = []
-
-    // init parameters
-    var point_size = 1;
-    var stroke_width = 0.5;
-    var rollperiod = 0;
-    var draw_point = false;
-    var isStacked = false;
-    var errorbars = false;
-    var graph_colors = ["#1ab394", "#ed5565", "#f8ac59", "#1c84c6"];
-    var update_period = 1000 * {{monit_update_period}};
-
-
-    {% if request.session.is_dst %}
-    var dst_delta =3600
-          {% else %}
-    var dst_delta= 0 // 1h
-        {% endif %}
-
-    $("#periods :input").change(function() {
-        active = $(this).parent().hasClass("active")
-       $.ajax({
-               url: "{% url 'ui:set_stats_period'%}", // the endpoint
-               type: "POST", // http method
-               data: {
-                   "period": this.id
-               },
-               // handle a successful response
-               success: function(result) {
-                  console.log(result)
-               },
-               // handle a non-successful response
-               error: function(xhr, errmsg, err) {
-
-                  if ($('#results').length){
-                       $('#results').html("<div class='alert-box alert radius' data-alert> Oops! We have encountered an error: " + errmsg +
-                       " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-                  }
-
-                   console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-               }
-          });
+    $("input[name=range_selector]:radio").change(function() {
+        from = $(this).attr("data-graph")
+        $("#graph_load").dygraphite(
+          {'update',
+          {
+            from:from
+          }
+        })
     });
-
 
     var hashTagActive = "";
     $(".scroll").click(function (event) {

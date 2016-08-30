@@ -74,6 +74,8 @@ def dashboard(request):
 
 @user_passes_test(validate_user, login_url='/accounts/login/')
 def server(request, server_id):
+    old_data = False
+
     server = Server.objects.get(pk=server_id)
     system = server.system
 
@@ -87,6 +89,20 @@ def server(request, server_id):
     alerts_count = server.monitevent_set.filter(
         is_active=True, is_ack=False).count()
 
+    server_tz = timezone(server.data_timezone)
+    utc_tz = timezone("UTC")
+
+    print server.last_data_received
+    last_data_received = server.last_data_received.replace(tzinfo=server_tz)
+    print last_data_received
+
+    now = datetime.datetime.now().replace(tzinfo=utc_tz)
+    delta = (now - last_data_received).seconds
+    print delta
+    print server.monit_update_period
+    if delta > server.monit_update_period:
+        old_data = True
+
     disk_usage = 0
     for fs in filesystems:
         if fs.display_name == '/':
@@ -94,6 +110,8 @@ def server(request, server_id):
                 disk_usage = int(fs.blocks_percent_last)
 
     return render(request, 'ui/server.html', {
+        'old_data': old_data,
+        'delta': delta,
         'server_found': True,
         'server': server,
         'system': system,

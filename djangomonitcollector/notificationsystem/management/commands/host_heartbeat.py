@@ -21,8 +21,8 @@ FORMAT = '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
 class Command(BaseCommand):
     help = 'This program will check the avaibility of monit hosts'
     option_list = BaseCommand.option_list + (
-        make_option('--host', dest='host'),
-        make_option('--port', dest='port'),
+        make_option('--host', dest='host', default='localhost'),
+        make_option('--port', dest='port',  default='5001'),
         make_option('--log', dest='log', default='INFO'),
         make_option("--verbose", action="store_true", dest="verbose"),
     )
@@ -50,6 +50,7 @@ class Command(BaseCommand):
         while True:
             monit_hosts = self.get_monit_hosts(options)
             if not monit_hosts:
+                self.logger.info("No Hosts Found or No Hosts configured")
                 continue
             for h in monit_hosts:
                 servers_count += 1
@@ -68,7 +69,7 @@ class Command(BaseCommand):
                     delta, server['monit_update_period'])
                 )
 
-                if delta > server_monit_update_period:
+                if (delta - 1) > server_monit_update_period:
 
                     if server['monitid'] not in hosts_down:
                         hosts_down.append(server['monitid'])
