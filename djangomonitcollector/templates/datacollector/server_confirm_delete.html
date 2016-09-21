@@ -1,30 +1,26 @@
-
-
-
 {% extends "base.html" %}
 {% load static %}
 {% load extra_tags %}
-
 {% block title %}Server: {{ object.localhostname }}{% endblock %}
 {% block page_title %} Delete <small class="text-navy">{{ object.localhostname }} </small>{% endblock %}
 
-{% block content %}
-    <div class="container">
-        <form action="" method="post">{% csrf_token %}
 
-            <div class="row">
-                <p>Are you sure you want to delete "{{ object.localhostname }}"?</p>
-            </div>
-            <hr class="divider"/>
-            <div class="row">
-                <div class="control-group">
-                    <div class="form-controls">
-                        <input type="submit" value="Confirm" class="btn btn-danger"/>
-                        <button type="button" value="Cancel" class="btn btn-info" onclick="window.history.back()">Cancel</button>
-                    </div>
+{% block content %}
+    <form action="" method="post">{% csrf_token %}
+        {% include "ui/includes/_widget.html" with caption="Are you sure?"  %}
+        <div class="row m-l-20">
+            <p>Are you sure you want to delete <b>"{{ object.localhostname }}"</b>?</p>
+        </div>
+        {% include "ui/includes/_end_widget.html" %}
+        {% include "ui/includes/_widget_buttonbar.html" %}
+        <div class="row">
+            <div class="control-group">
+                <div class="form-controls">
+                    <button type="submit" value="Confirm" class="btn btn-danger">Confirm</button>
+                    <button type="button" value="Cancel" class="btn btn-primary" onclick="window.history.back()">Cancel</button>
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
+        {% include "ui/includes/_end_widget.html" %}
+    </form>
 {% endblock content %}
-

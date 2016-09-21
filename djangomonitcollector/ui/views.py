@@ -97,6 +97,7 @@ def server(request, server_id):
     print last_data_received
 
     now = datetime.datetime.now().replace(tzinfo=utc_tz)
+    #TODO : review this
     delta = (now - last_data_received).seconds
     print delta
     print server.monit_update_period
@@ -366,6 +367,15 @@ class IntelliEvent(LoginRequiredMixin, FilterView):
     filterset_class = IntelliEventsFilter
 
 
+def intellievent_list(request):
+    user = request.user
+    org = user.organisation
+
+    f = IntelliEventsFilter(request.GET, queryset=MonitEvent.objects.filter(server__organisation=org))
+
+    return render(request, 'datacollector/monitevent_filter.html', {'filter': f})
+
+
 def get_hours_from_period(p):
     periods = {
         '1h': 1,
@@ -398,11 +408,6 @@ def set_stats_period(request):
             'error': e.message
         }
     return JsonResponse(res)
-
-
-def get_last_events(request):
-    org = request.user.organisation
-    pass
 
 
 def serverkpis(request, pk):

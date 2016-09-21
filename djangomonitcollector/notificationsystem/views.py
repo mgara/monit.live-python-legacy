@@ -123,7 +123,6 @@ class NotificationTypeCreate(LoginRequiredMixin, CreateView):
     model = NotificationType
 
     def form_invalid(self, form):
-        print form.__dict__
         return super(NotificationTypeCreate, self).form_invalid(form)
 
     def form_valid(self, form):
@@ -203,7 +202,6 @@ def get_notification_plugin_form(request):
                 )
         else:
             for field in extra_params.keys():
-                print extra_params[field].__dict__
                 output += get_component(
                     extra_params[field].id,
                     extra_params[field].label,
@@ -211,7 +209,6 @@ def get_notification_plugin_form(request):
                     extra_params[field].choices,
                     extra_params[field].help_block
                 )
-                print extra_params[field].help_block
             plugin_help_message = klass().get_helpmessage()
 
         res = {
@@ -311,7 +308,6 @@ def get_event_row(request):
 def remove_unicode_u(unicode_string):
     no_unicode = unicode_string.replace("u\'", "'").replace("u\"", '"')
     convert_single_quotes = no_unicode.replace('\'', '"')
-    print convert_single_quotes
     return convert_single_quotes
 
 

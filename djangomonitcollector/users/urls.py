@@ -6,12 +6,27 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
+
+    url(
+        regex=r'del_api_key/$',
+        view=views.delete_api_key,
+        name='delete_api_key'
+    ),
+    url(
+        regex=r'new_api_key/$',
+        view=views.new_api_key,
+        name='new_api_key'
+    ),
+    url(
+        regex=r'update_user_settings/$',
+        view=views.update_user_settings,
+        name='update_user_settings'
+    ),
     url(
         r'^create/$',
         views.UserCreate.as_view(),
         name='create'
     ),
-
     url(
         regex=r'newck/$',
         view=views.new_collector_key,

@@ -263,7 +263,7 @@ class MonitEvent(models.Model):
         # Create and Save Event Entity
         event_obj = cls(
             server=server,
-            service=event_service
+            service=event_service,
         )
 
         event_obj.event_type = event_type

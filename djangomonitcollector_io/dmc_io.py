@@ -8,7 +8,6 @@ import kombu.mixins
 from kombu import Exchange
 import os
 from optparse import OptionParser, OptionGroup
-
 from gevent import monkey
 from flask_socketio import SocketIO, emit, disconnect
 
@@ -22,7 +21,7 @@ app.config['SECRET_KEY'] = os.getenv('APP_SECRET')
 socketio = SocketIO(app)
 
 
-FILENAME = '../logs/kairos_io.log'
+FILENAME = '/var/log/kairos/kairos_io_.log'
 FORMAT = '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
 
 

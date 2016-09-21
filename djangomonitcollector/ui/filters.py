@@ -12,7 +12,7 @@ class IntelliEventsFilter(django_filters.FilterSet):
     event_type = ChoiceFilter(choices=EVENT_TYPE_CHOICES)
     event_state = ChoiceFilter(choices=EVENT_STATE_CHOICES)
     event_time = DateFromToRangeFilter()
-    EMPTY_CHOICE = ('', '---------')
+    EMPTY_CHOICE = ('', '-------- Show all --------')
 
     def __init__(self, *args, **kwargs):
         super(IntelliEventsFilter, self).__init__(*args, **kwargs)
@@ -24,6 +24,10 @@ class IntelliEventsFilter(django_filters.FilterSet):
             extended_choices = ((self.EMPTY_CHOICE,) +
                                 self.filters[field_name].extra['choices'])
             self.filters[field_name].extra['choices'] = extended_choices
+        # First field - from 09/14/2016 12:00 AM
+        self.form.fields['event_time'].fields[0].input_formats = ['%m/%d/%Y %H:%M %p']
+        # Last field - to
+        self.form.fields['event_time'].fields[-1].input_formats = ['%m/%d/%Y %H:%M %p']
 
     class Meta:
         model = MonitEvent
@@ -39,3 +43,8 @@ class IntelliEventsFilter(django_filters.FilterSet):
             'is_ack',
         ]
         order_by = ['-id']
+
+    def filter_server(self, queryset, value):
+        return queryset.filter(
+            server__organisation=value
+        )

@@ -10,6 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{{ request.resolver_match.url_name|get_title }}{% endblock %} &middot; {{APPNAME}}</title>
     <!-- Vendor CSS -->
+
     <link href="{% static 'vendors/bower_components/fullcalendar/dist/fullcalendar.min.css' %}" rel="stylesheet">
     <link href="{% static 'vendors/bower_components/animate.css/animate.min.css' %}" rel="stylesheet">
     <link href="{% static 'vendors/bower_components/sweetalert/dist/sweetalert.css' %}" rel="stylesheet">
@@ -22,12 +23,28 @@
 
     {% block css %}
     {% endblock %}
+
     <link href="{% static 'css/app_1.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/app_2.min.css' %}" rel="stylesheet">
-
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
     <script src="{% static 'vendors/bower_components/jquery/dist/jquery.min.js' %}"></script>
+    <style type="text/css">
+        .lg-body{
+            max-height: 100px;
+            overflow-y: scroll;
+        }
+        .list-group-item{
+            border-bottom: 1px solid #e9e9e9 !important;
+            border-top: 1px solid #e9e9e9 !important;
+            margin-bottom: -1px !important;
+            padding: 2px 20px 2px 8px !important;
+        }
+        .list-group-item: hover{
+            background-color: #e9e9e9;
+        }*/
+    </style>
     {%  block head %}
 {% endblock head %}
 </head>
@@ -83,33 +100,33 @@
                         </li>
                     </ul>
                 </li>
-                <!-- Optionally, you can add icons to the links -->
-                {% if request.user.is_authenticated %}
+                    <!-- Optionally, you can add icons to the links -->
+                    {% if request.user.is_authenticated %}
                     {% if request.user.is_superuser %}
-                        {% url 'datacollector:organisations' as organisations %}
-                        <li {% if request.path == organisations %} class="active"{% endif %}>
+                    {% url 'datacollector:organisations' as organisations %}
+                    <li {% if request.path == organisations %} class="active"{% endif %}>
                         <a class="nav-link" href="{% url 'datacollector:organisations' %}"><i class="fa fa-building"></i><span>{% trans ' Organisations Management' %}</span> </a>
                     </li>
-                {% endif %}
-                {% if not request.user.is_superuser %}
-                    {% url 'ui:dashboard' as dashboard_url %}
-                    <li {% if request.path == dashboard_url %} class="active"{% endif %}>
+                    {% endif %}
+                    {% if not request.user.is_superuser %}
+                        {% url 'ui:dashboard' as dashboard_url %}
+                <li {% if request.path == dashboard_url %} class="active"{% endif %}>
                     <a  class="nav-link" href="{% url 'ui:dashboard' %}"><i class="fa fa-tachometer"></i><span>{% trans '  Dashboard' %}</span></a>
                 </li>
-                    <li>
+                <li>
                     <a  class="nav-link" href="#"><i class="fa fa-external-link-square"></i><span>{% trans '  External Checks' %}</span></a>
                 </li>
-            {% endif %}
-            {% if request.user.is_superuser or request.user.organisation_manager %}
+                {% endif %}
+                {% if request.user.is_superuser or request.user.organisation_manager %}
                 {% url 'users:index' as user_list %}
                 <li {% if request.path == user_list %} class="active"{% endif %}>
-                <a class="nav-link" href="{% url 'users:index' %}"><i class="fa fa-users"></i><span>{% trans '  User Management' %}</span> </a>
-            </li>
-        {% endif %}
-        {% block submenu %}
-        {% endblock %}
-    {% endif %}
-    </ul>
+                    <a class="nav-link" href="{% url 'users:index' %}"><i class="fa fa-users"></i><span>{% trans '  User Management' %}</span> </a>
+                </li>
+                {% endif %}
+                {% block submenu %}
+                {% endblock %}
+            {% endif %}
+            </ul>
     </aside>
     <section id="content">
     <div class="container">
@@ -166,6 +183,8 @@
     <p>Sorry for the inconvenience!</p>
     </div>
     <![endif]-->
+    <div class="modal inmodal" id="event_modal" tabindex="-1" role="dialog" aria-hidden="true"></div>
+
     <!-- Javascript Libraries -->
     <script src="{% static 'vendors/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'vendors/sparklines/jquery.sparkline.min.js' %}"></script>
@@ -193,64 +212,87 @@
     }
     </script>
     <script type="text/javascript">
+        var save_user_settings = function(key,value){
+            $.ajax({
+               url: "{% url 'users:update_user_settings' %}", // the endpoint
+               type: "POST", // http method
+               data: {
+                   key: key,
+                   val: value,
+               },
+               // handle a successful response
+               success: function(json) {
+                    console.log(json.status)
+
+               },
+               // handle a non-successful response
+               error: function(xhr, errmsg, err) {
+                   console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+               }
+           });
+
+        }
+
         $(document).ready(function() {
+
+
+
             $('#notification_count').hide()
             //  Check if the browser supports local storage
             if (window.localStorage) {
                 localStorageSupport = true
             }
 
-        var alerts_sockets = io('/organisation_events_{{ request.user.organisation.id|clean }}');
-        alerts_sockets.on('dmc', function(msg) {
-            var data = msg.data;
-            playSound()
-            if ( $( "#event_table" ).length ) {
+            var alerts_sockets = io('/organisation_events_{{ request.user.organisation.id|clean }}');
+            alerts_sockets.on('dmc', function(msg) {
+                var data = msg.data;
+                playSound()
+                if ( $( "#event_table" ).length ) {
 
-                $.ajax({
-                     url: "{% url 'n:get_event_row' %}", // the endpoint
-                     type: "POST", // http method
-                     data: {
-                         "event_id": data.event.id
-                     },
-                     // handle a successful response
-                     success: function(json) {
-                        // Simple bottom row removal
-                         $('#event_table tr:last').remove();
-                        data_row_html = json.row
-                         $("#event_table tbody").prepend(data_row_html);
+                    $.ajax({
+                         url: "{% url 'n:get_event_row' %}", // the endpoint
+                         type: "POST", // http method
+                         data: {
+                             "event_id": data.event.id
+                         },
+                         // handle a successful response
+                         success: function(json) {
+                            // Simple bottom row removal
+                             $('#event_table tr:last').remove();
+                            data_row_html = json.row
+                             $("#event_table tbody").prepend(data_row_html);
 
-                     },
-                     // handle a non-successful response
-                     error: function(xhr, errmsg, err) {
-                        if ($('#results').length){
-                             $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
-                             " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                         },
+                         // handle a non-successful response
+                         error: function(xhr, errmsg, err) {
+                            if ($('#results').length){
+                                 $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                                 " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                            }
+
+                             console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                         }
+                     });
+
+                    }else{
+
+                        if (localStorageSupport){
+                            notifications_count = localStorage.getItem("notifications_count")
+                            new_notification_count = 0
+                            if (notifications_count){
+                                new_notification_count = parseInt(notifications_count)
+                            }
+                                new_notification_count+= 1
+                                $('#notification_count').show()
+                                localStorage.setItem("notifications_count", new_notification_count);
+                                $('#notification_count').html(new_notification_count)
+                                $('#notification_count').addClass("label label-danger")
                         }
 
-                         console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-                     }
-                 });
 
-                }else{
-
-                    if (localStorageSupport){
-                        notifications_count = localStorage.getItem("notifications_count")
-                        new_notification_count = 0
-                        if (notifications_count){
-                            new_notification_count = parseInt(notifications_count)
-                        }
-                            new_notification_count+= 1
-                            $('#notification_count').show()
-                            localStorage.setItem("notifications_count", new_notification_count);
-                            $('#notification_count').html(new_notification_count)
-                            $('#notification_count').addClass("label label-danger")
                     }
+            });
 
-
-                }
-         }
-
-        );
              if (localStorageSupport){
                         notifications_count = localStorage.getItem("notifications_count")
                         if (notifications_count){
@@ -262,29 +304,97 @@
 
                     }
 
+
+            function getCookie(name) {
+                 var cookieValue = null;
+                 if (document.cookie && document.cookie != '') {
+                     var cookies = document.cookie.split(';');
+                     for (var i = 0; i < cookies.length; i++) {
+                         var cookie = jQuery.trim(cookies[i]);
+                         // Does this cookie string begin with the name we want?
+                         if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                             break;
+                         }
+                     }
+                 }
+                 return cookieValue;
+             }
+
+             var csrftoken = getCookie('csrftoken');
+
+             function csrfSafeMethod(method) {
+                 // these HTTP methods do not require CSRF protection
+                 return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+             }
+
+             $.ajaxSetup({
+                 beforeSend: function(xhr, settings) {
+                     if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                         xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                     }
+                 }
+             });
+
+            var view_event = function(event_id,view_comment){
+                $.ajax({
+                     url: "{% url 'n:get_event_details' %}", // the endpoint
+                     type: "POST", // http method
+                     data: {
+                         "event_id": event_id,
+                         "comments_window": view_comment,
+                     },
+                     // handle a successful response
+                     success: function(json) {
+                         html = json
+                         $('#event_modal').html(html)
+                         $('#event_modal').modal('show')
+                     },
+                     // handle a non-successful response
+                     error: function(xhr, errmsg, err) {
+                         $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                             " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                         console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                     },
+                    beforeSend: function(xhr, settings) {
+                        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        }
+                    }
+                 });
+            }
+
+
+            $('.view-event-details').click(function(){
+                  var event_id= $(this).attr( "event-id" );
+                  view_event(event_id,"false");
+            })
+
+            $('.view-event-comments').click(function(){
+                  var event_id= $(this).attr( "event-id" );
+                  view_event(event_id,"true");
+            })
+
+
+
+
         });
     </script>
 
-    <script src="{% static 'js/server.js' %}"></script>
 
         {% if messages %}
             {% for message in messages %}
                 <script type="text/javascript">
                     $(function () {
-                        toastr.options = {
-                            closeButton: true,
-                            progressBar: true,
-                            showMethod: 'slideDown',
-                            timeOut: 4000
-                        };
-                        toastr.{% if message.tags %}{{ message.tags }}{% else %}sucess{% endif %}('','{{ message }}')
+                            console.log({{message}})
+                            console.log({{message.tag}})
                     });
                 </script>
             {% endfor %}
         {% endif %}
 
-
         <script src="{% static 'js/project.js' %}"></script>
+
 
         {% block javascript %}
         {% endblock javascript %}

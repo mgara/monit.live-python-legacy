@@ -4,14 +4,17 @@
 {% block title %}{{ object.localhostname }}{% endblock %}
 
 {% block content %}
-    <h1>{{ object.localhostname }}</h1>
+  {% include "ui/includes/_widget.html" with caption="Update Server Settings"  %}
+
+    <h3 class="c-lime m-b-25">{{ object.localhostname }}</h3>
     <form class="form-horizontal" method="post" action="{% url 'ui:server_update' object.id %}">
         {% csrf_token %}
         {{ form|crispy }}
-        <div class="control-group">
-            <div class="controls">
-                <button type="submit" class="btn">Update</button>
+        {% include "ui/includes/_end_widget.html" %}
+        {% include "ui/includes/_widget_buttonbar.html" %}
+         <div class="controls">
+                <button type="submit" class="btn btn-primary">Update</button>
             </div>
-        </div>
+        {% include "ui/includes/_end_widget.html" %}
     </form>
 {% endblock %}

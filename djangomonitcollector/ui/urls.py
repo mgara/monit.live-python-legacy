@@ -95,6 +95,11 @@ urlpatterns = [
         name='intellievent'
     ),
     url(
+        regex=r'intellievent2/$',
+        view=views.intellievent_list,
+        name='intellievent_2'
+    ),
+    url(
         regex=r'update_hgs/$',
         view=views.update_user_hgs,
         name='update_hgs'

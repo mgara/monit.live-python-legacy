@@ -10,7 +10,7 @@
     <link href="{% static 'css/plugins/sweetalert/sweetalert.css' %}" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Abel' rel='stylesheet' type='text/css'>
     <style>
-    #collector_keys_ul {
+    .keys_ul {
           list-style-type: none;
     }
     </style>
@@ -121,12 +121,13 @@
                                 </div>
                             </div>
                             <div role="tabpanel" class="tab-pane" id="collector_key_tab">
-                                <div class="row container top-buffer">
+                                <div class="row container m-t-25">
 
                                     <div class="col-sm-12">
 
                                         <p>Before Configuring your monit you must create at least one Collector Key <br/>
-                                        set your mmonit url to : http://KAIROS_URL/dc/collector/COLLECTOR_KEY/[HOST_GROUP/]</p>
+                                        set your mmonit url to : {{base_url}}/dc/collector/COLLECTOR_KEY/[HOST_GROUP/]</p>
+                                        <p>HOST_GROUP : Optional</p>
 
                                             <div class="row m-t-10">
 
@@ -151,7 +152,7 @@
                                             </div>
                                             <div class="row m-t-10">
 
-                                            <ul id="collector_keys_ul">
+                                            <ul id="collector_keys_ul" class="keys_ul">
 
                                             </ul>
                                             </div>
@@ -169,8 +170,36 @@
                                   </div>
                             </div>
                                <div role="tabpanel" class="tab-pane" id="api_tab">
-                                <div class="row container top-buffer">
-                                   <h2 class="text-navy">{% trans "API Keys and Settings" %}</h2>
+                          <div class="row container m-t-25">
+
+                                    <div class="col-sm-12">
+
+                                        <p>The api keys gives you access to the {{APPNAME}} API v{{APIVERSION}}<br/>
+                                        Please check the api documentation for the available methods</p>
+
+
+                                             <div class="hr-line-dashed"></div>
+                                             <h2 class="text-navy">{% trans "API Keys" %}</h2>
+
+
+                                            <div class="row ">
+
+                                                <div class="col-sm-12 ">
+                                                    <button class="btn btn-primary" id="new_api_key" type="button" data-toggle="tooltip" data-placement="top" title="" data-original-title="New" >{% trans 'New API Key' %}</button>
+                                                </div>
+                                            </div>
+                                            <div class="row m-t-10">
+
+                                            <ul id="api_keys_ul" class="keys_ul">
+
+                                            </ul>
+                                            </div>
+
+                                                <div class="row">
+                                                    <div id="result_api_key"></div>
+                                                </div>
+                                            </div>
+                                    </div>
                                 </div>
                                 </div>
                         </div>
@@ -185,7 +214,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
 <script type="text/javascript">
           $(document).ready(function() {
-            create(false);
+            create_collector_key(false);
+            create_api_key(false);
 
             $('.tab-link').click(function(){
                 tab_selector = $(this).attr("href")
@@ -262,6 +292,46 @@
             $("#mmonit_url").val(url+"/dc/collector/"+collector_key+"/")
           }
 
+          var delete_api_key=function(btn){
+               var api_key=$(btn).attr("data-key")
+                    swal({
+                        title: "Are you sure?",
+                        text: "Your will not be able to perform any api call using this API Key",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Yes",
+                        cancelButtonText: "Cancel",
+                        closeOnConfirm: false,
+                        closeOnCancel: true
+                        },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                 $.ajax({
+                                      url: "{% url 'users:delete_api_key' %}", // the endpoint
+                                      type: "POST", // http method
+                                      data: {
+                                          "apikey": api_key
+                                      },
+                                      // handle a successful response
+                                      success: function(json) {
+                                        if(json.status == "OK"){
+                                           $("#"+json.apikey).fadeOut()
+                                           swal("Deleted!", "The API Key has been deleted.", "success");
+                                        }
+                                      },
+                                      // handle a non-successful response
+                                      error: function(xhr, errmsg, err) {
+                                          $('#result_api_key').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                                              " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                                          console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                                      }
+                                    });
+
+                            }
+                        });
+          }
+
           var delete_key=function(btn){
                var collector_key=$(btn).attr("data-key")
                     swal({
@@ -305,21 +375,24 @@
 
           // Submit post on submit
           $('#new_key').on("click", function(event) {
-              create(true);
+              create_collector_key(true);
+          });
+          // Submit post on submit
+          $('#new_api_key').on("click", function(event) {
+              create_api_key(true);
           });
 
-
           // AJAX for posting
-          function create(create) {
+          function create(url, target, create) {
               $.ajax({
-                  url: "{% url 'users:new_collector_key' %}", // the endpoint
+                  url : url, // the endpoint
                   type: "POST", // http method
                   data: {
                       "create": create
                   },
                   // handle a successful response
                   success: function(json) {
-                      $("#collector_keys_ul").html(json.data); // log the returned json to the console
+                      $(target).html(json.data); // log the returned json to the console
                   },
 
                   // handle a non-successful response
@@ -330,6 +403,17 @@
                   }
               });
           };
+
+
+          function create_collector_key(new_key) {
+              create('{% url "users:new_collector_key" %}',"#collector_keys_ul",new_key)
+          };
+
+          // AJAX for posting
+          function create_api_key(new_key) {
+              create('{% url "users:new_api_key" %}',"#api_keys_ul",new_key)
+          };
+
 
           function getCookie(name) {
               var cookieValue = null;

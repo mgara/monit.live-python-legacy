@@ -18,8 +18,8 @@ from django.views.generic import DetailView,\
     CreateView,\
     DeleteView
 
-from .models import User, CollectorKey
-from .forms import MyUserCreationForm, CustomPasswordChangeForm
+from .models import User, CollectorKey, APIKey, UserSettings
+from .forms import MyUserCreationForm, CustomPasswordChangeForm, OrganisationCreationForm
 
 
 class UserRedirectView(LoginRequiredMixin, RedirectView):
@@ -45,6 +45,26 @@ class UserListView(LoginRequiredMixin, ListView):
                 # if the user is an organization manager, return all users that
                 # are not superusers.
                 return self.model.objects.filter(organisation=org, is_superuser=False)
+
+
+class UserCreate(LoginRequiredMixin, CreateView):
+    model = User
+    form_class = MyUserCreationForm
+    slug_field = "username"
+    slug_url_kwarg = "username"
+
+    # def form_invalid(self, form):
+    #    response = super(UserCreate, self).form_invalid(form)
+    #    print "DEBUG form_invalid"
+    #    print self.__dict__
+    #    return response
+
+    def form_valid(self, form):
+        organisation = form.cleaned_data['organisation']
+        if not organisation:
+            form.cleaned_data['organisation'] = self.request.user.organisation
+
+        return super(UserCreate, self).form_valid(form)
 
 
 class UserCreate(LoginRequiredMixin, CreateView):
@@ -149,6 +169,8 @@ def UpdatePasswordForUser(request, pk):
     })
 
 
+
+
 def delete_collector_key(request):
     ck = request.POST['ck']
     Collector_key_instance = CollectorKey.objects.get(pk=ck)
@@ -190,6 +212,84 @@ def new_collector_key(request):
         }
     return JsonResponse(res)
 
+
+def delete_api_key(request):
+    apikey = request.POST['apikey']
+    API_key_instance = APIKey.objects.get(pk=apikey)
+    APIKey.delete(API_key_instance)
+
+    res = {
+        'status': "OK",
+        'apikey': apikey
+    }
+    return JsonResponse(res)
+
+
+def new_api_key(request):
+    org = request.user.organisation
+    create = request.POST['create']
+    if create in ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']:
+        create = True
+    else:
+        create = False
+
+    try:
+
+        if create:
+            #  org.collectorkey_set.all().delete()
+            APIKey.create(uuid.uuid4(), org)
+        html = ""
+        organisation_keys = org.apikey_set.all()
+        for apikey in list(organisation_keys):
+            html += build_api_key_view(apikey)
+
+        res = {
+            'data': html,
+        }
+
+    except StandardError as e:
+        res = {
+            'error': e.message,
+            'error_id': 1
+        }
+    return JsonResponse(res)
+
+def update_user_settings(request):
+    key = request.POST['key']
+    val = request.POST['val']
+
+    user = request.user
+    try:
+        user_setting_instance = UserSettings.objects.get(user=user, key=key)
+        UserSettings.delete(user_setting_instance)
+    except UserSettings.DoesNotExist:
+        pass
+
+    try:
+        UserSettings.create(user, key, val)
+
+        res = {
+            'status': "OK",
+            'key': key,
+            'val': val
+        }
+    except StandardError:
+        res = {
+            'status': "ERR",
+            'key': "ERR",
+            'val': "ERR"
+        }
+
+    return JsonResponse(res)
+
+
+def build_api_key_view(apikey):
+    res = ' <li class="p-10  ck-item" id="{0}">\
+    <h2 style="font-family: \'Abel\', cursive;"><span class="btn btn-circle \
+    btn-danger" data-toggle="tooltip" data-placement="left" title="" data-original-title="Delete" onclick="delete_api_key(this)" data-key="{0}" ><i class="\
+    fa fa-trash"></i></span> {0}  \
+    </h2></li>'.format(apikey.api_key)
+    return res
 
 def build_collector_key_view(ck):
     res = ' <li class="p-10  ck-item" id="{0}">\

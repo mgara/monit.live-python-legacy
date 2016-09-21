@@ -9,10 +9,8 @@
 {% load extra_tags %}
 {% block title %} Events Dashboard {% endblock %}
 {% block page_title %}Events Dashboard {% endblock %}
-{% block head %}
-    <link href="{% static 'css/plugins/bootstrap-markdown/bootstrap-markdown.min.css' %}" rel="stylesheet">
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-
+{% block css %}
+<link href="{% static 'vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css' %}" rel="stylesheet">
 <style type="text/css" media="print">
    .no-print { display: none; }
 
@@ -28,7 +26,15 @@
     opacity: 1;
    }
 </style>
+
 {% endblock %}
+
+{% block submenu %}
+  <li class="nav-item">
+    <a class="nav-link" href="#"><i class="fa fa-arrows-v"></i>Timeline View </a>
+    <a class="nav-link" href="#"><i class="fa fa-calendar"></i>Calendar View </a>
+  </li>
+  {% endblock submenu %}
 {% block content %}
                 {% autopaginate filter.qs 10 as filter_list %}
 
@@ -58,7 +64,7 @@
     })
     </script>
 
-<form  action="" method="get">
+<form  action="" method="get" id="filter_form">
     <div class="row">
         <div class="form-group col-md-3">
             <label for="id_server">{% trans 'Server' %}:</label>
@@ -94,12 +100,13 @@
         </div>
         <div class="form-group col-md-4">
             {{ filter.form.event_time.label_tag }}
-            {{ filter.form.event_time|add_class:"form-control input-sm"|attr:'autocomplete:off' }}
+            {{ filter.form.event_time|add_class:"form-control "|attr:'autocomplete:off' }}
         </div>
     </div>
     <div class="row">
         {% include "ui/includes/_widget_buttonbar.html" with caption="Disk Usage"  %}
         <button class="btn btn-primary" type="submit" >{% trans 'Filter' %}</button>
+        <button class="btn bgm-indigo pull-right" type="button" onclick="reset_filter()">{% trans 'Reset Filter' %}</button>
         {% include "ui/includes/_end_widget.html" %}
     </div>
 </form>
@@ -128,33 +135,7 @@
         </thead>
         <tbody>
             {% for monit_event in filter_list %}
-                <tr id="event-{{ monit_event.id }}" class="{% if monit_event.alarm_raised and not monit_event.cleared_by %} c-red {% else %} fade_me {% endif %}">
-                <td class="text-center"><small><span class="label bgm-indigo" >{{ monit_event.id }}<span></small></td>
-                <td><a class="c-blue" target="_blank" href="{% url 'ui:server' monit_event.server.id %}" >{{ monit_event.server.localhostname }}</a></td>
-                <td>
-                    <div class="p-1">
-                        <span class="pull-right btn btn-xs c-lime" data-toggle="tooltip" data-placement="top" title="{{ monit_event.event_time}}"> {{ monit_event.event_time|time_diff|format_timedelta }}</span>
-                        <p class="m-b-xs">
-                            {{ monit_event.event_message }}
-                        </p>
-
-                        <div class="btn-group btn-group-xs" role="group">
-                                    <button data-toggle="tooltip" data-placement="right" title="Comments" event-id="{{monit_event.id }}" type="button" class="btn btn-primary {{ monit_event.moniteventcomment_set.all|length|comments_style}} waves-effect view-event-comments "><i class="fa fa-comment-o"></i> <span>{{ monit_event.moniteventcomment_set.all|length}} </span> </button>
-                                    <button data-toggle="tooltip" data-placement="top" title="Details" event-id="{{monit_event.id }}" type="button" class="btn btn-primary waves-effect view-event-details">View</button>
-                                </div>
-
-                    </div>
-                </td>
-                <td><b>{{ monit_event.event_id|event_status_to_string }}</b><br/><b><span class="label label-{{ monit_event.event_state|event_state_to_style }}">{{ monit_event.event_state|event_state_to_string }}</b></span></td>
-                <td>{{ monit_event.event_type|type_to_string }}<br/><strong>{{ monit_event.service}} </strong></td>
-                <td>{{ monit_event.event_action|action_to_string }}</td>
-                <td>{% if monit_event.event_state == 1  %} {{ monit_event.alarm_raised|to_icon|safe }} {% else %} - {% endif%}</td>
-                <td>{% if monit_event.event_state == 1  %} {{ monit_event.is_duplicate_of|to_btns|safe }} {% else %} - {% endif%}</td>
-                <td>{% if monit_event.event_state == 1 and monit_event.cleared_by  %} {{ monit_event.cleared_by|to_btn|safe }} {% else %} - {% endif%}</td>
-                <td>{% if monit_event.event_state == 0  %} {{ monit_event.cleared_alarms|to_btns|safe }} {% else %} - {% endif%}</td>
-            </tr>
-            <script type="text/javascript">
-            </script>
+                {% include "ui/includes/_event_row.html" %}
             {% empty %}
             <tr >
                 <td colspan="10"><div class="alert alert-info"> {% trans "Congratulations ! Everything is allright !" %}</div></td>
@@ -183,19 +164,18 @@
 </div>
 </div>
 </div>
-<div class="modal inmodal" id="event_modal" tabindex="-1" role="dialog" aria-hidden="true"></div>
 {% endblock %}
 {% block javascript %}
 
 
-    <!-- Bootstrap markdown -->
-    <script src="{% static 'js/plugins/bootstrap-markdown/bootstrap-markdown.js' %}"></script>
-    <script src="{% static 'js/plugins/bootstrap-markdown/markdown.js' %}"></script>
-
-
+    <script src="{% static 'vendors/bower_components/moment/min/moment.min.js' %}"></script>
+    <script src="{% static 'vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js' %}"></script>
  <script type="text/javascript">
 
+ function reset_filter(){
+    window.location.href ="{% url 'ui:intellievent_2' %}"
 
+ }
 
     $(document).ready(function() {
 
@@ -209,38 +189,6 @@
                 $('#notification_count').hide()
         }
 
-        var view_event = function(event_id,view_comment){
-            $.ajax({
-                 url: "{% url 'n:get_event_details' %}", // the endpoint
-                 type: "POST", // http method
-                 data: {
-                     "event_id": event_id,
-                     "comments_window": view_comment,
-                 },
-                 // handle a successful response
-                 success: function(json) {
-                     html = json
-                     $('#event_modal').html(html)
-                     $('#event_modal').modal('show')
-                 },
-                 // handle a non-successful response
-                 error: function(xhr, errmsg, err) {
-                     $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
-                         " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-                     console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-                 }
-             });
-        }
-
-        $('.view-event-details').click(function(){
-              var event_id= $(this).attr( "event-id" );
-              view_event(event_id,"false");
-        })
-
-        $('.view-event-comments').click(function(){
-              var event_id= $(this).attr( "event-id" );
-              view_event(event_id,"true");
-        })
 
 
 
@@ -264,37 +212,6 @@
 
 
 
-    function getCookie(name) {
-         var cookieValue = null;
-         if (document.cookie && document.cookie != '') {
-             var cookies = document.cookie.split(';');
-             for (var i = 0; i < cookies.length; i++) {
-                 var cookie = jQuery.trim(cookies[i]);
-                 // Does this cookie string begin with the name we want?
-                 if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                     break;
-                 }
-             }
-         }
-         return cookieValue;
-     }
-
-     var csrftoken = getCookie('csrftoken');
-
-     function csrfSafeMethod(method) {
-         // these HTTP methods do not require CSRF protection
-         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-     }
-
-     $.ajaxSetup({
-         beforeSend: function(xhr, settings) {
-             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
-             }
-         }
-     });
-
 
 
      function getParameterByName(name, url) {
@@ -307,42 +224,54 @@
         return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
-    var box_header = ""
-    var event_type = getParameterByName('event_type'); // "lorem"
-    var event_id = getParameterByName('event_id'); // "" (present with empty value)
-    var event_state = getParameterByName('event_state'); // "" (present with no value)
-    var event_message = getParameterByName('event_message'); // null (absent)
-    var alarm_raised = getParameterByName('alarm_raised'); // null (absent)
-    var is_ack = getParameterByName('is_ack'); // null (absent)
-    var server = getParameterByName('server'); // null (absent)
+        var box_header = ""
+        var event_type = getParameterByName('event_type'); // "lorem"
+        var event_id = getParameterByName('event_id'); // "" (present with empty value)
+        var event_state = getParameterByName('event_state'); // "" (present with no value)
+        var event_message = getParameterByName('event_message'); // null (absent)
+        var alarm_raised = getParameterByName('alarm_raised'); // null (absent)
+        var is_ack = getParameterByName('is_ack'); // null (absent)
+        var server = getParameterByName('server'); // null (absent)
 
 
-    if(server){
-        box_header += " | Server :  <b>"+ $('#id_server option:selected').html()+"</b>"
-    }
-    if(event_type){
-        box_header += " | Event type :  <b>"+ $('#id_event_type option:selected').html()+"</b>"
-    }
-    if(event_id){
-        box_header += " | Event ID :  <b>"+ $('#id_event_id option:selected').html()+"</b>"
-    }
-    if(event_state){
-        box_header += " | Event State :  <b>"+ $('#id_event_state option:selected').html()+"</b>"
-    }
-    if(event_message){
-        box_header += " | Event Message contains  <b>'"+ $('#id_event_message').val()+"'</b>"
-    }
-    if(alarm_raised){
-        var val = $('#id_alarm_raised option:selected').html()
-        if (val!="Unknown")
-            box_header += " | Is Raised? : "+val
-    }
-    if(is_ack){
-        var val = $('#id_is_ack option:selected').html()
-        if (val!="Unknown")
-            box_header += " | Is Acknowledged ? : <b>"+ $('#id_is_ack option:selected').html()+"</b>"
-    }
-    $('#filter-details').html(box_header)
+        if(server){
+            box_header += " | Server :  <b>"+ $('#id_server option:selected').html()+"</b>"
+        }
+        if(event_type){
+            box_header += " | Event type :  <b>"+ $('#id_event_type option:selected').html()+"</b>"
+        }
+        if(event_id){
+            box_header += " | Event ID :  <b>"+ $('#id_event_id option:selected').html()+"</b>"
+        }
+        if(event_state){
+            box_header += " | Event State :  <b>"+ $('#id_event_state option:selected').html()+"</b>"
+        }
+        if(event_message){
+            box_header += " | Event Message contains  <b>'"+ $('#id_event_message').val()+"'</b>"
+        }
+        if(alarm_raised){
+            var val = $('#id_alarm_raised option:selected').html()
+            if (val!="Unknown")
+                box_header += " | Is Raised? : "+val
+        }
+        if(is_ack){
+            var val = $('#id_is_ack option:selected').html()
+            if (val!="Unknown")
+                box_header += " | Is Acknowledged ? : <b>"+ $('#id_is_ack option:selected').html()+"</b>"
+        }
+        $('#filter-details').html(box_header)
+
+        $('#id_event_time_0').datetimepicker();
+        $('#id_event_time_1').datetimepicker({
+            useCurrent: false //Important! See issue #1075
+        });
+        $("#id_event_time_0").on("dp.change", function (e) {
+            $('#id_event_time_1').data("DateTimePicker").minDate(e.date);
+        });
+        $("#id_event_time_1").on("dp.change", function (e) {
+            $('#id_event_time_0').data("DateTimePicker").maxDate(e.date);
+        });
+
 });
 
         </script>

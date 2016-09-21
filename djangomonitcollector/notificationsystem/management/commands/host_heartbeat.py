@@ -48,6 +48,7 @@ class Command(BaseCommand):
         hosts_down = []
         self.logger.info("Started MonitHost HeartBeat")
         while True:
+            time.sleep(10)
             monit_hosts = self.get_monit_hosts(options)
             if not monit_hosts:
                 self.logger.info("No Hosts Found or No Hosts configured")
@@ -68,8 +69,8 @@ class Command(BaseCommand):
                     server['localhostname'],
                     delta, server['monit_update_period'])
                 )
-
-                if (delta - 1) > server_monit_update_period:
+                # TODO: make the grace period of 10 seconds configurable, 0 is aggressive
+                if (delta - 10) > server_monit_update_period:
 
                     if server['monitid'] not in hosts_down:
                         hosts_down.append(server['monitid'])
@@ -147,7 +148,6 @@ class Command(BaseCommand):
         template_directory = os.path.join(template_directory, "templates")
         template_filename = os.path.join(
             template_directory, "event_template.tpl")
-        print template_filename
         template = Template(filename=template_filename)
 
         content = template.render(
@@ -177,4 +177,3 @@ class Command(BaseCommand):
         resp = conn.getresponse()
         body = resp.read()
         self.logger.debug("Sent {} ".format(data))
-        print body

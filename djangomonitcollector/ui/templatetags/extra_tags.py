@@ -268,12 +268,12 @@ def comments_style(alert_counts):
 @register.filter
 def status_tr_class(status, monitor):
     if not monitor:
-        return 'sucess'
+        return ' bgm-bluegray'
     if monitor == 0:
         return 'info'
     if int(status) == 0:
         return 'success'
-    return 'danger'
+    return 'danger  animate bounceIn'
 
 
 @register.filter
@@ -403,7 +403,9 @@ def type_to_string(type):
 
 @register.filter  # Event id
 def event_status_to_string(status):
+
     status_int = int(status)
+
     state_dic = {
         1: 'checksum',
         2: 'resource',
@@ -471,11 +473,19 @@ def action_to_string(action):
 @register.filter
 def event_state_to_style(state):
     if int(state) == 0:
-        return "success"
+        return "success bgm-green"
     if int(state) == 1:
-        return "danger"
-    return "success"
+        return "danger bgm-red"
+    return "success  bgm-indigo"
 
+
+@register.filter
+def event_state_to_text_style(state):
+    if int(state) == 0:
+        return "c-green"
+    if int(state) == 1:
+        return "c-red"
+    return "c-indigo"
 
 @register.filter
 def flapping_status(flapping):

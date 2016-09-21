@@ -195,8 +195,10 @@ OLD DATA
 
       $(".easy-pie").easyPieChart({
         easing: 'easeOutBounce',
-        animate : 2000,
+        barColor: '#F44336',
+        animate : 1500,
         trackColor: false,
+        //scaleColor: false,
         onStep: function(from, to, percent) {
             var rounded = Math.round( percent * 10 ) / 10;
             $(this.el).find('.percent').text(rounded);

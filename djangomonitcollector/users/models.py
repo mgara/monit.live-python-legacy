@@ -160,6 +160,15 @@ class UserSettings(models.Model):
             self.save(force_insert=True)
         super(UserSettings, self).save(*args, **kwargs)
 
+    @classmethod
+    def create(cls,
+               user,
+               key,
+               val):
+        entity = cls(user=user, key=key, val=val)
+        entity.save()
+        return entity
+
 
 def validate_user(user):
     if not user.id:
@@ -180,6 +189,21 @@ class CollectorKey(models.Model):
                uuid,
                org):
         entity = cls(collector_key=uuid, organisation=org, is_enabled=True)
+        entity.save()
+        return entity
+
+
+class APIKey(models.Model):
+    api_key = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False)
+    organisation = models.ForeignKey(Organisation)
+    is_enabled = models.BooleanField(default=True)
+
+    @classmethod
+    def create(cls,
+               uuid,
+               org):
+        entity = cls(api_key=uuid, organisation=org, is_enabled=True)
         entity.save()
         return entity
 

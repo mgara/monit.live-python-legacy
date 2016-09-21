@@ -28,4 +28,3 @@ class PostEventNotification(EventSettingsInterface):
         conn.request("POST", urlparts.path, data)
         resp = conn.getresponse()
         body = resp.read()
-        print body

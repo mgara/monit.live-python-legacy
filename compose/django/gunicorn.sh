@@ -1,5 +1,5 @@
 #!/bin/sh
-ENV='/webapps/envs/kairos'
+ENV='../../venv/'
 APP_DIR='/webapps/kairos'
 source $ENV/bin/activate
 source $APP_DIR/source_me
