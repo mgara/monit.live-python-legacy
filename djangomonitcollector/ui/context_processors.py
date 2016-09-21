@@ -16,5 +16,6 @@ def app_settings(request):
     return {
         'APPNAME': settings.APPNAME,
         'APPVERSION': settings.APPVERSION,
+        'APIVERSION': settings.APIVERSION,
         'organisation_events': organisation_events
     }

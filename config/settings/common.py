@@ -279,3 +279,4 @@ ENABLE_MANUAL_APPROVAL = False
 #APPNAME = "καιρός"
 APPNAME = "monit.live"
 APPVERSION = "1.9.1b"
+APIVERSION = "1"

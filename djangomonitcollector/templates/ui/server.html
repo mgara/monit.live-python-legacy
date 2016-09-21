@@ -2,7 +2,7 @@
 {% load staticfiles %}
 {% load extra_tags %}
 {% load i18n %}
-{% block page_title %} Server : <strong class="c-red">{{ server.localhostname }}</strong> <br/> IP : <strong class="c-red">{{ server.external_ip }}</strong> <br/> Server Uptime : <strong class="c-red">{{ server.uptime|time_str }}</strong> {% endblock %}
+{% block page_title %} Server : <strong class="c-indigo">{{ server.localhostname }}</strong> <br/> IP : <strong class="c-indigo">{{ server.external_ip }}</strong> <br/> Server Uptime : <strong class="c-indigo">{{ server.uptime|time_str }}</strong> {% endblock %}
 
 {% block submenu %}
   <li class="nav-item">
@@ -63,9 +63,9 @@
 {% block content %}
 
 {% if old_data %}
-<div class="row">
-OLD DATA
-</div>
+<script type="text/javascript">
+  console.log("OLD DATA");
+</script>
 {% endif %}
 
 
@@ -186,6 +186,8 @@ OLD DATA
     <script src="{% static 'js/graphite.js' %}"></script>
     <script>
     $(function() {
+
+
       var cpu_system_chart = $('.cpu-system-chart')
       var cpu_wait_chart   = $('.cpu-wait-chart')
       var cpu_user_chart   = $('.cpu-user-chart')
@@ -204,9 +206,6 @@ OLD DATA
             $(this.el).find('.percent').text(rounded);
         }
       });
-
-
-
 
       var gs = []
 

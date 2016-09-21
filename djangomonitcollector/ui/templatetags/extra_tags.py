@@ -527,7 +527,6 @@ def get_progress_bar_html(value, display_txt):
     res = '<span class="progress-number text-{0}">{2}</span>'\
           '<div class="progress progress-mini  progress-bar-border-{0} xs">' \
           '<div class="progress-bar progress-bar-{0} " role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: {1}%">' \
-          '<span>{2}</span>' \
           '</div>' \
           '</div>'.format(style, value, display_txt)
     return res

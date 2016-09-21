@@ -58,8 +58,8 @@
                     <div class="line bottom"></div>
                 </div>
             </li>
-            <li class="hi-logo hidden-xs">
-                <a href="{% url 'ui:dashboard' %}"><b>{{APPNAME}}</b>v{{APPVERSION}}</a>
+            <li class="">
+                <a href="{% url 'ui:dashboard' %}" class="navbar-logo"><b>{{APPNAME}}</b><small class="small m-l-5">v{{APPVERSION}}</small></a>
             </li>
             <li class="pull-right">
                 <ul class="hi-menu">
@@ -130,7 +130,7 @@
     </aside>
     <section id="content">
     <div class="container">
-    <div class="block-header">
+    <div class="block-header" id="block-header">
         <h2>{% block page_title %} {% endblock %}</h2>
     </div>
     {% block content %}
@@ -212,6 +212,8 @@
     }
     </script>
     <script type="text/javascript">
+
+
         var save_user_settings = function(key,value){
             $.ajax({
                url: "{% url 'users:update_user_settings' %}", // the endpoint
@@ -234,7 +236,6 @@
         }
 
         $(document).ready(function() {
-
 
 
             $('#notification_count').hide()

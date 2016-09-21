@@ -36,7 +36,7 @@
                                         {% csrf_token %}
                                         <div class="box float-e-margins">
                                             <div class="box-title">
-                                                <h5>General</h5>
+                                                <h2>General</h2>
                                             </div>
                                             <div class="box-content">
                                                 <div class="form-group {% if form.general_auto_add_unknown_servers.errors %} has-error{% endif %}">
@@ -74,7 +74,7 @@
 
                                         <div class="box float-e-margins">
                                             <div class="box-title">
-                                                <h5>Flapping Configuration</h5>
+                                                <h2>Flapping Configuration</h2>
                                             </div>
                                             <div class="box-content">
 
@@ -166,7 +166,10 @@
                             <div role="tabpanel" class="tab-pane" id="snmp_tab">
                                 <div class="row container top-buffer">
 
-                                <h2 class="text-navy">{% trans "SNMP Managers" %}</h2>
+                                <h2>{% trans "SNMP Settings" %}</h2>
+                                <h2>{% trans "Slack API Token" %}</h2>
+                                <h2>{% trans "Twillio API Token" %}</h2>
+
                                   </div>
                             </div>
                                <div role="tabpanel" class="tab-pane" id="api_tab">
@@ -177,7 +180,7 @@
                                         <p>The api keys gives you access to the {{APPNAME}} API v{{APIVERSION}}<br/>
                                         Please check the api documentation for the available methods</p>
 
-
+                                        <p class="m-t-10 m-b-10">{{base_url}}/api/v{{APIVERSION}}/</p>
                                              <div class="hr-line-dashed"></div>
                                              <h2 class="text-navy">{% trans "API Keys" %}</h2>
 

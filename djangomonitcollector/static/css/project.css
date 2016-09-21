@@ -4,13 +4,55 @@
    and https://github.com/pydanny/cookiecutter-django/issues/317
 */
 @import 'https://fonts.googleapis.com/css?family=Noto+Serif';
+@import '//fonts.googleapis.com/css?family=Open+Sans:300,300italic,600,600italic';
+@import '//fonts.googleapis.com/css?family=Josefin+Sans:300italic,300';
 
 [hidden][style="display: block;"] {
   display: block !important;
 }
 
+#header{
+  box-shadow: none !important;
+  background: rgba(30,38,43,0.5) !important;
+}
+
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6, label, .nologin-header, .footer{
+  font-family: 'Josefin Sans', sans-serif !important;
+}
+.him-label{
+  text-transform: capitalize !important;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.small{
+  font-size: 12px;
+}
+
+.footer{
+  font-size: 1.2em;
+}
+.navbar-logo{
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 36px;
+  font-family: 'Josefin Sans', sans-serif;
+}
+.navbar-logo:hover{
+  color: #ffffff;
+}
+
+table, ul, li{
+  font-family: 'Open Sans', sans-serif !important;
+}
+
 .error{
     color:#ed5565;
+}
+
+label, .control-label{
+  font-size: 1.2em !important;
+  font-weight: bold;
 }
 
 .row .column:hover{
@@ -33,7 +75,6 @@
 .extra_params_class{
   min-height: 150px;
 }
-
 
 
 .choice {
@@ -130,6 +171,7 @@
 .shadow {
 text-shadow: 1px 1px 2px rgba(244, 244, 244, 1);
 }
+
 .select-container {
   padding-bottom: 10px;
   margin-left: 25%;
@@ -145,13 +187,14 @@ text-shadow: 1px 1px 2px rgba(244, 244, 244, 1);
   vertical-align: middle;
 }
 .app-name {
-  font-family: 'Noto Serif', serif;
-
-  font-size: 150px;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 76px;
   line-height: 58px;
   margin: 0 0 58px;
   font-weight: 350;
-  letter-spacing: -10px;
+ /* letter-spacing: 10px;*/
+  z-index: 15;
+  text-transform: uppercase;
 }
 .nologin-header{
   font-weight: 200;

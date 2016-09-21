@@ -27,6 +27,9 @@
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
     <script src="{% static 'vendors/bower_components/jquery/dist/jquery.min.js' %}"></script>
     <style type="text/css">
+    #main{
+        background-image: "http://www.monit.live/wp-content/themes/astrid/images/header-mobile.jpg";
+    }
     #footer{
          padding-left: 0px;
          }
@@ -56,8 +59,7 @@
         <div class="center">
             <div class="p-25 text-left pull-right ">
                 <span class="text-right app-name "><div class="animated bounceIn">{{APPNAME}}</div></span>
-                <h4 class="text-right nologin-header m-t-25">{{APPVERSION}}</h4>
-                <h6 class="text-right nologin-header">{{APPNAME}} Monit Collector</h6>
+                <h3 class="text-right nologin-header m-t-25">{{APPVERSION}}</h3>
                 <p class="text-right nologin-header" style="width:450px">Use {{APPNAME}} to manage all your Monit servers. {{APPNAME}} expand on Monit's capabilities and provides monitoring and management of all your Monit enabled hosts via a modern, clean and well designed user interface which also works on mobile devices.</p>
                 <h6 class="text-right c-red">Made with <i class="fa fa-heart"></i> by Meher<h6>
             </div>
