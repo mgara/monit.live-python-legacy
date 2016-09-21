@@ -1,0 +1,9 @@
+{% load extra_tags %}
+  <a class="list-group-item media view-event-details" event-id="{{ monit_event.id}}"  href="#">
+    <div class="media-body ">
+      <div class="lgi-heading">{{ monit_event.server.localhostname }}: <small >{{ monit_event.event_id|event_status_to_string }} </small><br/>
+      <span class="{{ monit_event.event_state|event_state_to_text_style }}">{{ monit_event.event_message}}</span>
+      </div>
+      <small class="lgi-text"><b>{{ monit_event.event_time|time_diff|format_timedelta }}</b></small>
+    </div>
+  </a>
