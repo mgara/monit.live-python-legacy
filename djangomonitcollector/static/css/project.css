@@ -16,9 +16,23 @@
   background: rgba(30,38,43,0.5) !important;
 }
 
-.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6, label, .nologin-header, .footer{
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6, label, button, .nologin-header, .footer{
   font-family: 'Josefin Sans', sans-serif !important;
+
 }
+.p-value{
+  font-family: 'Josefin Sans', sans-serif !important;
+  text-transform: capitalize !important;
+  font-size: 14px;
+
+}
+.item-label{
+  font-family: 'Josefin Sans', sans-serif !important;
+  text-transform: uppercase !important;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
 .him-label{
   text-transform: capitalize !important;
   font-size: 14px;
@@ -90,8 +104,8 @@ label, .control-label{
 
 .focus
 .bootstrap-tagsinput
-.bootstrap-select button{
-    -webkit-border-radius: 0 !important;
+.bootstrap-select{
+  -webkit-border-radius: 0 !important;
      -moz-border-radius: 0 !important;
           border-radius: 0 !important;
   -webkit-box-shadow: 0 5px 15px rgba(0,0,0,0) !important;
@@ -126,13 +140,15 @@ label, .control-label{
   background-color:rgba(255, 255, 255, 0.0) !important;
   color: white;
 }
-/*
-* {
+
+.btn-primary,
+.btn-warning,
+.btn-danger {
   -webkit-border-radius: 0 !important;
      -moz-border-radius: 0 !important;
           border-radius: 0 !important;
 }
-*/
+
 .btn-sq-lg {
   width: 150px !important;
   height: 150px !important;

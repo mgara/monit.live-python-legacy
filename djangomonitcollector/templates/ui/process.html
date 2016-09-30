@@ -1,188 +1,86 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load extra_tags %}
+{% load i18n %}
 
+{% block page_title %} Process : <strong class="c-red">{{process.name}}</strong> On <span class="c-red">{{ server.localhostname }}</span> IP : <strong class="c-red">{{ server.external_ip }}</strong> Server Uptime : <strong class="c-red">{{ server.uptime|time_str }}</strong>{% endblock %}
 
-{% block submenu %}
-    <li><a href="{% url 'ui:server' server.id %}"> Back to Server </a></li>
-{% endblock %}
 
 
 {% block content %}
     {% if process_found %}
-
-
-
-    <div class="row clearfix">
-
-        <div class="page-header">
-            <h1>Process <b>{{process.name}}</b> on <small>{{ server.localhostname }}</small>
-            </h1>
+    <div class="row clearfix text-center p-25">
+        <div class="column col-md-3">
+            <span class="item-label ">{% trans "name" %}:</span><span class="c-lime p-value">{{ process.name }}</span>
         </div>
-
-
-        <div class="row clearfix marginTop">
-            <div class="col-md-12 column">
-                {% include "ui/includes/process_table.html" %}
-            </div>
+        <div class="column col-md-3">
+            <span class="item-label ">{% trans "status" %}:</span><span class="label label-{{ process.status|status_tr_class:process.monitor }} p-value">{{ process.status|status_to_string:process}}</span>
         </div>
-        <div class="divider"></div>
-
-        <div class="row clearfix">
+        <div class="column col-md-3">
+            <span class="item-label ">{% trans "uptime" %}:</span><span class="c-lime p-value">{{ process.uptime|time_str }}</span>
+        </div>
+        <div class="column col-md-3">
+            <span class="item-label ">{% trans "children" %}:</span><span class="c-lime p-value">{% if process.children %}{{ process.children|format_number }}{% endif %}</span>
+        </div>
+    </div>
+    <div class="row clearfix text-center p-25">
+        <div class="column col-md-6">
+            <span class="item-label ">{% trans "CPU total" %}:</span><span class="c-lime p-value">{{ process.cpu_percent_last|percent }}</span>
+        </div>
+        <div class="column col-md-6">
+            <span class="item-label ">{% trans "memory total" %}:</span><span class="c-lime   p-value">{{ process.memory_percent_last|percent }} {% if process.memory_kilobyte_last %}[{{ process.memory_kilobyte_last|kb_formatting}}] {% endif %}</span>
+        </div>
+    </div>
+          {% include "ui/includes/_widget.html" with caption="CPU Usage" html_id="cpu_graph" %}
                 <div id="graph_cpu" class="graph" style="width:100%"></div>
-        </div>
-        <div class="divider"></div>
-        <div class="row clearfix">
+          {% include "ui/includes/_end_widget.html" %}
+          {% include "ui/includes/_widget.html" with caption="Memory Usage (%)" html_id="memory_usage" %}
                 <div id="graph_mem" class="graph" style="width:100%"></div>
-        </div>
-        <div class="divider"></div>
-
+           {% include "ui/includes/_end_widget.html" %}
+        {% include "ui/includes/_widget.html" with caption="Memory Usage (kb)" html_id="memory_usage_kb" %}
+                <div id="graph_mem_kb" class="graph" style="width:100%"></div>
+           {% include "ui/includes/_end_widget.html" %}
         <div class="row">
             <p class="helper"> Zoom: click-drag --- Pan: shift-click-drag --- Restore zoom level: double-click</p>
-
         </div>
 
     </div>
-  <script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
-    <script src="{% static 'js/dygraph-combined.js' %}"></script>
-    <script src="{% static 'js/csrf.js' %}"></script>
+        <script src="{% static 'js/dygraph-combined.js' %}"></script>
+        <script src="{% static 'js/synchronizer.js' %}"></script>
+        <script src="{% static 'js/graphite.js' %}"></script>
+        <script type="text/javascript">
+        $(function(){
+            var gs = []
+            $("#graph_cpu").dygraphite({
+                    target: [
+                        ['{{server.localhostname|normalize}}.process.{{process.name}}.cpu_percent', 'CPU'],
+                    ]
+                    },{
+                    ylabel : "%",
+                    sync: gs
+            });
 
-    <script>
-        $(document).ready(function () {
-                {% if request.session.is_dst %}
-            var dst_delta =3600
-                  {% else %}
-            var dst_delta= 0 // 1h
-                {% endif %}
+            $("#graph_mem").dygraphite({
+                    target: [
+                        ['{{server.localhostname|normalize}}.process.{{process.name}}.memory_percent', 'Memory %'],
+                    ]
+                },{
+                    ylabel : "%",
+                    sync: gs
+            });
 
-            var point_size = 1;
-            var stroke_width = 2;
-            var draw_point = false;
-            var graph_colors =  ["#1ab394", "#ed5565", "#f8ac59", "#1c84c6"];
+            $("#graph_mem_kb").dygraphite({
+                    target: [
+                        ['{{server.localhostname|normalize}}.process.{{process.name}}.memory_kilobyte', 'Memory KB'],
+                    ]
+                },{
+                    ylabel : "Bytes",
+                    sync: gs
+            });
 
-            var update_period = 1000 *{{monit_update_period}};
-            var data_cpu = [];
-            var dates = {{date_last}};
-            var y1 = {{cpu_percent}};
-            var i;
-            for (i = 0; i < dates.length; i++)
-                data_cpu.push([new Date((dates[i]-dst_delta) * 1000.), y1[i]]);
-            var graph_cpu = new Dygraph(document.getElementById("graph_cpu"), data_cpu,
-                    {
-                        legend: 'always', // show always
-                        labelsDivWidth: '140', // default 250
-                        labelsSeparateLines: true,
-                        ylabel: 'CPU usage (in %)',
-                        xlabel: 'Time',
-                        rollPeriod: 10,
-                        drawPoints: draw_point,
-                        pointSize: point_size,
-                        strokeWidth: stroke_width,
-                        labels: ['Time', '{{process.name}} CPU usage'],
-                        axisLabelColor: '#CCC',
-                        axisLineColor: '#CCC',
-                        //plotter: barChartPlotter,
-                        colors: graph_colors,
-                        zoomCallback: function () { // (minDate, maxDate)
-                            set_linewidth(graph_cpu, data_cpu);
-                        },
-                    });
-            set_linewidth(graph_cpu, data_cpu);
-            var data_mem = [];
-            var y1 = {{memory_percent}};
-            var y2 = {{memory_kilobyte}};
-            for (i = 0; i < dates.length; i++)
-                data_mem.push([new Date(dates[i] * 1000.), y1[i], y2[i] / 1.e6]);
-            var graph_mem = new Dygraph(document.getElementById("graph_mem"), data_mem,
-                    {
-                        legend: 'always', // show always
-                        labelsDivWidth: '140', // default 250
-                        labelsSeparateLines: true,
-                        ylabel: 'Memonry usage (in % or GB)',
-                        xlabel: 'Time',
-                        drawPoints: draw_point,
-                        pointSize: point_size,
-                        strokeWidth: stroke_width,
-                        labels: ['Time', 'memory in %', 'memory in GB'],
-                        axisLabelColor: '#CCC',
-                        axisLineColor: '#CCC',
-                        colors: graph_colors,
-                        zoomCallback: function () { // (minDate, maxDate)
-                            set_linewidth(graph_mem, data_mem);
-                        },
-                    });
-            set_linewidth(graph_mem, data_mem);
-
-            // It sucks that these things aren't objects, and we need to store state in window.
-            window.intervalId = setInterval(function () {
-                $.post("{% url 'ui:load_process_data' server.id process.name %}", function (data) {
-                    var date = new Date(JSON.parse(data.date) * 1000.);
-                    var last_received_data = data_cpu[data_cpu.length - 1][0]
-                    if (date > last_received_data) {
-                        data_cpu.push([date, JSON.parse(data.cpu_percenttotal)]);
-                        graph_cpu.updateOptions({'file': data_cpu});
-
-                        data_mem.push([date, JSON.parse(data.memory_percenttotal), JSON.parse(data.memory_kilobytetotal) / 1.e6]);
-                        graph_mem.updateOptions({'file': data_mem});
-                    }
-                });
-
-            }, update_period);
-
-            window.intervalId = setInterval(function () {
-                $.post("{% url 'ui:load_process_table' server.id process.name %}", function (data) {
-                    $("#process_table").replaceWith(data.table_html);
-                });
-            }, 2000);
-
-            // smaller points if the data array is too big
-            function set_linewidth(graph, data) {
-                var range = graph.xAxisRange();
-                var data_points = 0;
-                for (var i = 0; i < data.length; i++) {
-                    var x = data[i][0];
-                    //if (x > minDate && x < maxDate)
-                    if (x > range[0] && x < range[1])
-                        data_points++;
-                }
-                var new_opts = {};
-                if (data_points > 2000) {
-                    new_opts.pointSize = 0.5;
-                    new_opts.strokeWidth = 0.33;
-                }
-                else if (data_points > 900) {
-                    new_opts.pointSize = 1;
-                    new_opts.strokeWidth = 0.5;
-                } else {
-                    new_opts.pointSize = 1.5;
-                    new_opts.strokeWidth = 1.;
-                }
-                graph.updateOptions(new_opts);
-            }
-
-            function barChartPlotter(e) {
-                var ctx = e.drawingContext;
-                var points = e.points;
-                var y_bottom = e.dygraph.toDomYCoord(0);  // see http://dygraphs.com/jsdoc/symbols/Dygraph.html#toDomYCoord
-
-                // This should really be based on the minimum gap
-                var bar_width = 2/3 * (points[1].canvasx - points[0].canvasx);
-                ctx.fillStyle = e.color;
-
-                // Do the actual plotting.
-                for (var i = 0; i < points.length; i++) {
-                    var p = points[i];
-                    var center_x = p.canvasx;  // center of the bar
-
-                    ctx.fillRect(center_x - bar_width / 2, p.canvasy,
-                            bar_width, y_bottom - p.canvasy);
-                    ctx.strokeRect(center_x - bar_width / 2, p.canvasy,
-                            bar_width, y_bottom - p.canvasy);
-                }
-            }
-        });
-    </script>
-    {% csrf_token %}
+         });
+        </script>
+                {% csrf_token %}
     {% else %}
         <div class="row clearfix">
             <div class="col-md-12 column">
@@ -190,5 +88,4 @@
             </div>
         </div>
     {% endif %}
-
 {% endblock %}

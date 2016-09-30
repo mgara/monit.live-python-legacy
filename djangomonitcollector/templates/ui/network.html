@@ -1,61 +1,54 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load extra_tags %}
+{% load i18n %}
+
 {% block submenu %}
+
     <li><a href="{% url 'ui:server' server.id %}"> Back to Server </a></li>
 {% endblock %}
+
+{% block page_title %} Net : <strong class="c-red">{{net.name}}</strong> IP : <strong class="c-red">{{ server.external_ip }}</strong> Server Uptime : <strong class="c-red">{{ server.uptime|time_str }}</strong>{% endblock %}
+
 {% block content %}
     {% if process_found %}
-        <div class="row clearfix">
-            <div class="page-header">
-                <h1>Net <b class="text-blue">{{net.name}}</b> on <small class="text-navy">{{ server.localhostname }}</small>
-                </h1>
-            </div>
-            <div class="row clearfix marginTop">
-                <div class="col-md-12 column">
-                    <div id="server_table" class="table-responsive">
-                        <table class="table table-hover table-striped table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>name</th>
-                                    <th>status</th>
-                                    <th>upload(Packets/Bytes/Errors)</th>
-                                    <th>download(Packets/Bytes/Errors)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>{{ net.name }}</td>
-                                    <td><span class="label label-{{ net.status|status_tr_class:net.monitor }}">{{ net.status|status_to_string:net }}</span></td>
-                                    <td>{{ net.upload_packet_sum|format_number }} / {{ net.upload_bytes_sum|human_readable_size }}
-                                    / {{ upload_errors_sum|format_number }}</td>
-                                    <td>{{ net.download_packet_sum|format_number }} / {{ net.download_bytes_sum|human_readable_size }}
-                                    / {{ download_errors_sum|format_number }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+            <div class="row clearfix text-center p-25">
+                    <div class="column col-md-2 ">
+                        <span class="item-label ">{% trans "name" %}:</span><span class="c-lime p-value">{{ net.name }}</span>
+
+
                     </div>
-                </div>
-            </div>
-            <div class="divider"></div>
-            <div class="row">
-                <div class="col-md-12 ">
+                        <div class="column col-md-2">
+                        <span class="item-label ">{% trans "status" %}:</span><span class="label label-{{ net.status|status_tr_class:net.monitor }}  p-value">{{ net.status|status_to_string:net }}</span>
+
+
+                    </div>
+                                    <div class="column col-md-4">
+                        <span class="item-label ">{% trans "upload(Packets/Bytes/Errors)" %}:</span><span class="c-lime   p-value">{{ net.upload_packet_sum|format_number }} / {{ net.upload_bytes_sum|human_readable_size }}
+                                    / {{ upload_errors_sum|format_number }}</span>
+
+
+                    </div>
+                      <div class="column col-md-4">
+                        <span class="item-label ">{% trans "download(Packets/Bytes/Errors)" %}:</span><span class="c-lime  p-value">{{ net.download_packet_sum|format_number }} / {{ net.download_bytes_sum|human_readable_size }}
+                                    / {{ download_errors_sum|format_number }}</span>
+
+
+                    </div>
+                    </div>
+
+          {% include "ui/includes/_widget.html" with caption="Packets" html_id="packets" %}
+
                     <div id="graph_packets" class="graph" style="width:100%"></div>
-                </div>
-            </div>
-            <div class="divider"></div>
-            <div class="row ">
-                <div class="col-md-12 ">
+          {% include "ui/includes/_end_widget.html" %}
+          {% include "ui/includes/_widget.html" with caption="Bytes" html_id="bytes" %}
+
                     <div id="graph_bytes" class="graph" style="width:100%"></div>
-                </div>
-            </div>
-            <div class="divider"></div>
-            <div class="row ">
-                <div class="col-md-12 ">
+           {% include "ui/includes/_end_widget.html" %}
+          {% include "ui/includes/_widget.html" with caption="Errors" html_id="errors" %}
                     <div id="graph_errors" class="graph" style="width:100%"></div>
-                </div>
-            </div>
-            <div class="divider"></div>
+           {% include "ui/includes/_end_widget.html" %}
+
             <div class="row">
                 <p class="helper"> Zoom: click-drag --- Pan: shift-click-drag --- Restore zoom level: double-click</p>
             </div>
