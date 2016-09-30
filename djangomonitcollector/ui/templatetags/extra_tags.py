@@ -504,6 +504,7 @@ def status_to_string_(status, type_of_service, monitor_status):
                        'Invalid type', 'Data access error', 'Execution failed', 'Changed', 'ICMP failed']
     monitor = ['Not monitored', 'Yes', 'Initializing']
 
+    value = 0
     try:
         if monitor_status != 1:
             value = monitor[monitor_status]
