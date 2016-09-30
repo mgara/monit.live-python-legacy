@@ -45,7 +45,11 @@ class System(Service):
             system.load_avg15_last = float(get_value(service, "load", "avg15"))
             system.cpu_user_last = float(get_value(service, "cpu", "user"))
             system.cpu_system_last = float(get_value(service, "cpu", "system"))
-            system.cpu_wait_last = float(get_value(service, "cpu", "wait"))
+            cpu_wait = get_value(service, "cpu", "wait")
+            if cpu_wait != "none":
+                system.cpu_wait_last = float(get_value(service, "cpu", "wait"))
+            else:
+                system.cpu_wait_last = float("0.0")
             system.memory_percent_last = float(
                 get_value(service, "memory", "percent"))
             system.memory_kilobyte_last = int(

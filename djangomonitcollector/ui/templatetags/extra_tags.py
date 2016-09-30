@@ -460,6 +460,7 @@ def event_state_to_string(state):
 def action_to_string(action):
     action_int = int(action)
     action_dict = {
+        0: 'Wooops',
         1: 'Alert',
         2: 'Restart',
         3: 'Stop',
@@ -503,8 +504,12 @@ def status_to_string_(status, type_of_service, monitor_status):
                        'Invalid type', 'Data access error', 'Execution failed', 'Changed', 'ICMP failed']
     monitor = ['Not monitored', 'Yes', 'Initializing']
 
-    if monitor_status != 1:
-        return monitor[monitor_status]
+    try:
+        if monitor_status != 1:
+            value = monitor[monitor_status]
+    except IndexError:
+            return monitor_status
+    return value
 
     # format to a bitarray
     bits = '{0:015b}'.format(int(status))
