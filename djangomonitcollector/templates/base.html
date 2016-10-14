@@ -49,7 +49,7 @@
 {% endblock head %}
 </head>
 <body>
-    <header id="header" class="clearfix">
+    <header id="header" class="clearfix transparent_5 animated">
         <ul class="h-inner">
             <li class="hi-trigger ma-trigger" data-ma-action="sidebar-open" data-ma-target="#sidebar">
                 <div class="line-wrap">
@@ -133,9 +133,11 @@
     <div class="block-header" id="block-header">
         <h2>{% block page_title %} {% endblock %}</h2>
     </div>
+    <div id="main-content-container">
     {% block content %}
         <p>Use this document as a way to quick start any new project.</p>
     {% endblock content %}
+    </div>
     </div>
     </section>
     </section>
@@ -212,7 +214,41 @@
     }
     </script>
     <script type="text/javascript">
+        function isScrolledIntoView(elem)
+        {
+            var docViewTop = $(window).scrollTop();
+            var docViewBottom = docViewTop + $(window).height();
+            var elemTop = $(elem).offset().top;
+            var elemBottom = elemTop + $(elem).height();
+            return (elemTop >= docViewTop+70)
+        }
 
+        var isVisible = false
+        function switchClass(el,class1,class2){
+
+            if(el.hasClass(class1)){
+                el.removeClass(class1)
+                el.addClass(class2)
+            }else
+            el.addClass(class2)
+        }
+        $(window).scroll(function() {
+            navbar = $('#header')
+            movingel = $('#main-content-container')
+            if(isScrolledIntoView(movingel))
+            {
+                if (!isVisible){
+                    isVisible = true
+                    switchClass(navbar,"transparent_10","transparent_5")
+                }
+
+            }else{
+                if (isVisible){
+                    isVisible = false
+                    switchClass(navbar,"transparent_5","transparent_10")
+                }
+            }
+        });
 
         var save_user_settings = function(key,value){
             $.ajax({

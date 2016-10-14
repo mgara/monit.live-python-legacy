@@ -1,0 +1,23 @@
+{% load i18n %}
+
+<form class="login form col-md-6" method="POST" action="#"  id="signup">
+    <h2 class="text-right nologin-header text-uppercase">{% trans 'sign up' %}</h2>
+    {% csrf_token %}
+    <div id="div_company_name" class="form-group">
+        <label for="id_company_name" class="control-label  requiredField">
+            {% trans "Company Name" %}<span class="asteriskField">*</span> </label>
+            <div class="controls ">
+                <input autofocus="autofocus" class="textinput textInput form-control" id="id_company_name" maxlength="30" name="login" placeholder="Company Name" type="text">
+            </div>
+    </div>
+    <div id="div_company_email" class="form-group">
+        <label for="id_company_email" class="control-label  requiredField">
+             {% trans "Email" %}<span class="asteriskField">*</span> </label>
+            <div class="controls ">
+                <input autofocus="autofocus" class="textinput textInput form-control" id="id_company_email" maxlength="30" name="login" placeholder="Email" type="text">
+            </div>
+    </div>
+    <button  id="sign-in-button" class="btn btn-primary m-l-25" type="button">{% trans "Next" %}<i class="zmdi zmdi-arrow-forward m-l-5"></i></button>
+</form>
+<script type="text/javascript">
+</script>

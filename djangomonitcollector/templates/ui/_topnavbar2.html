@@ -65,10 +65,10 @@
       {% else %}
         <li >
           <a id="sign-up-link" class="nav-link"
-            href="{% url 'account_signup' %}"><span class="him-label">{% trans "Sign Up" %}</span></a>
+            href="{% url 'account_login' %}#signup"><span class="him-label">{% trans "Sign Up" %}</span></a>
           </li>
 
           <li >
-            <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}"><span class="him-label">{% trans "Log In" %}</span></a>
+            <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}#login"><span class="him-label">{% trans "Log In" %}</span></a>
           </li>
         {% endif %}

@@ -11,9 +11,13 @@
   display: block !important;
 }
 
-#header{
+.transparent_5{
   box-shadow: none !important;
   background: rgba(30,38,43,0.5) !important;
+}
+.transparent_10{
+  box-shadow: none !important;
+  background: rgba(30,38,43,1) !important;
 }
 
 .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6, label, button, .nologin-header, .footer{

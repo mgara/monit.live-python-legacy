@@ -40,7 +40,11 @@
 </head>
 <body>
     <header id="header" class="">
+    <div id="header-container">
         <ul class="h-inner">
+            <li class="">
+                <a href="{% url 'ui:dashboard' %}" class="navbar-logo"><b>{{APPNAME}}</b><small class="small m-l-5">v{{APPVERSION}}</small></a>
+            </li>
             <li class="pull-right">
                 <ul class="hi-menu">
                     {% include "ui/_topnavbar2.html" %}
@@ -54,21 +58,19 @@
                 <input type="text">
             </div>
         </div>
+        </div>
     </header>
     <section id="main">
+
         <div class="center">
-            <div class="p-25 text-left pull-right ">
-                <span class="text-right app-name "><div class="animated bounceIn">{{APPNAME}}</div></span>
-                <h3 class="text-right nologin-header m-t-25">{{APPVERSION}}</h3>
-                <p class="text-right nologin-header" style="width:450px">Use {{APPNAME}} to manage all your Monit servers. {{APPNAME}} expand on Monit's capabilities and provides monitoring and management of all your Monit enabled hosts via a modern, clean and well designed user interface which also works on mobile devices.</p>
-                <h6 class="text-right c-red">Made with <i class="fa fa-heart"></i> by Meher<h6>
-            </div>
-            <div class="lcb-form text-left center p-25" style="margin-top:100px">
-                <h2 class="text-right nologin-header text-uppercase">{% block head_title %} {% endblock %}</h2>
+            <div class="lcb-form text-left p-25" style="margin-top: 220px"  >
                 {% block content %}
                     No login contente goes here
                 {% endblock content %}
+
+
             </div>
+            <h6 class="text-right c-red">Made with <i class="fa fa-heart"></i> by Meher<h6>
         </div>
         {% include "ui/_footer.html" %}
     </section>
