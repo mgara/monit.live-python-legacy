@@ -1,18 +1,15 @@
 // graphite.js
 
 (function($) {
-
     $.fn.dygraphite = function(options, dysettings) {
-        if (options === "update") {
-            $.fn.graphite.update(this, arguments[1]);
-            return this;
-        }
 
         // Initialize plugin //
         options = options || {};
         var settings = $.extend({}, $.fn.graphite.defaults, options);
         var dysettings = $.extend({}, $.fn.graphite.dydefaults, dysettings);
-
+        this.settings  = settings
+        this.dysettings = dysettings
+        this.update = $.fn.dygraphite.update
         return this.each(function() {
             var $this = $(this);
             $.fn.dygraphite.renderdy($this, settings, dysettings);
@@ -21,10 +18,6 @@
     };
 
     $.fn.graphite = function(options) {
-        if (options === "update") {
-            $.fn.graphite.update(this, arguments[1]);
-            return this;
-        }
 
         // Initialize plugin //
         options = options || {};
@@ -64,6 +57,16 @@
         $img.attr("src", $.fn.graphite.geturl(options));
         $img.attr("height", options.height);
         $img.attr("width", options.width);
+    };
+
+    $.fn.dygraphite.update = function(options, dysettings) {
+        var settings = $.extend({}, this.settings, options);
+        var dysettings = $.extend({}, this.dysettings , dysettings)
+        return this.each(function() {
+            var $this = $(this);
+            $.fn.dygraphite.renderdy($this, settings, dysettings);
+        });
+
     };
 
     $.fn.dygraphite.updatedy = function($dyobj, options, dysettings, g, dydata) {
