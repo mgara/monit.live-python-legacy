@@ -39,8 +39,9 @@
 {% endblock head %}
 </head>
 <body>
-    <header id="header" class="">
+    <header id="header" class="centers">
     <div id="header-container">
+        <div class="navbar-container" >
         <ul class="h-inner">
             <li class="">
                 <a href="{% url 'ui:dashboard' %}" class="navbar-logo"><b>{{APPNAME}}</b><small class="small m-l-5">v{{APPVERSION}}</small></a>
@@ -59,17 +60,19 @@
             </div>
         </div>
         </div>
+        </div>
     </header>
     <section id="main">
 
         <div class="center">
-            <div class="lcb-form text-left p-25" style="margin-top: 220px"  >
+            <div class="lcb-form text-left p-25" style="margin-top: 120px"  >
                 {% block content %}
                     No login contente goes here
                 {% endblock content %}
 
 
             </div>
+            <a href="#signup" > create an account </a>
             <h6 class="text-right c-red">Made with <i class="fa fa-heart"></i> by Meher<h6>
         </div>
         {% include "ui/_footer.html" %}
