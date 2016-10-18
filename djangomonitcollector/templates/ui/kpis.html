@@ -29,9 +29,13 @@
   <label class="btn  btn-primary active">
     <input name="range_selector" type="radio" data-graph="-24hours" id="1d" autocomplete="off"> 1d
   </label>
+        <label class="btn  btn-primary">
+    <input name="range_selector" type="radio" data-graph="-1week" id="1w" autocomplete="off"> 1w
+  </label>
     <label class="btn  btn-primary">
     <input name="range_selector" type="radio" data-graph="-1month" id="1m" autocomplete="off"> 1m
   </label>
+
        <label class="btn  btn-primary">
     <input name="range_selector" type="radio" data-graph="-1year" id="1y" autocomplete="off"> 1y
   </label>
@@ -57,9 +61,21 @@
       {% include "ui/includes/_end_widget.html" %}
 
 <script type="text/javascript">
+
   $(function(){
+    graphs = []
+    $("input[name=range_selector]:radio").change(function() {
+        from = $(this).attr("data-graph")
+        for (var i in graphs){
+          g = graphs[i]
+          g.update({from:from})
+        }
+
+    });
+
+
     var gs = []
-      $("#graph_load").dygraphite({
+       graphs.push($("#graph_load").dygraphite({
         target: [
           ['{{server.localhostname|normalize}}.system.load.avg01', 'Load 1 min'],
           ['{{server.localhostname|normalize}}.system.load.avg05','Load 5 min'],
@@ -69,9 +85,9 @@
       },{
         ylabel : "%",
         sync: gs
-      });
+      }))
 
-      $("#graph_cpu").dygraphite({
+      graphs.push($("#graph_cpu").dygraphite({
         target: [
           ['{{server.localhostname|normalize}}.system.cpu.user', 'User'],
           ['{{server.localhostname|normalize}}.system.cpu.system','System'],
@@ -81,9 +97,9 @@
       },{
         ylabel : "%",
         sync: gs
-      });
+      }))
 
-      $("#graph_mem").dygraphite({
+      graphs.push($("#graph_mem").dygraphite({
         target: [
           ['{{server.localhostname|normalize}}.system.memory.percent', 'Memory'],
           ['{{server.localhostname|normalize}}.system.swap.percent','Swap'],
@@ -94,7 +110,7 @@
             valueRange: [0,100],
             labelsKMB : false,
             sync: gs
-      });
+      }))
   })
 </script>
 
@@ -124,9 +140,10 @@
 
       <script type="text/javascript">
         $(function(){
+        var dys = []
         var gs = []
 
-        $("#network_graph_packets_{{nic.name}}").dygraphite({
+        graphs.push($("#network_graph_packets_{{nic.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.download.packet', 'Download'],
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.upload.packet','Upload'],
@@ -134,9 +151,10 @@
           },{
             ylabel : "Packets",
              sync: gs
-          });
+          }))
 
-         $("#network_graph_bytes_{{nic.name}}").dygraphite({
+
+         graphs.push($("#network_graph_bytes_{{nic.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.download.bytes', 'Download'],
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.upload.bytes','Upload'],
@@ -144,10 +162,10 @@
           },{
             ylabel : "Bytes",
              sync: gs
-          });
+          }))
 
 
-          $("#network_graph_errors_{{nic.name}}").dygraphite({
+          graphs.push($("#network_graph_errors_{{nic.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.download.errors', 'Download'],
               ['{{server.localhostname|normalize}}.net.{{nic.name}}.upload.errors','Upload'],
@@ -155,7 +173,7 @@
           },{
             ylabel : "Packets",
              sync: gs
-          });
+          }))
         })
       </script>
     {% endfor %}
@@ -258,15 +276,7 @@
     <script>
     $(function() {
 
-    $("input[name=range_selector]:radio").change(function() {
-        from = $(this).attr("data-graph")
-        $("#graph_load").dygraphite(
-          {'update',
-          {
-            from:from
-          }
-        })
-    });
+
 
     var hashTagActive = "";
     $(".scroll").click(function (event) {
