@@ -1,6 +1,9 @@
 // graphite.js
 
 (function($) {
+
+
+
     $.fn.dygraphite = function(options, dysettings) {
 
         // Initialize plugin //
@@ -10,6 +13,33 @@
         this.settings  = settings
         this.dysettings = dysettings
         this.update = $.fn.dygraphite.update
+
+        this.pubsub = (function () {
+        var eventToListeners = {};
+
+            return {
+                sub: function (event, callback) {
+                    if (!eventToListeners.hasOwnProperty(event)) {
+                        eventToListeners[event] = [];
+                    }
+                    eventToListeners[event].push(callback);
+                },
+                pub: function (event, args) {
+                    if (eventToListeners.hasOwnProperty(event)) {
+                        for (var i = 0; i < eventToListeners[event].length; ++i) {
+                           try {
+                               eventToListeners[event][i].call(null, args);
+                           } catch (e) {
+                               if (console && console.error) {
+                                   console.error(e);
+                               }
+                           }
+                        }
+                    }
+                }
+            };
+        }());
+
         return this.each(function() {
             var $this = $(this);
             $.fn.dygraphite.renderdy($this, settings, dysettings);
@@ -73,9 +103,11 @@
         options.format = 'json'
         options.from = '-' + options.autoupdate + 'secs'
         var url = $.fn.graphite.geturl(options)
-            //Get JSON data from Graphite
-        $.getJSON(url, function(result) {
 
+
+        //Get JSON data from Graphite
+        $.getJSON(url, function(result) {
+            this.pubsub.pub("startURL");
             var graphiteData = new Object();
 
             $.each(result, function(i, item) {
@@ -97,8 +129,10 @@
 
 
                     graphiteData[tempDate].push([val[0]]);
+                    this.pubsub.pub("DataReady");
 
                 });
+
             });
             newData = $.fn.dygraphite.graphite2dy(graphiteData)
 
@@ -110,8 +144,6 @@
                 'file': dydata,
                 'dateWindow': date_window
             });
-
-
         });
     }
 

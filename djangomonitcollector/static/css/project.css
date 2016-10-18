@@ -14,13 +14,30 @@
 .transparent_5{
   box-shadow: none !important;
   background: rgba(30,38,43,0.5) !important;
+  -webkit-transition: background-color .56s cubic-bezier(.4,0,.2,1);
+  transition: background-color .56s cubic-bezier(.4,0,.2,1);
 }
 .transparent_10{
   box-shadow: none !important;
-  background: rgba(30,38,43,1) !important;
+  background: rgba(30,38,43) !important;
+  -webkit-transition: background-color .56s cubic-bezier(.4,0,.2,1);
+  transition: background-color .56s cubic-bezier(.4,0,.2,1);
 }
 
-.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6, label, button, .nologin-header, .footer{
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+label,
+button, p, input, .nologin-header, .footer{
   font-family: 'Josefin Sans', sans-serif !important;
 
 }
@@ -70,7 +87,6 @@ table, ul, li{
 
 label, .control-label{
   font-size: 1.2em !important;
-  font-weight: bold;
 }
 
 .row .column:hover{

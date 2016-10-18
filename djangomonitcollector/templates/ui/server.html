@@ -2,7 +2,7 @@
 {% load staticfiles %}
 {% load extra_tags %}
 {% load i18n %}
-{% block page_title %} Server : <strong class="c-indigo">{{ server.localhostname }}</strong> <br/> IP : <strong class="c-indigo">{{ server.external_ip }}</strong> <br/> Server Uptime : <strong class="c-indigo">{{ server.uptime|time_str }}</strong> {% endblock %}
+{% block page_title %} Server : <strong class="c-lime">{{ server.localhostname }}</strong> <br/> IP : <strong class="c-lime">{{ server.external_ip }}</strong> <br/> Server Uptime : <strong class="c-lime">{{ server.uptime|time_str }}</strong> {% endblock %}
 
 {% block submenu %}
   <li class="nav-item">

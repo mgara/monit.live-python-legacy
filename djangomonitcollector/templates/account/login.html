@@ -26,9 +26,25 @@
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
     <script src="{% static 'vendors/bower_components/jquery/dist/jquery.min.js' %}"></script>
     <style type="text/css">
-    #main{
-        background-image: "http://www.monit.live/wp-content/themes/astrid/images/header-mobile.jpg";
+/*
+    body {
+      display: block;
+      position: relative;
     }
+
+    body::after {
+      content: "";
+      background: url("http://cdn.iphoneros.com/wp-content/uploads/2016/06/sierraipad.jpg");
+      background-size: 100% 100%;
+
+      opacity: 0.1;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      position: absolute;
+      z-index: -1;
+    }*/
     #footer{
          padding-left: 0px;
          }
@@ -37,6 +53,27 @@
     {%  block head %}
 {% endblock head %}
 <body>
+  <header id="header" class="clearfix transparent_5 animated">
+    <div id="header-container">
+        <ul class="h-inner">
+            <li class="">
+                <a href="{% url 'ui:dashboard' %}" class="navbar-logo"><b>{{APPNAME}}</b><small class="small m-l-5">v{{APPVERSION}}</small></a>
+            </li>
+            <li class="pull-right">
+                <ul class="hi-menu">
+                    {% include "ui/_topnavbar2.html" %}
+                </ul>
+            </li>
+        </ul>
+        <!-- Top Search Content -->
+        <div class="h-search-wrap">
+            <div class="hsw-inner">
+                <i class="hsw-close zmdi zmdi-arrow-left" data-ma-action="search-close"></i>
+                <input type="text">
+            </div>
+        </div>
+        </div>
+    </header>
         <div class="login-content">
             <!-- Login -->
 
@@ -121,8 +158,8 @@
                         <div class="fg-line">
                            <input class="textinput textInput form-control" id="id_email" placeholder="Email" name="email" size="30" type="email">
                         </div>
-                        <p>{% blocktrans %}Please contact us if you have any trouble resetting your password.{% endblocktrans %}</p>
                     </div>
+                        <span class="h5">{% blocktrans %}Please contact us if you have any trouble resetting your password.{% endblocktrans %}</span>
 
                     <button type="submit" href="" class="btn btn-login btn-default btn-float"><i class="zmdi zmdi-check"></i></button>
                 </div>
@@ -133,6 +170,7 @@
                 </div>
             </form>
         </div>
+        {% include "ui/_footer.html" %}
 
         <!-- Older IE warning message -->
         <!--[if lt IE 9]>

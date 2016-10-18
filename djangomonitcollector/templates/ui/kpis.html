@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load extra_tags %}
-
+{% load i18n %}
 {% block page_title %}
- Key Performance Indicators  <br/> Server : <strong class="c-red"> {{ server.localhostname }} </strong> <br/>
- IP :  <strong class="c-red">{{ server.external_ip }}</strong>
+ {% trans "Key Performance Indicators" %}  <br/> {% trans "Server" %}  : <strong class="c-red"> {{ server.localhostname }} </strong> <br/>
+  {% trans "IP Address" %}  :  <strong class="c-red">{{ server.external_ip }}</strong>
   {% endblock %}
 
 {% block submenu %}
   <li class="nav-item">
-    <a class="nav-link" href="{% url 'ui:server_alerts' server.id %}"><i class="fa fa-bell"></i>Active Alerts <span
+    <a class="nav-link" href="{% url 'ui:server_alerts' server.id %}"><i class="fa fa-bell"></i>{% trans "Active Alerts" %} <span
     class="label {{ alerts_count|status_alert }} pull-right">{{ alerts_count }}</span></a>
   </li>
    <li class="nav-item">
-    <a class="nav-link" href="{% url 'ui:server_kpis' server.id %}"><i class="fa fa-bar-chart"></i> Key Performance Indicators</a>
+    <a class="nav-link" href="{% url 'ui:server_kpis' server.id %}"><i class="fa fa-bar-chart"></i>{% trans "Key Performance Indicators" %} </a>
   </li>
 {% endblock %}
 {% block content %}
@@ -21,26 +21,34 @@
 
 <div id="periods" class="btn-group m-b-20 m-t-20" data-toggle="buttons">
   <label class="btn btn-primary">
-    <input name="range_selector" type="radio" data-graph="-1hour" id="1h" autocomplete="off"> 1h
+    <input name="range_selector" type="radio" data-graph="-1hour" id="1h" autocomplete="off">{% trans " 1h" %}
   </label>
    <label class="btn   btn-primary">
-    <input name="range_selector" type="radio" data-graph="-3hours" id="3h" autocomplete="off"> 3h
+    <input name="range_selector" type="radio" data-graph="-3hours" id="3h" autocomplete="off">{% trans " 3h" %}
   </label>
   <label class="btn  btn-primary active">
-    <input name="range_selector" type="radio" data-graph="-24hours" id="1d" autocomplete="off"> 1d
+    <input name="range_selector" type="radio" data-graph="-24hours" id="1d" autocomplete="off">{% trans " 1d" %}
   </label>
-        <label class="btn  btn-primary">
-    <input name="range_selector" type="radio" data-graph="-1week" id="1w" autocomplete="off"> 1w
+  <label class="btn  btn-primary ">
+    <input name="range_selector" type="radio" data-graph="-2days" id="2d" autocomplete="off"> {% trans "2d" %}
   </label>
-    <label class="btn  btn-primary">
-    <input name="range_selector" type="radio" data-graph="-1month" id="1m" autocomplete="off"> 1m
+   <label class="btn  btn-primary ">
+    <input name="range_selector" type="radio" data-graph="-3days" id="3d" autocomplete="off"> {% trans "3d" %}
   </label>
-
-       <label class="btn  btn-primary">
-    <input name="range_selector" type="radio" data-graph="-1year" id="1y" autocomplete="off"> 1y
+  <label class="btn  btn-primary ">
+    <input name="range_selector" type="radio" data-graph="-10days" id="10d" autocomplete="off"> {% trans "10d" %}
   </label>
   <label class="btn  btn-primary">
-    <input name="range_selector" type="radio" data-graph="-7years" id="max" autocomplete="off"> max
+    <input name="range_selector" type="radio" data-graph="-1month" id="1m" autocomplete="off"> {% trans "1m" %}
+  </label>
+  <label class="btn  btn-primary">
+    <input name="range_selector" type="radio" data-graph="-2months" id="2m" autocomplete="off"> {% trans "2m" %}
+  </label>
+       <label class="btn  btn-primary">
+    <input name="range_selector" type="radio" data-graph="-1year" id="1y" autocomplete="off"> {% trans "1y" %}
+  </label>
+  <label class="btn  btn-primary">
+    <input name="range_selector" type="radio" data-graph="-7years" id="max" autocomplete="off"> {% trans "max" %}
   </label>
 </div>
 
@@ -49,7 +57,7 @@
   <div class="row clearfix m-t-10">
 
       {% include "ui/includes/_widget_hide_show.html" with caption="System Load" %}
-            <div id="graph_load" class="graph" style="width:100%;"></div>
+        <div id="graph_load" class="graph" style="width:100%;"></div>
       {% include "ui/includes/_end_widget.html" %}
 
       {% include "ui/includes/_widget_hide_show.html" with caption="CPU Usage" %}
@@ -66,9 +74,13 @@
     graphs = []
     $("input[name=range_selector]:radio").change(function() {
         from = $(this).attr("data-graph")
+        done = false
         for (var i in graphs){
           g = graphs[i]
           g.update({from:from})
+          console.log(g.name)
+          g.pubsub.sub("DataReady", console.log("dataReady"))
+          g.pubsub.sub("Done", console.log("Done"))
         }
 
     });
@@ -140,7 +152,6 @@
 
       <script type="text/javascript">
         $(function(){
-        var dys = []
         var gs = []
 
         graphs.push($("#network_graph_packets_{{nic.name}}").dygraphite({
@@ -216,7 +227,7 @@
         $(function(){
         var gs = []
 
-         $("#fs_graph_blocks_percent_{{fs.name}}").dygraphite({
+         graphs.push($("#fs_graph_blocks_percent_{{fs.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.fs.{{fs.name}}.blocks_percent', 'Blocks %'],
             ]
@@ -225,10 +236,10 @@
             valueRange: [0,100],
             labelsKMB : false,
             sync: gs
-          });
+          }))
 
 
-         $("#fs_graph_blocks_usage_{{fs.name}}").dygraphite({
+         graphs.push($("#fs_graph_blocks_usage_{{fs.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.fs.{{fs.name}}.blocks_usage', 'Usage'],
             ]
@@ -236,9 +247,9 @@
             ylabel : "Blocks (1Block = 1MB) Total ("+({{fs.blocks_total}}*1024*1024).fileSize()+")",
             valueRange: [0,{{fs.blocks_total}}],
             sync: gs
-          });
+          }))
 
-         $("#fs_graph_inode_percent_{{fs.name}}").dygraphite({
+         graphs.push($("#fs_graph_inode_percent_{{fs.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.fs.{{fs.name}}.inode_percent', 'Inodes %'],
             ]
@@ -247,10 +258,10 @@
             valueRange: [0,100],
             labelsKMB : false,
             sync: gs
-          });
+          }))
 
 
-         $("#fs_graph_inode_usage_{{fs.name}}").dygraphite({
+         graphs.push($("#fs_graph_inode_usage_{{fs.name}}").dygraphite({
             target: [
               ['{{server.localhostname|normalize}}.fs.{{fs.name}}.inode_usage', 'Inodes'],
             ]
@@ -258,7 +269,7 @@
             ylabel : "Inodes",
             valueRange: [0,null],
             sync: gs
-          });
+          }))
      });
       </script>
     {% endfor %}

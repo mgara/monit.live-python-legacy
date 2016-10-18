@@ -43,7 +43,7 @@
         }
         .list-group-item: hover{
             background-color: #e9e9e9;
-        }*/
+        }
     </style>
     {%  block head %}
 {% endblock head %}
@@ -82,7 +82,7 @@
             <ul class="main-menu">
                 <li class="mm-profile sub-menu">
                     <a href="" data-ma-action="submenu-toggle" class="media">
-                        <img class="pull-left" src="{{request.user.email|gravatar_url:150 }}" alt="">
+                        <img class="pull-left" src="{{request.user.email|gravatar_url:150 }}" alt=" {{ request.user.username}}">
                         <div class="media-body">
                             {{ request.user.username|title }}
                             <small>{{ request.user.organisation|title}}</small>
@@ -105,22 +105,22 @@
                     {% if request.user.is_superuser %}
                     {% url 'datacollector:organisations' as organisations %}
                     <li {% if request.path == organisations %} class="active"{% endif %}>
-                        <a class="nav-link" href="{% url 'datacollector:organisations' %}"><i class="fa fa-building"></i><span>{% trans ' Organisations Management' %}</span> </a>
+                        <a class="nav-link" href="{% url 'datacollector:organisations' %}"><i class="fa fa-building"></i><span>{% trans 'Organisations Management' %}</span> </a>
                     </li>
                     {% endif %}
                     {% if not request.user.is_superuser %}
                         {% url 'ui:dashboard' as dashboard_url %}
                 <li {% if request.path == dashboard_url %} class="active"{% endif %}>
-                    <a  class="nav-link" href="{% url 'ui:dashboard' %}"><i class="fa fa-tachometer"></i><span>{% trans '  Dashboard' %}</span></a>
+                    <a  class="nav-link" href="{% url 'ui:dashboard' %}"><i class="fa fa-tachometer"></i><span>{% trans 'Dashboard' %}</span></a>
                 </li>
                 <li>
-                    <a  class="nav-link" href="#"><i class="fa fa-external-link-square"></i><span>{% trans '  External Checks' %}</span></a>
+                    <a  class="nav-link" href="#"><i class="fa fa-external-link-square"></i><span>{% trans 'External Checks' %}</span></a>
                 </li>
                 {% endif %}
                 {% if request.user.is_superuser or request.user.organisation_manager %}
                 {% url 'users:index' as user_list %}
                 <li {% if request.path == user_list %} class="active"{% endif %}>
-                    <a class="nav-link" href="{% url 'users:index' %}"><i class="fa fa-users"></i><span>{% trans '  User Management' %}</span> </a>
+                    <a class="nav-link" href="{% url 'users:index' %}"><i class="fa fa-users"></i><span>{% trans 'User Management' %}</span> </a>
                 </li>
                 {% endif %}
                 {% block submenu %}
