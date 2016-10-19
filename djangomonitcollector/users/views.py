@@ -94,7 +94,6 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
         'first_name',
         'last_name',
         'email',
-        'inspinia_skin',
         'organisation_manager',
         'user_timezone',
         'host_groups'

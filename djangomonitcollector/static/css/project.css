@@ -213,11 +213,6 @@ text-shadow: 1px 1px 2px rgba(244, 244, 244, 1);
   margin-left: 25%;
 }
 
-.center {
-    margin: auto;
-    width: 50%;
-    padding: 10px;
-}
 .nologin-container{
   margin-top: 150px;
   vertical-align: middle;

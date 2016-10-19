@@ -2,10 +2,10 @@
 {% load extra_tags %}
 {% if request.user.is_authenticated %}
   {% if not request.user.is_superuser %}
-    <li class="dropdown">
+    <li class="dropdown nav-link" >
       <a data-toggle="dropdown" href="">
-        <i class="him-icon zmdi zmdi-notifications"></i>
-        <i class="him-counts" id="notification_count" style="display:none"></i>
+        <i class="fa fa-bell fa-lg"></i>
+        <i class="him-counts" id="notification_count" style="display:none"></i><span class="him-label hidden-xs"></span>
       </a>
       <div class="dropdown-menu dropdown-menu-lg pull-right">
         <div class="list-group list-group-light him-notification">
@@ -32,8 +32,7 @@
     </li>
     {% if  request.user.organisation.server_set|get_server_len > 0 %}
       <li class="dropdown">
-        <a class="dropdown-toggle " data-toggle="dropdown" role="button" aria-haspopup="true"
-          aria-expanded="false"><i class="fa fa-server"></i><span class="him-label">{% trans 'Servers / Instances' %}</span><span class="caret"></span></a>
+        <a class="dropdown-toggle " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-server fa-lg"></i><span class="him-label hidden-xs">{% trans 'Servers / Instances' %}</span><span class="caret"></span></a>
           <ul class="dropdown-menu">
             {% for server in request.user.organisation.server_set.all %}
               <li><a href="{% url 'ui:server' server.id %}"> {{ server.localhostname }}</a></li>
@@ -43,28 +42,27 @@
       {% endif %}
       <li class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-          aria-expanded="false"><i class="fa fa-bell"></i><span class="him-label">{% trans "Notifications Center" %}</span><span class="caret"></span></a>
+          aria-expanded="false"><i class="fa fa-bell-o fa-lg"></i><span class="him-label hidden-xs">{% trans "Notifications Center" %}</span><span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="{% url 'n:notificationtype_list' %}"> {% trans "Manage Notifications" %}</a></li>
             <li><a href="{% url 'n:notificationtype_create' %}"> {% trans "New Notification" %}</a></li>
           </ul>
         </li>
         {% if request.user.organisation_manager %}
-          <li >
-            <a class="nav-link"
-              href="{% url 'ui:settings_update' request.user.organisation.settings.id %}"><i class="fa fa-wrench"></i><span class="him-label">{% trans "Settings" %}</span></a>
+          <li class="nav-link">
+            <a
+              href="{% url 'ui:settings_update' request.user.organisation.settings.id %}"><i class="fa fa-wrench fa-lg"></i><span class="him-label hidden-xs">{% trans "Settings" %}</span></a>
             </li>
           {% endif %}
           <li class="nav-link">
-            <a href="#" class="c-lime" ><span class="him-label">{% trans "API Documentation" %}</span></a>
+            <a href="#" class="c-lime" ><i class="fa fa-cubes fa-lg"></i><span class="him-label hidden-xs">{% trans "API Documentation" %}</span></a>
           </li>
-          <li >
-            <a href="{% url 'account_logout' %}" class="c-red"><i class="fa fa-sign-out"></i><span class="him-label">{% trans 'Logout' %}</span></a>
+          <li class="nav-link">
+            <a href="{% url 'account_logout' %}" class="c-red"><i class="fa fa-sign-out fa-lg"></i><span class="him-label hidden-xs">{% trans 'Logout' %}</span></a>
           </li>
         {% endif %}
       {% else %}
-        <li >
-          <li >
-            <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}#login"><span class="him-label">{% trans "Log In" %}</span></a>
+          <li class="nav-link">
+            <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}#login"><i class="fa fa-sign-in fa-lg"></i><span class="him-label hidden-xs">{% trans "Log In" %}</span></a>
           </li>
         {% endif %}
