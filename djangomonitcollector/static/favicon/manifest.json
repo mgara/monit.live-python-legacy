@@ -1,0 +1,8 @@
+{
+	"name": "monit.live",
+    "start_url": ".",
+	"icons": [
+	],
+	"theme_color": "#ffffff",
+	"display": "standalone"
+}

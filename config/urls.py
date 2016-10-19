@@ -7,8 +7,23 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
+from django.views.generic.base import RedirectView
+
+favicon_view = RedirectView.as_view(url='/static/favicon/favicon.ico', permanent=True)
+favicon_16_view = RedirectView.as_view(url='/static/favicon/favicon-16x16.png', permanent=True)
+favicon_32_view = RedirectView.as_view(url='/static/favicon/favicon-32x32.png', permanent=True)
+apple_touch_icon = RedirectView.as_view(url='/static/favicon/apple-touch-icon.png', permanent=True)
+android_manifest = RedirectView.as_view(url='/static/favicon/manifest.json', permanent=True)
+safari_pinned_tab = RedirectView.as_view(url='/static/favicon/safari-pinned-tab.svg', permanent=True)
 
 urlpatterns = [
+    url(r'^favicon\.ico$', favicon_view),
+    url(r'^favicon\-16x16\.png$', favicon_16_view),
+    url(r'^favicon\-32x32\.png$', favicon_32_view),
+    url(r'^apple\-touch\-icon\.png$', apple_touch_icon),
+    url(r'^manifest\.json$', android_manifest),
+    url(r'^safari\-pinned\-tab\.svg$', safari_pinned_tab),
+
     url(r'^$', 'djangomonitcollector.ui.views.dashboard', name="home"),
 
     url(r'^about/$',
