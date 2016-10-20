@@ -30,7 +30,7 @@ urlpatterns = [
 
 
     #Restful API
-    url(r'^v1/$', schema_view),
+    url(r'^v1/$', schema_view, name="kairos_api"),
     url(r'^v1/', include("api.urls")),
 
     #Favicons
