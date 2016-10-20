@@ -51,7 +51,10 @@ LOCAL_APPS = (
     'django_filters',
     'pagination',
     'bootstrap_pagination',
-    'ordered_model'
+#    'ordered_model'
+    'rest_framework',
+    'rest_framework_swagger',
+
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

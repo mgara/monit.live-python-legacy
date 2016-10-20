@@ -69,3 +69,8 @@ django-bootstrap-pagination
 
 # Ordered Model
 django-ordered-model
+
+
+#api
+djangorestframework
+django-rest-swagger
