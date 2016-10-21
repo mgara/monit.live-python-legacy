@@ -1,9 +1,9 @@
 
 
 from rest_framework import serializers
-from djangomonitcollector.datacollector.models import Server
+from djangomonitcollector.datacollector.models import Server, MonitEvent
 
-class ServerSerializer(serializers.ModelSerializer):
+class ServerSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Server
         fields = (
@@ -32,7 +32,24 @@ class ServerSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class AlertSerializer(serializers.HyperlinkedModelSerializer):
+    server = serializers.ReadOnlyField(source='server.localhostname')
 
-
+    class Meta:
+        model = MonitEvent
+        fields = (
+            'id',
+            'server',
+            'event_message',
+            'event_time',
+            'updated_at',
+            'created_at',
+            'is_ack',
+            'cleared_alarms',
+            'is_active',
+            'cleared_by',
+            'is_duplicate_of',
+            'alarm_raised',
+            )
 
 

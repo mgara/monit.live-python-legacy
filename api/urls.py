@@ -25,4 +25,7 @@ urlpatterns = [
     url(r'^offline-servers/$', views.OfflineServerList.as_view()),
     url(r'^all-servers/$', views.ServerList.as_view()),
     url(r'^server/(?P<id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$', views.ServerDetail.as_view()),
+    url(r'^server-alerts/(?P<server_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$', views.ServerAlertList.as_view()),
+    url(r'^alert/(?P<id>[0-9]*)$', views.AlertDetail.as_view()),
+
 ]
