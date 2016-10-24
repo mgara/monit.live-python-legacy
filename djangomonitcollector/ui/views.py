@@ -97,7 +97,7 @@ def server(request, server_id):
     print last_data_received
 
     now = datetime.datetime.now().replace(tzinfo=utc_tz)
-    #TODO : review this
+    # TODO : review this
     delta = (now - last_data_received).seconds
     print delta
     print server.monit_update_period
@@ -371,7 +371,8 @@ def intellievent_list(request):
     user = request.user
     org = user.organisation
 
-    f = IntelliEventsFilter(request.GET, queryset=MonitEvent.objects.filter(server__organisation=org))
+    f = IntelliEventsFilter(
+        request.GET, queryset=MonitEvent.objects.filter(server__organisation=org))
 
     return render(request, 'datacollector/monitevent_filter.html', {'filter': f})
 

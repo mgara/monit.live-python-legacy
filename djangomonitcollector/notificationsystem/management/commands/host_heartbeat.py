@@ -69,7 +69,8 @@ class Command(BaseCommand):
                     server['localhostname'],
                     delta, server['monit_update_period'])
                 )
-                # TODO: make the grace period of 10 seconds configurable, 0 is aggressive
+                # TODO: make the grace period of 10 seconds configurable, 0 is
+                # aggressive
                 if (delta - 10) > server_monit_update_period:
 
                     if server['monitid'] not in hosts_down:

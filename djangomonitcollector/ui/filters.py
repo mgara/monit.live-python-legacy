@@ -25,9 +25,11 @@ class IntelliEventsFilter(django_filters.FilterSet):
                                 self.filters[field_name].extra['choices'])
             self.filters[field_name].extra['choices'] = extended_choices
         # First field - from 09/14/2016 12:00 AM
-        self.form.fields['event_time'].fields[0].input_formats = ['%m/%d/%Y %H:%M %p']
+        self.form.fields['event_time'].fields[
+            0].input_formats = ['%m/%d/%Y %H:%M %p']
         # Last field - to
-        self.form.fields['event_time'].fields[-1].input_formats = ['%m/%d/%Y %H:%M %p']
+        self.form.fields[
+            'event_time'].fields[-1].input_formats = ['%m/%d/%Y %H:%M %p']
 
     class Meta:
         model = MonitEvent

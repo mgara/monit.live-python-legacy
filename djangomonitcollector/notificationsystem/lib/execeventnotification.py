@@ -6,7 +6,7 @@ from parameter import Parameter
 
 class ExecEventNotification(EventSettingsInterface):
     extra_params = {
-        'exec_command': Parameter('exec_command', 'Exec Command','','The executable to call here ... use it at your own risk !'),
+        'exec_command': Parameter('exec_command', 'Exec Command', '', 'The executable to call here ... use it at your own risk !'),
         'stdr_out': Parameter('stdr_out', 'Standard Output File', '', 'Can be /dev/null, default is /tmp/output_plugin_'),
         'stdr_err': Parameter('stdr_err', 'Standard Error File', '', 'Can be /dev/null, default is /tmp/output_plugin_err_'),
     }

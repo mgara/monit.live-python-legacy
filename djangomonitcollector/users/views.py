@@ -168,8 +168,6 @@ def UpdatePasswordForUser(request, pk):
     })
 
 
-
-
 def delete_collector_key(request):
     ck = request.POST['ck']
     Collector_key_instance = CollectorKey.objects.get(pk=ck)
@@ -253,6 +251,7 @@ def new_api_key(request):
         }
     return JsonResponse(res)
 
+
 def update_user_settings(request):
     key = request.POST['key']
     val = request.POST['val']
@@ -289,6 +288,7 @@ def build_api_key_view(apikey):
     fa fa-trash"></i></span> {0}  \
     </h2></li>'.format(apikey.api_key)
     return res
+
 
 def build_collector_key_view(ck):
     res = ' <li class="p-10  ck-item" id="{0}">\

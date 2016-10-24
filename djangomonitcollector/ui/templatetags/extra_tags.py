@@ -256,6 +256,7 @@ def status_alert(alert_counts):
         return "bgm-green"
     return "bgm-red"
 
+
 @register.filter
 def comments_style(alert_counts):
     if not alert_counts:
@@ -488,6 +489,7 @@ def event_state_to_text_style(state):
         return "c-red"
     return "c-indigo"
 
+
 @register.filter
 def flapping_status(flapping):
     if flapping:
@@ -509,7 +511,7 @@ def status_to_string_(status, type_of_service, monitor_status):
         if monitor_status != 1:
             value = monitor[monitor_status]
     except IndexError:
-            return monitor_status
+        return monitor_status
     return value
 
     # format to a bitarray
