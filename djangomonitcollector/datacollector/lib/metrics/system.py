@@ -5,7 +5,12 @@ import json
 from ..broker import to_queue
 from djangomonitcollector.datacollector.lib.elastic import publish_to_elasticsearch
 from djangomonitcollector.datacollector.lib.graphite import collect_metric_from_datetime
-from djangomonitcollector.ui.templatetags.extra_tags import percent_to_bar, kb_formatting, time_str
+from djangomonitcollector.ui.templatetags.extra_tags import \
+    percent_to_bar, \
+    kb_formatting, \
+    time_str, \
+    time_class, \
+    timestamp_to_date
 
 
 class MemoryCPUSystemMetric(object):
@@ -19,6 +24,13 @@ class MemoryCPUSystemMetric(object):
     memory_percent = None
     swap_percent = None
     swap_kilobyte = None
+
+
+def format_last_received_data(last_received_data):
+    return '<span class="label {0}">{1}</span>'.format(
+        time_class(last_received_data),
+        timestamp_to_date(last_received_data)
+        )
 
 
 class MemoryCPUSystemMetrics(object):
@@ -47,6 +59,8 @@ class MemoryCPUSystemMetrics(object):
         self.server_name = server.localhostname.replace('.', '_')
         self.server_id = server.id
         self.server_uptime = server.uptime
+        self.server_is_up = server.server_up
+        self.server_last_data_received = server.system.date_last
 
         self.to_carbon()
         self.to_elasticsearch()
@@ -129,33 +143,37 @@ class MemoryCPUSystemMetrics(object):
         )
 
     def to_broker(self):
-        response = dict()
-        response['channel'] = str(self.server_id).replace("-", "_")
+        broker_message = dict()
+        broker_message['channel'] = str(self.server_id).replace("-", "_")
 
-        response['cpu_user_last'] = self.metric.cpu_user
-        response['cpu_system_last'] = self.metric.cpu_user
-        response['cpu_wait_last'] = self.metric.cpu_wait
+        broker_message['cpu_user_last'] = self.metric.cpu_user
+        broker_message['cpu_system_last'] = self.metric.cpu_user
+        broker_message['cpu_wait_last'] = self.metric.cpu_wait
 
-        response['memory_percent_last'] = self.metric.memory_percent
-        response['memory_kilobyte_last'] = self.metric.memory_kilobyte
+        broker_message['memory_percent_last'] = self.metric.memory_percent
+        broker_message['memory_kilobyte_last'] = self.metric.memory_kilobyte
 
-        response['load_avg1_last'] = self.metric.load_avg01
-        response['load_avg5_last'] = self.metric.load_avg05
-        response['load_avg15_last'] = self.metric.load_avg15
+        broker_message['load_avg1_last'] = self.metric.load_avg01
+        broker_message['load_avg5_last'] = self.metric.load_avg05
+        broker_message['load_avg15_last'] = self.metric.load_avg15
 
         # formatted
-        response['cpu_user_last_progress_bar'] = percent_to_bar(
+        broker_message['cpu_user_last_progress_bar'] = percent_to_bar(
             self.metric.cpu_user)
-        response['cpu_wait_last_progress_bar'] = percent_to_bar(
+        broker_message['cpu_wait_last_progress_bar'] = percent_to_bar(
             self.metric.cpu_wait)
-        response['cpu_system_last_progress_bar'] = percent_to_bar(
+        broker_message['cpu_system_last_progress_bar'] = percent_to_bar(
             self.metric.cpu_system)
 
-        response['memory_last_progress_bar'] = percent_to_bar(
+        broker_message['memory_last_progress_bar'] = percent_to_bar(
             self.metric.memory_percent)
-        response['memory_last_kb_formatted'] = kb_formatting(
+        broker_message['memory_last_kb_formatted'] = kb_formatting(
             self.metric.memory_kilobyte)
 
-        response['uptime'] = time_str(self.server_uptime)
-        response_str = json.dumps(response)
-        to_queue(response_str)
+        broker_message['server_up'] = self.server_is_up
+        broker_message['last_received_data'] = format_last_received_data(
+            self.server_last_data_received)
+        broker_message['uptime'] = time_str(self.server_uptime)
+
+        broker_message_str = json.dumps(broker_message)
+        to_queue(broker_message_str)

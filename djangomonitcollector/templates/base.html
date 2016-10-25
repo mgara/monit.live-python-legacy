@@ -19,14 +19,14 @@
 
     <title>{% block title %}{{ request.resolver_match.url_name|get_title }}{% endblock %} &middot; {{APPNAME}}</title>
     <!-- Vendor CSS -->
-
-    <link href="{% static 'vendors/bower_components/fullcalendar/dist/fullcalendar.min.css' %}" rel="stylesheet">
-    <link href="{% static 'vendors/bower_components/animate.css/animate.min.css' %}" rel="stylesheet">
-    <link href="{% static 'vendors/bower_components/sweetalert/dist/sweetalert.css' %}" rel="stylesheet">
-    <link href="{% static 'vendors/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css' %}" rel="stylesheet">
-    <link href="{% static 'vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css' %}" rel="stylesheet">
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
-    <link href="{% static 'vendors/bower_components/chosen/chosen.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link href="{% static 'vendors/bower_components/fullcalendar/dist/fullcalendar.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'vendors/bower_components/animate.css/animate.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'vendors/bower_components/sweetalert/dist/sweetalert.css' %}" rel="stylesheet"/>
+    <link href="{% static 'vendors/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css' %}" rel="stylesheet"/>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"/>
+    <link href="{% static 'vendors/bower_components/chosen/chosen.css' %}" rel="stylesheet"/>
     <!-- CSS -->
 
 
@@ -58,7 +58,7 @@
 {% endblock head %}
 </head>
 <body cz-shortcut-listen="true">
-    <header id="header" class="clearfix transparent_5 animated">
+    <header id="header" class="clearfix header header--fixed hide-from-print transparent_5">
         <ul class="h-inner">
             <li class="hi-trigger ma-trigger" data-ma-action="sidebar-open" data-ma-target="#sidebar">
                 <div class="line-wrap">
@@ -130,8 +130,24 @@
                     <a class="nav-link" href="{% url 'users:index' %}"><i class="fa fa-users"></i><span>{% trans 'User Management' %}</span> </a>
                 </li>
                 {% endif %}
+
+
                 {% block submenu %}
                 {% endblock %}
+
+                {% if request.user.organisation_manager %}
+                {% url 'ui:settings_update' request.user.organisation.settings.id as settings_update %}
+                    <li {% if request.path == settings_update %} class="active"{% endif %}>
+                        <a class="nav-link"
+                          href="{% url 'ui:settings_update' request.user.organisation.settings.id %}"><i class="fa fa-gears fa-lg"></i><span>{% trans "Organisation Settings" %}</span></a>
+                    </li>
+                {% endif %}
+
+                <li>
+                    <a target="_blank" class="nav-link c-lime" href="{% url 'kairos_api' %}" target="blank" ><i class="fa fa-cubes fa-lg"></i><span>{% trans "API Documentation" %}</span></a>
+                </li>
+
+
             {% endif %}
             </ul>
     </aside>
@@ -209,6 +225,8 @@
     <!--[if IE 9 ]>
     <script src="{% static 'vendors/bower_components/jquery-placeholder/jquery.placeholder.min.js' %}"></script>
     <![endif]-->
+    <script src="{% static 'js/headroom.min.js' %}"></script>
+    <script src="{% static 'js/jquery.headroom.min.js' %}"></script>
     <script src="{% static 'vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js' %}"></script>
     <script src="{% static 'js/app.min.js' %}"></script>
     <script src="{% static 'js/jquery.printElement.min.js' %}"></script>
@@ -221,40 +239,6 @@
     }
     </script>
     <script type="text/javascript">
-        function isScrolledIntoView(elem)
-        {
-            var docViewTop = $(window).scrollTop();
-            var docViewBottom = docViewTop + $(window).height();
-            var elemTop = $(elem).offset().top;
-            var elemBottom = elemTop + $(elem).height();
-            return (elemTop >= docViewTop+70)
-        }
-
-        var isVisible = false
-        function switchClass(el,class1,class2){
-
-            if(el.hasClass(class1)){
-                el.removeClass(class1)
-                el.addClass(class2)
-            }else
-            el.addClass(class2)
-        }
-        $(window).scroll(function() {
-            navbar = $('#header')
-            movingel = $('#main-content-container')
-            if(isScrolledIntoView(movingel))
-            {
-                if (!isVisible){
-                    isVisible = true
-                    switchClass(navbar,"transparent_10","transparent_5")
-                }
-            }else{
-                if (isVisible){
-                    isVisible = false
-                    switchClass(navbar,"transparent_5","transparent_10")
-                }
-            }
-        });
 
         var save_user_settings = function(key,value){
             $.ajax({
@@ -277,8 +261,18 @@
 
         }
 
-        $(document).ready(function() {
-
+        $(window).ready(function() {
+        /*
+            $(".header").headroom({
+              "offset": 205,
+              "tolerance": 10,
+              "classes": {
+                "initial": "animated",
+                "pinned": "bounceInDown",
+                "unpinned": "bounceOutUp"
+              }
+            });
+            */
 
             $('#notification_count').hide()
             //  Check if the browser supports local storage
@@ -289,7 +283,11 @@
             var alerts_sockets = io('/organisation_events_{{ request.user.organisation.id|clean }}');
             alerts_sockets.on('dmc', function(msg) {
                 var data = msg.data;
-                playSound()
+                if(data.event.server_down==true){
+                   var down_icon = '<span data-toggle="tooltip" data-placement="top" title="" data-original-title="Server Status : DOWN"><a href="#" class="btn btn-danger btn-xs waves-effect"><span class="glyphicon glyphicon-download"></span></a></span>'
+                    $("#"+data.event.server_id+"_server_up").html(down_icon)
+                }
+                //playSound()
                 if ( $( "#event_table" ).length ) {
 
                     $.ajax({
@@ -299,7 +297,7 @@
                              "event_id": data.event.id
                          },
                          // handle a successful response
-                         success: function(json) {
+                        success: function(json) {
                             // Simple bottom row removal
                              $('#event_table tr:last').remove();
                             data_row_html = json.row
@@ -307,14 +305,14 @@
 
                          },
                          // handle a non-successful response
-                         error: function(xhr, errmsg, err) {
+                        error: function(xhr, errmsg, err) {
                             if ($('#results').length){
                                  $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
                                  " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
                             }
 
                              console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-                         }
+                        }
                      });
 
                     }else{
@@ -336,16 +334,16 @@
                     }
             });
 
-             if (localStorageSupport){
-                        notifications_count = localStorage.getItem("notifications_count")
-                        if (notifications_count){
-                            $('#notification_count').show()
-                            new_notification_count = parseInt(notifications_count)
-                            $('#notification_count').html(new_notification_count)
-                            $('#notification_count').addClass("label label-danger")
-                        }
+            if (localStorageSupport){
+                notifications_count = localStorage.getItem("notifications_count")
+                if (notifications_count){
+                    $('#notification_count').show()
+                    new_notification_count = parseInt(notifications_count)
+                    $('#notification_count').html(new_notification_count)
+                    $('#notification_count').addClass("label label-danger")
+                }
 
-                    }
+            }
 
 
             function getCookie(name) {
@@ -417,9 +415,6 @@
                   var event_id= $(this).attr( "event-id" );
                   view_event(event_id,"true");
             })
-
-
-
 
         });
     </script>

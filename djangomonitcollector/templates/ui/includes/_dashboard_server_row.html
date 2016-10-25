@@ -1,7 +1,7 @@
 {% load  i18n %}
 {% load extra_tags %}
 <tr>
-    <td><span data-toggle="tooltip" data-placement="top" title="{% trans 'Server Status' %} : {{  server.server_up|server_status_to_string }}">{{ server.server_up|server_status_to_css_class|safe}}</span></td>
+    <td id="{{server.id|clean}}_server_up"><span data-toggle="tooltip" data-placement="top" title="{% trans 'Server Status' %} : {{  server.server_up|server_status_to_string }}">{{ server.server_up|server_status_to_css_class|safe}}</span></td>
     <td>{{ server.localhostname }}</td>
     <td>{{ server.external_ip }}</td>
     <td>{{ server.monit_version }}</td>
@@ -9,7 +9,7 @@
     <td> <span class="label" id="{{server.id|clean}}_load_1">{{ server.system.load_avg01_last }} </span> <span class="label" id="{{server.id|clean}}_load_5"> {{ server.system.load_avg05_last }}</span> <span class="label" id="{{server.id|clean}}_load_15">{{ server.system.load_avg15_last }}</span></td>
     <td id="{{server.id|clean}}_cpu_progress_bar">{{ server.system.cpu_user_last|percent_to_bar|safe }}</td>
     <td id="{{server.id|clean}}_memory_progress_bar">{{  server.system.memory_percent_last|percent_to_bar|safe }}</td>
-    <td><span class="label {{ server.system.date_last|time_class }}">{{ server.system.date_last|timestamp_to_date }} </span>
+    <td id="{{server.id|clean}}_last_received_data"><span class="label {{ server.system.date_last|time_class }}">{{ server.system.date_last|timestamp_to_date }} </span></td>
     <td class="text-center"><a data-toggle="tooltip" data-placement="top" title="{% trans 'Server Alerts' %}"  href="{% url 'ui:server_alerts' server.id %}" ><span class="label {{ server.alerts|status_alert }}">{{server.alerts }}</span></a></td>
     <td class="text-center"><span data-toggle="tooltip" data-placement="top" title="{% trans 'Server Processes' %}" class="label label-success">{{server.processes }}</span></td>
     <td class="text-center">
@@ -52,6 +52,10 @@
         </td>
     </tr>
        <script language="javascript">
+
+            var up_icon = '<span data-toggle="tooltip" data-placement="top" title="" data-original-title="Server Status : UP"><a href="#" class="btn btn-success btn-xs waves-effect"><span class="glyphicon glyphicon-upload"></span></a></span>'
+
+
             var socket = io('/{{ server.id|clean }}');
             socket.on('dmc', function(msg) {
                 var data = msg.data;
@@ -69,6 +73,10 @@
 
                     $("#{{server.id|clean}}_cpu_wait_progress_bar").html(data.cpu_wait_last_progress_bar)
                     $("#{{server.id|clean}}_cpu_system_progress_bar").html(data.cpu_system_last_progress_bar)
+
+                    $("#{{server.id|clean}}_server_up").html(up_icon)
+                    console.log(data.last_received_data)
+                    $("#{{server.id|clean}}_last_received_data").html(data.last_received_data)
 
                 }
                 if (null != data.fs_blocks_percent_last) {

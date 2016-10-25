@@ -12,7 +12,6 @@ import uuid
 import json
 from datetime import timedelta
 from pytz import timezone
-from threading import Thread
 
 from django.conf import settings
 from django.db import models
@@ -23,6 +22,7 @@ from djangomonitcollector.datacollector.lib.event_mappings import \
     event_state_to_string,\
     action_to_string
 
+from djangomonitcollector.ui.templatetags.extra_tags import clean
 
 from djangomonitcollector.users.models import HostGroup
 from ..lib.event_mappings import EVENT_STATE_CHOICES, EVENT_ID_CHOICES, EVENT_TYPE_CHOICES, EVENT_ACTION_CHOICES
@@ -108,9 +108,10 @@ class Server(models.Model):
             server.monit_version = xmldoc.getElementsByTagName(
                 'monit')[0].attributes["version"].value
             server.server_up = True
-            server.external_ip = external_ip
-            server.localhostname = get_value(xmldoc, "localhostname", "")
-            server.data_timezone = org.settings.general_default_timezone_for_servers
+            server.external_ip = external_ip if not server.external_ip else server.external_ip
+            server.localhostname = get_value(
+                xmldoc, "localhostname", "") if not server.localhostname else server.localhostname
+            server.data_timezone = org.settings.general_default_timezone_for_servers if not server.data_timezone else server.data_timezone
             server.uptime = get_value(xmldoc, "server", "uptime")
             server.address = get_string(xmldoc, "server.httpd.address")
 
@@ -119,7 +120,7 @@ class Server(models.Model):
             server.http_password = get_string(
                 xmldoc, "server.credentials.password")
             server.http_address = "{0}://{1}:{2}@{3}{4}/".format(
-                protocol, server.http_username, server.http_password, server.external_ip, port_str)
+                protocol, server.http_username, server.http_password, server.external_ip, port_str) if not server.http_address else server.http_address
 
             server.monit_update_period = get_int(xmldoc, "server.poll")
             server.save()
@@ -435,6 +436,7 @@ class MonitEvent(models.Model):
     def to_dict(self):
         event_dict = dict()
         event_dict["id"] = self.id
+        event_dict["server_id"] = clean(self.server.id)
         event_dict["server"] = self.server.localhostname
         event_dict["service"] = self.service.name.replace(
             '___', '/').replace('__', '_').replace('_', '/')
@@ -449,7 +451,10 @@ class MonitEvent(models.Model):
         event_dict["event_id"] = self.event_id
         event_dict["action_id"] = self.event_action
         event_dict["type_id"] = int(self.event_type)
-
+        monit_stopped_pattern = re.compile("^Monit.*stopped$|.*Host.*Down.*")
+        event_dict["server_down"] = False
+        if self.event_action == 3 and monit_stopped_pattern.match(self.event_message):
+            event_dict["server_down"] = True
         return event_dict
 
     def __str__(self):
@@ -592,13 +597,11 @@ def process_event(event_object):
 
 def get_service_by_name(server, event_type, service_name):
     '''
-
     :param server:
     :param event_type:
     :param service_name:
     :return:  service
     '''
-
     if "Monit" in service_name:
         return System.get_by_server(server)
 

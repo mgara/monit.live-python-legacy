@@ -25,44 +25,35 @@
             {% endfor %}
           </div>
          <!-- <a class="view-more view-more-light" href="{% url 'ui:intellievent' %}">{% trans "View all" %}</a>   -->
-         <a class="view-more view-more-light c-blue" href="{% url 'ui:intellievent_2' %}">{% trans "View all" %}</a>
+         <a class="view-more view-more-light c-gray" href="{% url 'ui:intellievent_2' %}"><strong>{% trans "View all" %}</strong></a>
 
         </div>
       </div>
     </li>
     {% if  request.user.organisation.server_set|get_server_len > 0 %}
-      <li class="dropdown">
-        <a class="dropdown-toggle " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-server fa-lg"></i><span class="him-label hidden-xs">{% trans 'Servers / Instances' %}</span><span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            {% for server in request.user.organisation.server_set.all %}
-              <li><a href="{% url 'ui:server' server.id %}"> {{ server.localhostname }}</a></li>
-            {% endfor %}
-          </ul>
-        </li>
+    <li class="dropdown">
+      <a class="dropdown-toggle " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-server fa-lg"></i><span class="him-label hidden-xs">{% trans 'Servers / Instances' %}</span><span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        {% for server in request.user.organisation.server_set.all %}
+            <li><a href="{% url 'ui:server' server.id %}"> {{ server.localhostname }}</a></li>
+        {% endfor %}
+      </ul>
+    </li>
       {% endif %}
-      <li class="dropdown">
-        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-          aria-expanded="false"><i class="fa fa-bell-o fa-lg"></i><span class="him-label hidden-xs">{% trans "Notifications Center" %}</span><span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="{% url 'n:notificationtype_list' %}"> {% trans "Manage Notifications" %}</a></li>
-            <li><a href="{% url 'n:notificationtype_create' %}"> {% trans "New Notification" %}</a></li>
-          </ul>
-        </li>
-        {% if request.user.organisation_manager %}
-          <li class="nav-link">
-            <a
-              href="{% url 'ui:settings_update' request.user.organisation.settings.id %}"><i class="fa fa-wrench fa-lg"></i><span class="him-label hidden-xs">{% trans "Settings" %}</span></a>
-            </li>
-          {% endif %}
-          <li class="nav-link">
-            <a href="{% url 'kairos_api' %}" target="blank" class="c-lime" ><i class="fa fa-cubes fa-lg"></i><span class="him-label hidden-xs">{% trans "API Documentation" %}</span></a>
-          </li>
-          <li class="nav-link">
-            <a href="{% url 'account_logout' %}" class="c-red"><i class="fa fa-sign-out fa-lg"></i><span class="him-label hidden-xs">{% trans 'Logout' %}</span></a>
-          </li>
+    <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+        aria-expanded="false"><i class="fa fa-bell-o fa-lg"></i><span class="him-label hidden-xs">{% trans "Notifications Center" %}</span><span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="{% url 'n:notificationtype_list' %}"> {% trans "Manage Notifications" %}</a></li>
+          <li><a href="{% url 'n:notificationtype_create' %}"> {% trans "New Notification" %}</a></li>
+        </ul>
+    </li>
+    <li class="nav-link">
+      <a href="{% url 'account_logout' %}" class="c-red"><i class="fa fa-sign-out fa-lg"></i><span class="him-label hidden-xs">{% trans 'Logout' %}</span></a>
+    </li>
         {% endif %}
       {% else %}
-          <li class="nav-link">
-            <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}#login"><i class="fa fa-sign-in fa-lg"></i><span class="him-label hidden-xs">{% trans "Log In" %}</span></a>
-          </li>
+    <li class="nav-link">
+      <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}#login"><i class="fa fa-sign-in fa-lg"></i><span class="him-label hidden-xs">{% trans "Log In" %}</span></a>
+    </li>
         {% endif %}

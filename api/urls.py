@@ -11,7 +11,6 @@ from api.views import UserViewSet
 from api import views
 
 
-
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -20,12 +19,18 @@ router.register(r'users', UserViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^online-servers/$', views.OnlineServerList.as_view()),
-    url(r'^offline-servers/$', views.OfflineServerList.as_view()),
-    url(r'^all-servers/$', views.ServerList.as_view()),
-    url(r'^server/(?P<id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$', views.ServerDetail.as_view()),
-    url(r'^server-alerts/(?P<server_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$', views.ServerAlertList.as_view()),
-    url(r'^alert/(?P<id>[0-9]*)$', views.AlertDetail.as_view()),
+    url(r'^api-auth/',
+        include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^online-servers/$', views.OnlineServerList.as_view(),
+        name="onlineserver-list"),
+    url(r'^offline-servers/$', views.OfflineServerList.as_view(),
+        name="offlineserver-list"),
+    url(r'^all-servers/$', views.ServerList.as_view(), name="server-list"),
+    url(r'^server/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$',
+        views.ServerDetail.as_view(), name="server-detail"),
+    url(r'^server/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/alerts$',
+        views.ServerDetail.as_view(), name="alert-list"),
+    url(r'^alert/(?P<pk>[0-9]*)$',
+        views.AlertDetail.as_view(), name="alert-detail"),
 
 ]
