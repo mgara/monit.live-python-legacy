@@ -15,10 +15,17 @@ def app_settings(request):
         organisation_events = MonitEvent.objects.filter(
             server__organisation=org).order_by('-id')[:10]
 
-    return {
-        'APPNAME': settings.APPNAME,
-        'APPVERSION': settings.APPVERSION,
-        'APIVERSION': settings.APIVERSION,
-        'CURRENT_TZ': org.settings.general_default_timezone_for_servers,
-        'organisation_events': organisation_events
-    }
+        return {
+            'APPNAME': settings.APPNAME,
+            'APPVERSION': settings.APPVERSION,
+            'APIVERSION': settings.APIVERSION,
+            'CURRENT_TZ': org.settings.general_default_timezone_for_servers,
+            'organisation_events': organisation_events
+        }
+    else:
+        return {
+            'APPNAME': settings.APPNAME,
+            'APPVERSION': settings.APPVERSION,
+            'APIVERSION': settings.APIVERSION,
+            'organisation_events': organisation_events
+        }
