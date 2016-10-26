@@ -1,11 +1,10 @@
 {% load tz %}
 {% load  i18n %}
-{% get_current_timezone as TIME_ZONE %}
 
 
 
 <footer id="footer">
-   <span class="footer">  Copyright &copy; 2016 <b>{{APPNAME}}</b> v{{APPVERSION}} | Timezone : {{ TIME_ZONE }}</span>
+   <span class="footer">  Copyright &copy; 2016 <b>{{APPNAME}}</b> v{{APPVERSION}} | Timezone : {{ CURRENT_TZ }}</span>
 
 
     <ul class="f-menu">

@@ -54,4 +54,11 @@ class AlertSerializer(serializers.HyperlinkedModelSerializer):
             'cleared_by',
             'is_duplicate_of',
             'alarm_raised',
-        )
+            )
+        extra_kwargs = {
+        'is_ack': {
+            'help_text': 'Acknowledge the Alert.',
+            'label': 'Acknowledge'},
+
+        }
+

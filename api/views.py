@@ -13,6 +13,7 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from coreapi import Link
 
 
 class ServerDetail(APIView):
@@ -59,7 +60,8 @@ class AlertDetail(APIView):
     permission_classes = (IsAuthenticated,)
 
     """
-    Retrieve, update or delete a alert instance.
+    get: Create a new user.
+    post: List all the users.
     """
 
     def get_object(self, pk):

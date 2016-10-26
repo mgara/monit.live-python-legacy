@@ -30,8 +30,6 @@ def gravatar_url(email, size=80):
 
 # return an image tag with the gravatar
 # TEMPLATE USE:  {{ email|gravatar:150 }}
-
-
 @register.filter
 def gravatar(email, size=40):
     url = gravatar_url(email, size)
@@ -196,14 +194,14 @@ def extra_params(xtra):
 
 
 @register.filter
-def timestamp_to_date(timestamp):
+def timestamp_to_date(timestamp, user_tz="EST"):
     if not isinstance(timestamp, int):
         return ""
-    data_tz = pytz.timezone("UTC")
-    user_tz = timezone.get_current_timezone()
+    data_tz   = pytz.timezone("UTC")
+    user_tz   = timezone.get_current_timezone()
     data_time = datetime.datetime.fromtimestamp(timestamp, tz=data_tz)
-
     user_time = user_tz.normalize(data_time.astimezone(user_tz))
+    print user_tz
     return user_time
 
 

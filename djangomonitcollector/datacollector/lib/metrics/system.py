@@ -13,6 +13,9 @@ from djangomonitcollector.ui.templatetags.extra_tags import \
     timestamp_to_date
 
 
+from django.utils import formats
+
+
 class MemoryCPUSystemMetric(object):
     load_avg01 = None
     load_avg05 = None
@@ -26,10 +29,13 @@ class MemoryCPUSystemMetric(object):
     swap_kilobyte = None
 
 
-def format_last_received_data(last_received_data):
-    return '<span class="label {0}">{1}</span>'.format(
+def format_last_received_data(last_received_data, user_tz):
+    last_received_data = last_received_data + 3600
+    ldr =  datetime.datetime.fromtimestamp(last_received_data)
+    return '<span class="label {0} last-received-timestamp " data-timestamp="{1}">{2}</span>'.format(
         time_class(last_received_data),
-        timestamp_to_date(last_received_data)
+        last_received_data,
+        formats.date_format(ldr, "DATETIME_FORMAT")
         )
 
 
@@ -45,6 +51,7 @@ class MemoryCPUSystemMetrics(object):
                  timestamp
                  ):
         tz = timezone(server.data_timezone)
+        self.user_tz = server.organisation.settings.general_default_timezone_for_servers
         self.metric.date_last = datetime.datetime.fromtimestamp(timestamp, tz)
         self.metric.load_avg01 = system.load_avg01_last
         self.metric.load_avg05 = system.load_avg05_last
@@ -60,7 +67,7 @@ class MemoryCPUSystemMetrics(object):
         self.server_id = server.id
         self.server_uptime = server.uptime
         self.server_is_up = server.server_up
-        self.server_last_data_received = server.system.date_last
+        self.server = server
 
         self.to_carbon()
         self.to_elasticsearch()
@@ -171,8 +178,10 @@ class MemoryCPUSystemMetrics(object):
             self.metric.memory_kilobyte)
 
         broker_message['server_up'] = self.server_is_up
+
         broker_message['last_received_data'] = format_last_received_data(
-            self.server_last_data_received)
+            self.server.system.date_last, self.user_tz )
+
         broker_message['uptime'] = time_str(self.server_uptime)
 
         broker_message_str = json.dumps(broker_message)

@@ -19,5 +19,6 @@ def app_settings(request):
         'APPNAME': settings.APPNAME,
         'APPVERSION': settings.APPVERSION,
         'APIVERSION': settings.APIVERSION,
+        'CURRENT_TZ': org.settings.general_default_timezone_for_servers,
         'organisation_events': organisation_events
     }

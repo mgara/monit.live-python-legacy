@@ -19,6 +19,7 @@ router.register(r'users', UserViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^', include(router.urls)),
+
     url(r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')),
     url(r'^online-servers/$', views.OnlineServerList.as_view(),
@@ -32,5 +33,4 @@ urlpatterns = [
         views.ServerDetail.as_view(), name="alert-list"),
     url(r'^alert/(?P<pk>[0-9]*)$',
         views.AlertDetail.as_view(), name="alert-detail"),
-
-]
+    ]
