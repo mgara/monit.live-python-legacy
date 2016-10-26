@@ -7,8 +7,6 @@ from parameter import Parameter
 class ExecEventNotification(EventSettingsInterface):
     extra_params = {
         'exec_command': Parameter('exec_command', 'Exec Command', '', 'The executable to call here ... use it at your own risk !'),
-        'stdr_out': Parameter('stdr_out', 'Standard Output File', '', 'Can be /dev/null, default is /tmp/output_plugin_'),
-        'stdr_err': Parameter('stdr_err', 'Standard Error File', '', 'Can be /dev/null, default is /tmp/output_plugin_err_'),
     }
 
     PLUGIN_NAME = "Exec Notification"
@@ -24,15 +22,8 @@ class ExecEventNotification(EventSettingsInterface):
         os.environ['STATUS'] = str(self.event_id)
         os.environ['MONIT_HOST'] = str(self.server)
 
-        if self.extra_params['stdr_out']:
-            output_file = self.extra_params['stdr_out']
-        else:
-            output_file = "/tmp/output_plugin_"
-
-        if self.extra_params['stdr_err']:
-            err_file = self.extra_params['stdr_err']
-        else:
-            err_file = "/tmp/output_plugin_err_"
+        err_file = self.get_err_output()
+        output_file = self.get_std_output()
 
         # FNULL = open(os.devnull, 'w')    #use this if you want to suppress
         # output to stdout from the subprocess
@@ -42,6 +33,7 @@ class ExecEventNotification(EventSettingsInterface):
         exec_command = self.extra_params['exec_command']
         subprocess.call(
             exec_command, stdout=OUTPUT_PLUGIN, stderr=ERR_PLUGIN, shell=False)
+        return ""
 
     def finalize(self, event_object):
         # put whatever you want to be done after the process command

@@ -27,8 +27,14 @@ class EmailEventNotification(EventSettingsInterface):
             self.server
         )
 
-        send_mail(subject, "{0}".format(self.get_event_summary()), 'kairos@mgara.com',
-                  [to], fail_silently=False)
+        send_mail(subject, "{0}".format(
+            self.get_event_summary()),
+            'kairos@mgara.com',
+            [to],
+            fail_silently=False
+            )
+
+        return "Mail Sent to {}".format(to)
 
     def finalize(self, event_object):
         # put whatever you want to be done after the process command

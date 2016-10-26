@@ -1,11 +1,15 @@
-import ast
-from abc import ABCMeta, abstractmethod
 import json
+import os
+import ast
+
+from abc import ABCMeta, abstractmethod
 from djangomonitcollector.ui.templatetags.extra_tags \
     import event_status_to_string, \
     event_state_to_string, \
     action_to_string, \
     type_to_string
+
+
 
 '''
 This interface is the base class for the EventSettings
@@ -20,10 +24,22 @@ class EventSettingsInterface(object):
     notification_type = None
     has_extra_config = False
 
+    PLUGIN_ERROR_OUTPUT = "{}/plugin_error_output/{}_err_log"
+    PLUGIN_STD_OUTPUT = "{}/plugin_std_output/{}_std.log"
     PLUGIN_NAME = "PLUGIN_NAME"
     PLUGIN_ICON = "PLUGIN_ICON"
     HELP_MESSAGE = ""
     TOOLTIP = ""
+
+    def set_notification_id(self, notificationid):
+        self.PLUGIN_ERROR_OUTPUT = self.PLUGIN_ERROR_OUTPUT.format(os.getcwd(), notificationid)
+        self.PLUGIN_STD_OUTPUT = self.PLUGIN_STD_OUTPUT.format(os.getcwd(), notificationid)
+
+    def get_std_output(self):
+        return self.PLUGIN_STD_OUTPUT
+
+    def get_err_output(self):
+        return self.PLUGIN_ERROR_OUTPUT
 
     def get_freindlyname(self):
         return self.PLUGIN_NAME
@@ -41,7 +57,6 @@ class EventSettingsInterface(object):
     this function takes as a parametr the event object and will
     indicate how to process the event
     '''
-
     @abstractmethod
     def process(self, event_object):
         raise

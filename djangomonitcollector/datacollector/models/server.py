@@ -592,7 +592,19 @@ def process_event(event_object):
                     notification_class_instance.set_event(event_object)
                     notification_class_instance.set_extra_params(
                         nt.notification_plugin_extra_params)
-                    notification_class_instance.process()
+                    notification_class_instance.set_notification_id(nt.id)
+
+                    try:
+                        output = notification_class_instance.process()
+                        f = open(notification_class_instance.get_std_output(), 'a+')
+                        f.write("\n")
+                        f.write(output)
+                        f.close()
+                    except StandardError as e:
+                        f = open(notification_class_instance.get_err_output(), 'a+')
+                        f.write("\n")
+                        f.write(e)
+                        f.close()
 
 
 def get_service_by_name(server, event_type, service_name):
