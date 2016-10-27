@@ -96,6 +96,12 @@ class Command(BaseCommand):
             filehandle = urllib.urlopen(endpoint)
             json_response = filehandle.read()
             return json.loads(json_response)
+        except ValueError:
+            self.logger.critical("Received unparsable JSON doc from the server, please check the output : ")
+            self.logger.error("----------------------- BEGIN")
+            self.logger.error(json_response)
+            self.logger.error("----------------------- END")
+            return None
         except IOError:
             self.logger.critical("Collector Is Down ?")
             return None
