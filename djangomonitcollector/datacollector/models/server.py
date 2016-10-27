@@ -597,13 +597,11 @@ def process_event(event_object):
                     try:
                         output = notification_class_instance.process()
                         f = open(notification_class_instance.get_std_output(), 'a+')
-                        f.write("\n")
-                        f.write(output)
+                        f.write("{}".format(output))
                         f.close()
                     except StandardError as e:
                         f = open(notification_class_instance.get_err_output(), 'a+')
-                        f.write("\n")
-                        f.write(e)
+                        f.write("{}".format(e))
                         f.close()
 
 
