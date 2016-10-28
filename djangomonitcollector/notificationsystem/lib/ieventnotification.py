@@ -10,7 +10,6 @@ from djangomonitcollector.ui.templatetags.extra_tags \
     type_to_string
 
 
-
 '''
 This interface is the base class for the EventSettings
 '''

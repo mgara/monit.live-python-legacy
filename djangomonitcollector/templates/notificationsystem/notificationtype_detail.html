@@ -1,8 +1,10 @@
 {% extends "base.html" %}
-{% load static %}{% load i18n %}
-{% block title %}Notification detail{% endblock %}
+{% load static %}
+{% load i18n %}'
+{% block title %}{% trans 'Notification detail' %}{% endblock %}
 
 {% load staticfiles %}
+
 {% load extra_tags %}
 {% load notification_extra_tags %}
 
@@ -11,7 +13,7 @@
 {% block page_header %}
 
 {% endblock %}
-{% block page_title %} Notification
+{% block page_title %} {% trans 'Notification' %}
                 <small class="text-navy">{{ object.notification_label }}</small>
 {% endblock %}
 {% block content %}
@@ -38,61 +40,141 @@
 <div class="row">
             <div class="col-md-8">
 
-                {% if object.notification_server %}
-                    <p><span class="text-uppercase"> if Server in:  </span> <span
-                            class="lead">{{ object.notification_server|parse_comma_seperated_list | safe }}</span></p>
-                {% endif %}
-                {% if object.notification_host_group|check_size %}
-                    <p><span class="text-uppercase"> if Host Group in:  </span> <span
-                            class="lead">{{ object.notification_host_group|parse_comma_seperated_list | safe }}</span></p>
-                {% endif %}
-                {% if object.notification_service|check_size %}
-                    <p><span class="text-uppercase"> if Services in:  </span> <span
-                            class="lead">{{ object.notification_service|parse_service_list | safe }}</span></p>
-                {% endif %}
-                {% if object.notification_type %}
-                    <p><span class="text-uppercase">And monit alert Type in :  </span> <span
-                            class="lead">{{ object.notification_type | parse_notification_type | safe }}</span></p>
-                {% endif %}
-                {% if object.notification_state %}
-                    <p><span class="text-uppercase">And monit alert State in:  </span> <span
-                            class="lead">{{ object.notification_state | parse_notification_state | safe }}</span></p>
-                {% endif %}
-                {% if object.notification_action %}
-                    <p><span class="text-uppercase">And monit Action in :  </span> <span
-                            class="lead">{{ object.notification_action | parse_notification_action | safe }}</span></p>
-                {% endif %}
 
-                {% if object.notification_message %}
-                    <p><span class="text-uppercase">And monit messages matches :  </span> <span
-                            class="lead"><h4><span class="label bgm-indigo">{{ object.notification_message }}</span>
-                    </h4></span></p>
-                {% endif %}
+                <div role="tabpanel" class="tab">
+                    <!-- Nav tabs -->
+                    <ul class="tab-nav" role="tablist">
+                        <li role="presentation" class="active"><a href="#details_tab" aria-controls="details_tab" role="tab" data-toggle="tab">{% trans 'Details' %}</a></li>
+                        <li role="presentation"><a href="#standard_log" aria-controls="standard_log" role="tab" data-toggle="tab">{% trans 'Standard Log' %}</a></li>
+                        <li role="presentation"><a href="#error_log" aria-controls="error_log" role="tab" data-toggle="tab">{% trans 'Error Logs' %}</a></li>
+                    </ul>
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="details_tab">
+                            <div class="row container top-buffer">
+                                {% if object.notification_server %}
+                                    <p><span class="text-uppercase"> if Server in:  </span> <span
+                                            class="lead">{{ object.notification_server|parse_comma_seperated_list | safe }}</span></p>
+                                {% endif %}
+                                {% if object.notification_host_group|check_size %}
+                                    <p><span class="text-uppercase"> if Host Group in:  </span> <span
+                                            class="lead">{{ object.notification_host_group|parse_comma_seperated_list | safe }}</span></p>
+                                {% endif %}
+                                {% if object.notification_service|check_size %}
+                                    <p><span class="text-uppercase"> if Services in:  </span> <span
+                                            class="lead">{{ object.notification_service|parse_service_list | safe }}</span></p>
+                                {% endif %}
+                                {% if object.notification_type %}
+                                    <p><span class="text-uppercase">And monit alert Type in :  </span> <span
+                                            class="lead">{{ object.notification_type | parse_notification_type | safe }}</span></p>
+                                {% endif %}
+                                {% if object.notification_state %}
+                                    <p><span class="text-uppercase">And monit alert State in:  </span> <span
+                                            class="lead">{{ object.notification_state | parse_notification_state | safe }}</span></p>
+                                {% endif %}
+                                {% if object.notification_action %}
+                                    <p><span class="text-uppercase">And monit Action in :  </span> <span
+                                            class="lead">{{ object.notification_action | parse_notification_action | safe }}</span></p>
+                                {% endif %}
+                                {% if object.notification_message %}
+                                    <p><span class="text-uppercase">And monit messages matches :  </span> <span
+                                            class="lead"><h4><span class="label bgm-indigo">{{ object.notification_message }}</span>
+                                    </h4></span></p>
+                                {% endif %}
+                                {% if object.notification_class %}
+                                    <p><span class="text-uppercase">Apply Plugin Class :  </span> <span
+                                            class="lead"><h4><span class="label bgm-indigo">{{ object.notification_class|get_notification_class_name }}</span>
+                                    </h4> </span>
+                                    </p>
+                                {% endif %}
+                                {% if object.notification_plugin_extra_params %}
+                                    <p><span class="text-uppercase"> Plugin extra parameters :  </span>
+                                    <span class="lead">
+                                            {{ object.notification_plugin_extra_params|extra_params|safe }}
+                                    </span>
+                                    </p>
+                                {% endif %}
+                                <p><span class="text-uppercase">Enabled :  </span> <span
+                                        class="lead"><h5>
 
-                {% if object.notification_class %}
-                    <p><span class="text-uppercase">Apply Plugin Class :  </span> <span
-                            class="lead"><h4><span class="label bgm-indigo">{{ object.notification_class }}</span>
-                    </h4> </span>
-                    </p>
-                {% endif %}
+                                        {{ object.notification_enabled|nt_status_to_label|safe }}
 
+                                </h5> </span></p>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane active" id="standard_log">
+                            <div class="row container top-buffer">
+                                <div id="std_logs">STANDARD LOGS</div>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane active" id="error_log">
+                            <div class="row container top-buffer">
+                                <div id="err_logs">ERROR LOGS</div>
+                            </div>
+                        </div>
+                    </div>
 
-                {% if object.notification_plugin_extra_params %}
-                    <p><span class="text-uppercase"> Plugin extra parameters :  </span>
-                    <span class="lead">
-                            {{ object.notification_plugin_extra_params|extra_params|safe }}
-                    </span>
-                    </p>
-                {% endif %}
-                <p><span class="text-uppercase">Enabled :  </span> <span
-                        class="lead"><h5>
+                </div>
 
-                        {{ object.notification_enabled|nt_status_to_label|safe }}
-
-                </h5> </span></p>
         </div>
     </div>
+<script type="text/javascript">
 
+
+      // AJAX for posting
+      function get(url, target) {
+          $.ajax({
+              url : url, // the endpoint
+              type: "POST", // http method
+              data: {
+                  "get_logs": target
+              },
+              // handle a successful response
+              success: function(json) {
+                  $(target).html(json.data); // log the returned json to the console
+              },
+
+              // handle a non-successful response
+              error: function(xhr, errmsg, err) {
+                  $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                      " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                  console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+              }
+          });
+      };
+
+
+    function getCookie(name) {
+          var cookieValue = null;
+          if (document.cookie && document.cookie != '') {
+              var cookies = document.cookie.split(';');
+              for (var i = 0; i < cookies.length; i++) {
+                  var cookie = jQuery.trim(cookies[i]);
+                  // Does this cookie string begin with the name we want?
+                  if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                      break;
+                  }
+              }
+          }
+          return cookieValue;
+      }
+      var csrftoken = getCookie('csrftoken');
+
+      function csrfSafeMethod(method) {
+          // these HTTP methods do not require CSRF protection
+          return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+      }
+
+      $.ajaxSetup({
+          beforeSend: function(xhr, settings) {
+              if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                  xhr.setRequestHeader("X-CSRFToken", csrftoken);
+              }
+          }
+      });
+
+</script>
 {% include "ui/includes/_end_widget.html" %}
 {% include "ui/includes/_widget_buttonbar.html"  %}
     <!-- Action buttons -->
@@ -107,3 +189,4 @@
 {% include "ui/includes/_end_widget.html" %}
 
 {% endblock %}
+

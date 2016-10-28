@@ -11,7 +11,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from math import floor
-
+import importlib
 
 register = template.Library()
 
@@ -310,24 +310,42 @@ def get_int(value):
         return int(value)
     return None
 
-# the grey button to highlight a row in the alert table.
 
-
+# the black button to highlight a row in the alerts table.
 @register.filter
 def to_btn(value):
     var = '{}'
     if value:
-        return "<button onclick=\"$('#event-{0}').effect('highlight', {1}, 1500);\" class=\"btn bgm-black btn-xs\" type=\"button\" id=\"highlight-{0}\" data-id=\"{0}\">{0}</button>".format(value, var)
+        return "<button onclick=\"$('#event-{0}').effect('highlight', {1}, 1500);\" class=\"btn bgm-indigo btn-xs\" type=\"button\" id=\"highlight-{0}\" data-id=\"{0}\">{0}</button>".format(value, var)
+
+
+@register.filter
+def get_notification_class_name(value):
+
+    notification_handler_module = importlib.import_module(
+                        "djangomonitcollector.notificationsystem.lib.{0}".format(value.lower()))
+    class_ = getattr(
+        notification_handler_module, value)
+    notification_class_instance = class_()
+    return notification_class_instance.get_freindlyname()
 
 
 @register.filter
 def to_btns(value):
     out = ""
+    total = 0
+    k = 0
     if value:
         table = ast.literal_eval(value)
 
+        total = len(table)
         for event_id in table:
+            if k > 3:
+                break
             out += to_btn(event_id)
+            k = k + 1
+    if total > k:
+        return out + " and {} others...".format(total - k)
     return out
 
 
