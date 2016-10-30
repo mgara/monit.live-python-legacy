@@ -10,8 +10,8 @@
 
 
 
-{% block page_header %}
-
+{% block css %}
+<link rel="stylesheet" href="https://cdn.rawgit.com/google/code-prettify/master/styles/sunburst.css"/>
 {% endblock %}
 {% block page_title %} {% trans 'Notification' %}
                 <small class="text-navy">{{ object.notification_label }}</small>
@@ -102,14 +102,14 @@
                                 </h5> </span></p>
                             </div>
                         </div>
-                        <div role="tabpanel" class="tab-pane active" id="standard_log">
+                        <div role="tabpanel" class="tab-pane" id="standard_log">
                             <div class="row container top-buffer">
-                                <div id="std_logs">STANDARD LOGS</div>
+                                <pre class="prettyprint linenums prettyprinted">{{std_log}}</pre>
                             </div>
                         </div>
-                        <div role="tabpanel" class="tab-pane active" id="error_log">
+                        <div role="tabpanel" class="tab-pane" id="error_log">
                             <div class="row container top-buffer">
-                                <div id="err_logs">ERROR LOGS</div>
+                                     <pre class="prettyprint linenums prettyprinted">{{err_log}}</pre>
                             </div>
                         </div>
                     </div>
@@ -189,4 +189,5 @@
 {% include "ui/includes/_end_widget.html" %}
 
 {% endblock %}
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
 

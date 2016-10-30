@@ -594,16 +594,23 @@ def process_event(event_object):
                         nt.notification_plugin_extra_params)
                     notification_class_instance.set_notification_id(nt.id)
 
+                    f = open(notification_class_instance.get_err_output(), 'a+')
+                    f.write("{}: Started plugin execution on event [{}]\n".format(datetime.datetime.utcnow(), event_object.id))
+                    f.close()
                     try:
                         output = notification_class_instance.process()
                         f = open(notification_class_instance.get_std_output(), 'a+')
-                        f.write("{}".format(output))
+                        f.write("{}: Started plugin execution on event [{}]\n".format(datetime.datetime.utcnow(), event_object.id))
+                        f.write("{}\n".format(output))
+                        f.write("{}: Ended plugin execution on event [{}]\n".format(datetime.datetime.utcnow(), event_object.id))
                         f.close()
                     except StandardError as e:
                         f = open(notification_class_instance.get_err_output(), 'a+')
-                        f.write("{}".format(e))
+                        f.write("{}\n".format(e))
                         f.close()
-
+                    f = open(notification_class_instance.get_err_output(), 'a+')
+                    f.write("{}: Ended plugin execution on event [{}]\n".format(datetime.datetime.utcnow(), event_object.id))
+                    f.close()
 
 def get_service_by_name(server, event_type, service_name):
     '''

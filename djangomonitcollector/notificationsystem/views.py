@@ -1,5 +1,6 @@
 import ast
 import re
+import os
 
 from braces.views import LoginRequiredMixin
 from django import forms
@@ -117,6 +118,47 @@ class NotificationTypeView(LoginRequiredMixin, DetailView):
         notification_type_id = self.kwargs['pk']
         return NotificationType.objects.get(id=notification_type_id)
 
+    def get_context_data(self, **kwargs):
+            notification_type_id = self.kwargs['pk']
+
+            # Call the base implementation first to get a context
+            context = super(NotificationTypeView, self).get_context_data(**kwargs)
+            # Add in a QuerySet of all the books
+
+            self.err_log = "{}/plugin_error_output/{}_err_log".format(os.getcwd(), notification_type_id)
+            self.std_log = "{}/plugin_std_output/{}_std.log".format(os.getcwd(), notification_type_id)
+
+            std = self.get_file_content(self.std_log)
+            err = self.get_file_content(self.err_log)
+
+            context['std_log'] = '\n'.join(map(str, std))
+            context['err_log'] = '\n'.join(map(str, err))
+            return context
+
+    def get_file_content(self,file_name):
+        res = []
+        #res.append(file_name)
+        dir_name = os.path.dirname(file_name)
+        #res.append(dir_name)
+        if not os.path.exists(dir_name):
+            res.append("Directory Not Found, Please contact help")
+            return res
+        if not os.path.exists(file_name):
+            res.append("File Not Found, This error may occur if this rule has never been applied before.")
+            return res
+
+        try:
+            from sh import tail
+            # return last 10 lines
+            for line in tail("-n100",file_name, _iter=True):
+                if len(line.strip())>0:
+                    res.append(line.replace("\n","").rstrip())
+            return res
+        except Exception as e:
+            l = "A problem accured when trying to read the file"
+            res.append(l)
+            res.append("{}".format(e))
+            return res
 
 class NotificationTypeCreate(LoginRequiredMixin, CreateView):
     form_class = NotificationTypeForm

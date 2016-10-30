@@ -8,11 +8,15 @@
   {% endblock %}
 
 {% block submenu %}
-  <li class="nav-item">
+                {% url 'ui:server_alerts' server.id as server_alerts %}
+
+  <li class="nav-item {% if request.path == server_alerts %} active{% endif %}">
     <a class="nav-link" href="{% url 'ui:server_alerts' server.id %}"><i class="fa fa-bell"></i>{% trans "Active Alerts" %} <span
     class="label {{ alerts_count|status_alert }} pull-right">{{ alerts_count }}</span></a>
   </li>
-   <li class="nav-item">
+                  {% url 'ui:server_kpis' server.id as server_kpis %}
+
+   <li class="nav-item {% if request.path == server_kpis %} active{% endif %}">
     <a class="nav-link" href="{% url 'ui:server_kpis' server.id %}"><i class="fa fa-bar-chart"></i>{% trans "Key Performance Indicators" %} </a>
   </li>
 {% endblock %}
