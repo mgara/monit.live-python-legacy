@@ -133,6 +133,7 @@ class NotificationTypeView(LoginRequiredMixin, DetailView):
 
             context['std_log'] = '\n'.join(map(str, std))
             context['err_log'] = '\n'.join(map(str, err))
+
             return context
 
     def get_file_content(self,file_name):
