@@ -34,6 +34,7 @@ class NotificationType(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     notification_plugin_extra_params = models.TextField(null=True)
+    notification_plugin_org_params = models.TextField(null=True)
 
     def get_absolute_url(self):
         return reverse('n:notificationtype_view', kwargs={'pk': self.pk})

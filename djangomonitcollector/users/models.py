@@ -192,6 +192,8 @@ class CollectorKey(models.Model):
         entity.save()
         return entity
 
+admin.site.register(CollectorKey)
+
 
 class APIKey(models.Model):
     api_key = models.UUIDField(

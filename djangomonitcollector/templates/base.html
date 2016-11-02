@@ -1,7 +1,7 @@
 {% load staticfiles %}
 {% load extra_tags %}
 {% load i18n %}
-
+{% load account %}
 <!DOCTYPE html>
 <!--[if IE 9 ]><html class="ie9"><![endif]-->
 <head>
@@ -91,7 +91,7 @@
                     <a href="" data-ma-action="submenu-toggle" class="media">
                         <img class="pull-left" src="{{request.user.email|gravatar_url:150 }}" alt="{{request.user.username}}">
                         <div class="media-body">
-                            {{ request.user.username|title }}
+                            {% user_display user %}
                             <small>{{ request.user.organisation|title}}</small>
                         </div>
                     </a>

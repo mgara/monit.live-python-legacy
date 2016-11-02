@@ -110,7 +110,7 @@ class Server(models.Model):
             server.server_up = True
             server.external_ip = external_ip if not server.external_ip else server.external_ip
             server.localhostname = get_value(
-                xmldoc, "localhostname", "") if not server.localhostname else server.localhostname
+                xmldoc, "localhostname", "") if server.localhostname == 'default-hostname' else server.localhostname
             server.data_timezone = org.settings.general_default_timezone_for_servers if not server.data_timezone else server.data_timezone
             server.uptime = get_value(xmldoc, "server", "uptime")
             server.address = get_string(xmldoc, "server.httpd.address")

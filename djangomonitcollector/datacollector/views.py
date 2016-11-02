@@ -73,7 +73,7 @@ def collect_data(xml_str, ck, ip_addr, host_group):
                 ck = CollectorKey.objects.filter(organisation=org)
                 if len(list(ck)) > 0:
                     ckobj = ck[0]
-            except CollectorKey.DoesNotExist:
+            except Organisation.DoesNotExist:
 
                 raise CollectorKeyError("No Such Key Error {0}".format(ck))
         except ValueError:

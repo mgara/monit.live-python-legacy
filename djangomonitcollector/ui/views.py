@@ -92,15 +92,11 @@ def server(request, server_id):
     server_tz = timezone(server.data_timezone)
     utc_tz = timezone("UTC")
 
-    print server.last_data_received
     last_data_received = server.last_data_received.replace(tzinfo=server_tz)
-    print last_data_received
 
     now = datetime.datetime.now().replace(tzinfo=utc_tz)
     # TODO : review this
     delta = (now - last_data_received).seconds
-    print delta
-    print server.monit_update_period
     if delta > server.monit_update_period:
         old_data = True
 
