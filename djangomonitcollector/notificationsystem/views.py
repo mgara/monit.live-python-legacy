@@ -15,6 +15,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from djangomonitcollector.datacollector.models import Server, MonitEvent, MonitEventComment
 from forms import NotificationTypeForm, get_class_name_and_extra_params
 from models import NotificationType
+from django.contrib import messages
 
 
 def check_item(item, string_list_of_items):
@@ -37,15 +38,18 @@ def notificationtypeactivation(request, pk):
     nt = NotificationType.objects.get(id=pk)
     if nt.notification_enabled:
         nt.notification_enabled = False
+        messages.add_message(request, messages.ERROR, 'Notification Disabled')
     else:
         nt.notification_enabled = True
+        messages.add_message(request, messages.SUCCESS, 'Notification Enabled')
+
     nt.save()
     return redirect('n:notificationtype_view', pk=pk)
 
 
 def notificationtype_mute_all(request, pk):
     nt = NotificationType.objects.get(id=pk)
-
+    k = 0
     #  TODO: im muting everything almost ....
     for event_object in MonitEvent.objects.filter(is_ack=False):
         if nt.notification_enabled:
@@ -61,7 +65,16 @@ def notificationtype_mute_all(request, pk):
                 nt.notification_message, event_object.event_message) else False
 
             if name_matches and state_matches and action_matches and type_matches and messages_matches:
+                k += 1
                 MonitEvent.mute(event_object)
+
+    if k > 0:
+        if k == 1:
+            messages.add_message(request, messages.INFO, 'Muted 1 event')
+        else:
+            messages.add_message(request, messages.INFO, 'Muted {} events'.format(k))
+    else:
+        messages.add_message(request, messages.INFO, 'There is no events matching this rule.')
 
     return redirect('n:notificationtype_view', pk=pk)
 
@@ -96,7 +109,7 @@ def get_user_services(org):
 
     items = (i.name for i in items)  # get the name only
     items = list(set(items))  # remove duplicates
-    items = sorted(items)
+    items = sorted(items)     # sort the list
     service_list += tuple((i, clean_file_name_and_filesystem_name(i))
                           for i in items)  # create final tuple
     return service_list

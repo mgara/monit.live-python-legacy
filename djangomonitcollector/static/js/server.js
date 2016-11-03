@@ -19,3 +19,4 @@ var minimize = function(btn, url, id) {
     }
     save_user_settings(key, val)
 }
+

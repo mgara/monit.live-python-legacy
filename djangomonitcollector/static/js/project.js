@@ -56,3 +56,65 @@ $(document).ready(function() {
 
 })
 
+   function _notify(from, align, icon, type, animIn, animOut, message, title){
+                icon = !!icon  ? icon  : 'fa fa-comments';
+
+                $.growl({
+                    icon: icon,
+                    title: title,
+                    message: message,
+                    url: ''
+                },{
+                        element: 'body',
+                        type: type,
+                        allow_dismiss: true,
+                        placement: {
+                                from: from,
+                                align: align
+                        },
+                        offset: {
+                            x: 20,
+                            y: 85
+                        },
+                        spacing: 10,
+                        z_index: 1031,
+                        delay: 2500,
+                        timer: 1000,
+                        url_target: '_blank',
+                        mouse_over: false,
+                        animate: {
+                                enter: animIn,
+                                exit: animOut
+                        },
+                        icon_type: 'class',
+                        template: '<div data-growl="container" class="alert" role="alert">' +
+                                        '<button type="button" class="close" data-growl="dismiss">' +
+                                            '<span aria-hidden="true">&times;</span>' +
+                                            '<span class="sr-only">Close</span>' +
+                                        '</button>' +
+                                        '<span data-growl="icon"></span>' +
+                                        '<span data-growl="title"></span>' +
+                                        '<span data-growl="message"></span>' +
+                                        '<a href="#" data-growl="url"></a>' +
+                                    '</div>'
+                });
+            };
+
+
+function notify(type, title, message, icon){
+    _notify("top", "right", icon, type, "animated fadeIn", "animated fadeOut", message, title);
+}
+function warning(title , message, icon){
+   _notify("top", "right",icon, "warning", "animated fadeIn", "animated fadeOut", message, title);
+
+}
+function error(title , message, icon){
+   _notify("top", "right", icon, "danger", "animated fadeIn", "animated fadeOut", message, title);
+
+}
+function success(title , message, icon){
+    _notify("top", "right", icon, "success", "animated fadeIn", "animated fadeOut", message, title);
+}
+function info(title , message, icon){
+    _notify("top", "right", icon, "info", "animated fadeIn", "animated fadeOut", message, title);
+}

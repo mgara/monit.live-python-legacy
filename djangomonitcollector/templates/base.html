@@ -424,8 +424,7 @@
             {% for message in messages %}
                 <script type="text/javascript">
                     $(function () {
-                            console.log({{message}})
-                            console.log({{message.tag}})
+                            notify('{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}danger{% else %}{{message.tags}}{% endif %}', "" , '{{message}}'," ")
                     });
                 </script>
             {% endfor %}

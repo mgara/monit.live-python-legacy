@@ -5,7 +5,6 @@
 {% block title %}Dashboard{% endblock %}
 {% block page_title %} {% if not request.user.is_superuser %} Dashboard {% else %} Superuser Mode{% endif %} {% endblock %}
 {% block css %}
-  <link href="{% static 'vendors/bower_components/bootstrap-select/dist/css/bootstrap-select.css' %}" rel="stylesheet">
   <link href="{% static 'vendors/bower_components/chosen/chosen.css' %}" rel="stylesheet">
   <link href="{% static 'css/plugins/ladda/ladda-themeless.min.css' %}" rel="stylesheet">
 
@@ -21,9 +20,11 @@
 
   {% include "ui/includes/_widget_hide_show.html" with caption="Filter" id="filter"  %}
   <div class="col-md-6">
-    <select  data-placeholder="Display Filter..."  class="chosen chosen-select" multiple="">
+    <select  data-placeholder="Display Filter..."  class="chosen" multiple="">
       {% for hg in all_hgs %}
-        <option value="{{hg.id}}">{{hg.slug}}</option>
+
+        <option value="{{hg.id}}" {% for user_hg in request.user.host_groups.all %}{%if user_hg.id == hg.id %} selected="selected" {% endif %} {% endfor %}>{{hg.slug}}</option>
+
       {% endfor %}
     </select>
     </div>
@@ -159,16 +160,16 @@ $(document).ready(function () {
     l.ladda( 'start' );
 
 
-    var foo = [];
-    $('.chosen-select :selected').each(function(i, selected){
-      foo[i] = $(selected).text();
+    var chosen_hg = [];
+    $('.chosen :selected').each(function(i, selected){
+      chosen_hg[i] = $(selected).text();
     });
 
     $.ajax({
        url: "{% url 'ui:update_hgs' %}", // the endpoint
        type: "POST", // http method
        data: {
-           user_hgs: JSON.stringify(foo)
+           user_hgs: JSON.stringify(chosen_hg)
        },
        // handle a successful response
        success: function(json) {
@@ -187,17 +188,6 @@ $(document).ready(function () {
        }
    });
   });
-
- $(".chosen-select").chosen();
-
-
-  //  Select the actual selected list by the user
-  {% for hg in request.user.host_groups.all %}
-        $(".chosen-select option").each(function(){
-          if ($(this).text() == '{{hg.slug}}')
-            $(this).attr("selected","selected");
-        });
-  {% endfor %}
 
 
 });

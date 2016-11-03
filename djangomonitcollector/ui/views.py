@@ -42,14 +42,24 @@ def dashboard(request):
 
     servers = []
 
-    for hg in hgs:
-        s = Server.objects.filter(
-            organisation=org, host_group=hg).order_by(
-                'localhostname'
-        )
-        list_of_servers = list(s)
-        for s in list_of_servers:
-            servers.append(s)
+    if user_has_hgs:
+        for hg in hgs:
+            s = Server.objects.filter(
+                organisation=org, host_group=hg).order_by(
+                    'localhostname'
+            )
+            list_of_servers = list(s)
+            for s in list_of_servers:
+                servers.append(s)
+    else:
+        for hg in all_hgs:
+            s = Server.objects.filter(
+                organisation=org, host_group=hg).order_by(
+                    'localhostname'
+            )
+            list_of_servers = list(s)
+            for s in list_of_servers:
+                servers.append(s)
 
     server_found = False
     for server in servers:
@@ -183,14 +193,24 @@ def load_dashboard_table(request):
 
     servers = []
 
-    for hg in hgs:
-        s = Server.objects.filter(
-            organisation=org, host_group=hg).order_by(
-                'localhostname'
-        )
-        list_of_servers = list(s)
-        for s in list_of_servers:
-            servers.append(s)
+    if user_has_hgs:
+        for hg in hgs:
+            s = Server.objects.filter(
+                organisation=org, host_group=hg).order_by(
+                    'localhostname'
+            )
+            list_of_servers = list(s)
+            for s in list_of_servers:
+                servers.append(s)
+    else:
+        for hg in all_hgs:
+            s = Server.objects.filter(
+                organisation=org, host_group=hg).order_by(
+                    'localhostname'
+            )
+            list_of_servers = list(s)
+            for s in list_of_servers:
+                servers.append(s)
 
     server_found = False
     for server in servers:
@@ -328,6 +348,8 @@ def update_user_hgs(request):
     current_user = request.user
     hgs = request.POST['user_hgs']
     all_gs = HostGroup.objects.filter(owned_by=org)
+    print all_gs
+    print hgs
     try:
         select_hgs = ast.literal_eval(hgs)
         selected_hgs_count = len(select_hgs)
