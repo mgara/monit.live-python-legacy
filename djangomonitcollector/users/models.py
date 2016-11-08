@@ -236,12 +236,13 @@ class Settings(models.Model):
     #  General
     general_auto_add_unknown_servers = models.BooleanField(
         _('Auto accept new servers'), default=True)
+
     general_default_timezone_for_servers = models.CharField(
-        _('Default server\'s TimeZone'),
-        max_length=40,
-        default="UTC",
-        null=True
-    )
+                _('Default server\'s TimeZone'),
+                max_length=30,
+                choices=TIMEZONES_CHOICES,
+                default="Canada/Eastern"
+            )
 
     #  Flapping
     flapping_threshold = models.IntegerField(default=5)

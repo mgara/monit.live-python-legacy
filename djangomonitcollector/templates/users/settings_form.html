@@ -6,15 +6,39 @@
 {% load extra_tags %}
 {% block page_title %} {% trans 'Organisation Settings' %} {% endblock %}
 
-{% block head %}
+{% block css %}
     <link href="{% static 'css/plugins/sweetalert/sweetalert.css' %}" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Abel' rel='stylesheet' type='text/css'>
-    <style>
-    .keys_ul {
+    <link href="{% static 'css/bootstrap-taginput.css' %}" rel="stylesheet">
+    <link href="{% static 'css/multiselect.css' %}" rel="stylesheet">
+    <style type="text/css">
+        .keys_ul {
           list-style-type: none;
-    }
+        }
+        .help-block{
+          font-size: 0.7em;
+        }
+          .errorlist > li{
+          list-style: none;
+        }
+
+        .has-error > label  {
+          color: #f6675d;
+        }
+        .transiant {
+          -webkit-transition: background-color .30s cubic-bezier(.4,0,.2,1);
+          transition: background-color .30s cubic-bezier(.4,0,.2,1);
+        }
+        .toggle-switch > label {
+            display: inline-block;
+            margin: 0 20px 0 0;
+            vertical-align: top;
+            -webkit-transition: color .56s cubic-bezier(.4,0,.2,1);
+            transition: color .56s cubic-bezier(.4,0,.2,1);
+        }
     </style>
 {% endblock %}
+
 {% block content %}
         {% include "ui/includes/_widget.html" with caption="Settings" %}
 
@@ -36,22 +60,18 @@
                                         {% csrf_token %}
                                         <div class="box float-e-margins">
                                             <div class="box-title">
-                                                <h2>General</h2>
+                                                <h2>{% trans "General" %}</h2>
                                             </div>
                                             <div class="box-content">
                                                 <div class="form-group {% if form.general_auto_add_unknown_servers.errors %} has-error{% endif %}">
                                                     <div class="row ">
                                                         <div class="col-md-4 control-label">
-                                                            {{ form.general_auto_add_unknown_servers.label_tag }}
+                                                          {{ form.general_auto_add_unknown_servers.label_tag }}
                                                         </div>
-                                                        <div class="col-md-4 ">
-                                                            {{ form.general_auto_add_unknown_servers}}
+                                                        <div class="col-md-4 p-t-10 toggle-switch toggle-switch-demo" data-ts-color="red">
+                                                            {{ form.general_auto_add_unknown_servers|add_class:"form-control" }}
+                                                            <label for="ts5" class="ts-helper"></label>
                                                         </div>
-                                                        {% if form.name.errors %}
-                                                            <div class="col-md-4 error">
-                                                                {{ form.general_auto_add_unknown_servers.errors }}
-                                                            </div>
-                                                        {% endif %}
                                                     </div>
                                                 </div>
                                                 <div class="form-group {% if form.general_default_timezone_for_servers.errors %} has-error{% endif %}">
@@ -60,7 +80,7 @@
                                                             {{ form.general_default_timezone_for_servers.label_tag }}
                                                         </div>
                                                         <div class="col-md-4">
-                                                            {{ form.general_default_timezone_for_servers|add_class:"form-control" }}
+                                                            {{ form.general_default_timezone_for_servers|add_class:"form-control chosen" }}
                                                         </div>
                                                         {% if form.name.errors %}
                                                             <div class="col-md-4 error">
@@ -214,7 +234,6 @@
 {% endblock %}
 {% block javascript %}
 <script src="{% static 'js/plugins/sweetalert/sweetalert.min.js' %}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
 <script type="text/javascript">
           $(document).ready(function() {
             create_collector_key(false);

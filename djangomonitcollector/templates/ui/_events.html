@@ -1,0 +1,25 @@
+{% load extra_tags %}
+<div class="" style="max-height: 200px; overflow-y: scroll;">
+    {% for monit_event in events %}
+    <div class="row" style="border-top: 1px solid rgba(255,255,255,.02);">
+        <div class="row col-md-12">
+            <div class="col-md-4">
+                <div class="p-5" >
+                    <b><span class="label label-{{ monit_event.event_state|event_state_to_style }}">{{ monit_event.event_state|event_state_to_string }}</span></b>
+                    <b><span style="font-size:1em">{{ monit_event.event_id|event_status_to_string|title }}</span></b>
+                </div>
+            </div>
+            <div class="col-md-4 p-5"><b>Server : </b>{{ monit_event.server.localhostname }}</div>
+            <div class="col-md-4 p-5">
+
+                <span class="pull-right btn btn-xs c-lime" data-toggle="tooltip" data-placement="top" title="{{ monit_event.event_time}}"><i class="zmdi zmdi-time"></i> {{ monit_event.event_time|time_diff|format_timedelta }}</span>
+            </div>
+        </div>
+        <div class="row col-md-12">
+            <p class="m-l-25 m-b-xs m-5 c-bluegray">
+                {{ monit_event.event_message }}
+            </p>
+        </div>
+    </div>
+    {% endfor %}
+</div>

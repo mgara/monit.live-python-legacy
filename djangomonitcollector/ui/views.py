@@ -282,7 +282,7 @@ class SettingsUpdateView(LoginRequiredMixin, UpdateView):
         context['scheme'] = o.scheme
         context['port'] = o.port
         context['base_url'] = "{}://{}".format(o.scheme, o.netloc)
-
+        print context
         return context
 
     def get_success_url(self):
@@ -453,3 +453,52 @@ def serverkpis(request, pk):
         'monit_update_period': server.monit_update_period,
         'monitoring_enabled': (server.disable_monitoring or server.user.settings.general_auto_add_unknown_servers)
     })
+
+
+def get_weeks_events(request):
+    org = request.user.organisation
+
+    upper = datetime.datetime.now()
+    lower = upper - datetime.timedelta(1)
+    upper = datetime.datetime(upper.year, upper.month, upper.day)
+    lower = datetime.datetime(lower.year, lower.month, lower.day)
+    data = dict()
+    _events = list()
+    for x in range(1, 8):
+
+        events = MonitEvent.objects.filter(
+            server__organisation=org,
+            created_at__range=(lower, upper),
+            event_state=1,
+            alarm_raised=True)
+
+        for e in events:
+            _events.append(e)
+
+        upper = lower
+        lower = upper - datetime.timedelta(1)
+        data[x]= (upper, len(list(events)))
+
+    for e in _events:
+        print e
+    return render(request, 'ui/_events.html' , {'events': _events})
+
+def _get_weeks_events(request):
+    org = request.user.organisation
+
+    upper = datetime.datetime.now()
+    lower = upper - datetime.timedelta(1)
+    upper = datetime.datetime(upper.year, upper.month, upper.day)
+    lower = datetime.datetime(lower.year, lower.month, lower.day)
+    data = dict()
+    for x in range(1, 8):
+        events = MonitEvent.objects.filter(
+            server__organisation=org,
+            created_at__range=(lower, upper),
+            event_state=1,
+            alarm_raised=True)
+        upper = lower
+        lower = upper - datetime.timedelta(1)
+        data[x]= (upper, len(list(events)))
+
+    return JsonResponse(data)

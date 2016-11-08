@@ -1,0 +1,450 @@
+{% load staticfiles %}
+{% load extra_tags %}
+{% load i18n %}
+{% load account %}
+<!DOCTYPE html>
+<!--[if IE 9 ]><html class="ie9"><![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta name="theme-color" content="#ffffff">
+
+    <title>{% block title %}{{ request.resolver_match.url_name|get_title }}{% endblock %} &middot; {{APPNAME}}</title>
+    <!-- Vendor CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css"/>
+    <link href="{% static 'vendors/bower_components/fullcalendar/dist/fullcalendar.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'vendors/bower_components/animate.css/animate.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'vendors/bower_components/sweetalert/dist/sweetalert.css' %}" rel="stylesheet"/>
+    <link href="{% static 'vendors/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css' %}" rel="stylesheet"/>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"/>
+    <link href="{% static 'vendors/bower_components/chosen/chosen.css' %}" rel="stylesheet"/>
+    <!-- CSS -->
+
+
+    {% block css %}
+    {% endblock %}
+
+    <link href="{% static 'css/app_1.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/app_2.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/project.css' %}" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+    <script src="{% static 'vendors/bower_components/jquery/dist/jquery.min.js' %}"></script>
+    <style type="text/css">
+        .lg-body{
+            max-height: 100px;
+            overflow-y: scroll;
+        }
+        .list-group-item{
+            border-bottom: 1px solid #e9e9e9 !important;
+            border-top: 1px solid #e9e9e9 !important;
+            margin-bottom: -1px !important;
+            padding: 2px 20px 2px 8px !important;
+        }
+        .list-group-item: hover{
+            background-color: #e9e9e9;
+        }
+    </style>
+    {%  block head %}
+{% endblock head %}
+</head>
+<body cz-shortcut-listen="true">
+    <header id="header" class="clearfix header header--fixed hide-from-print transparent_5">
+        <ul class="h-inner">
+            <li class="hi-trigger ma-trigger" data-ma-action="sidebar-open" data-ma-target="#sidebar">
+                <div class="line-wrap">
+                    <div class="line top"></div>
+                    <div class="line center"></div>
+                    <div class="line bottom"></div>
+                </div>
+            </li>
+            <li class="hidden-xs">
+                <a href="{% url 'ui:dashboard' %}" class="navbar-logo"><b>{{APPNAME}}</b><small class="small m-l-5">v{{APPVERSION}}</small></a>
+            </li>
+            <li class="clearfix pull-right ">
+                <ul class="hi-menu">
+                    {% include "ui/_topnavbar2.html" %}
+                </ul>
+            </li>
+        </ul>
+        <!-- Top Search Content -->
+        <div class="h-search-wrap">
+            <div class="hsw-inner">
+                <i class="hsw-close zmdi zmdi-arrow-left" data-ma-action="search-close"></i>
+                <input type="text">
+            </div>
+        </div>
+    </header>
+    <section id="main">
+        <aside id="sidebar" class="sidebar c-overflow">
+            <ul class="main-menu">
+                <li class="mm-profile sub-menu">
+                    <a href="" data-ma-action="submenu-toggle" class="media">
+                        <img class="pull-left" src="{{request.user.email|gravatar_url:150 }}" alt="{{request.user.username}}">
+                        <div class="media-body">
+                            {% user_display user %}
+                            <small>{{ request.user.organisation|title}}</small>
+                        </div>
+                    </a>
+                    <ul>
+                        <li>
+                            <a href="{% url 'users:detail' request.user.username %}">{% trans 'View Profile' %}</a>
+                        </li>
+                        <li>
+                            <a  href="{% url 'account_email' %}">{% trans 'E-Mail Settings' %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'account_logout' %}">{% trans 'Logout' %}</a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- Optionally, you can add icons to the links -->
+                {% if request.user.is_authenticated %}
+                {% if request.user.is_superuser %}
+                {% url 'datacollector:organisations' as organisations %}
+                <li {% if request.path == organisations %} class="active"{% endif %}>
+                    <a class="nav-link" href="{% url 'datacollector:organisations' %}"><i class="fa fa-building"></i><span>{% trans 'Organisations Management' %}</span> </a>
+                </li>
+                {% endif %}
+                {% if not request.user.is_superuser %}
+                    {% url 'ui:dashboard' as dashboard_url %}
+                <li {% if request.path == dashboard_url %} class="active"{% endif %}>
+                    <a  class="nav-link" href="{% url 'ui:dashboard' %}"><i class="fa fa-tachometer"></i><span>{% trans 'Dashboard' %}</span></a>
+                </li>
+                <li>
+                    <a  class="nav-link" href="#"><i class="fa fa-external-link-square"></i><span>{% trans 'External Checks' %}</span></a>
+                </li>
+                {% endif %}
+                {% if request.user.is_superuser or request.user.organisation_manager %}
+                {% url 'users:index' as user_list %}
+                <li {% if request.path == user_list %} class="active"{% endif %}>
+                    <a class="nav-link" href="{% url 'users:index' %}"><i class="fa fa-users"></i><span>{% trans 'User Management' %}</span> </a>
+                </li>
+                {% endif %}
+
+
+                {% block submenu %}
+                {% endblock %}
+
+                {% if request.user.organisation_manager %}
+                {% url 'ui:settings_update' request.user.organisation.settings.id as settings_update %}
+                    <li {% if request.path == settings_update %} class="active"{% endif %}>
+                        <a class="nav-link"
+                          href="{% url 'ui:settings_update' request.user.organisation.settings.id %}"><i class="fa fa-gears fa-lg"></i><span>{% trans "Organisation Settings" %}</span></a>
+                    </li>
+                {% endif %}
+
+                <li>
+                    <a target="_blank" class="nav-link c-lime" href="{% url 'kairos_api' %}" target="blank" ><i class="fa fa-cubes fa-lg"></i><span>{% trans "API Documentation" %}</span></a>
+                </li>
+
+
+            {% endif %}
+            </ul>
+    </aside>
+    <section id="content">
+    <div class="container">
+        <div class="block-header" id="block-header">
+        <h2>{% block page_title1 %} {% endblock %}</h2>
+    </div>
+    <div class="row">
+    {% block content1 %}
+        <p>Use this document as a way to quick start any new project.</p>
+    {% endblock content1 %}
+    </div>
+    <div class="block-header" id="block-header">
+        <h2>{% block page_title2 %} {% endblock %}</h2>
+    </div>
+    <div class="row">
+    {% block content2 %}
+        <p>Use this document as a way to quick start any new project.</p>
+    {% endblock content2 %}
+    </div>
+    </div>
+    </section>
+    </section>
+    {% include "ui/_footer.html" %}
+    <!-- Page Loader -->
+    <!-- Older IE warning message -->
+    <!--[if lt IE 9]>
+    <div class="ie-warning">
+    <h1 class="c-white">Warning!!</h1>
+    <p>You are using an outdated version of Internet Explorer, please upgrade <br/>to any of the following web browsers to access this website.</p>
+    <div class="iew-container">
+    <ul class="iew-download">
+    <li>
+        <a href="http://www.google.com/chrome/">
+            <img src="img/browsers/chrome.png" alt="">
+            <div>Chrome</div>
+        </a>
+    </li>
+    <li>
+        <a href="https://www.mozilla.org/en-US/firefox/new/">
+            <img src="img/browsers/firefox.png" alt="">
+            <div>Firefox</div>
+        </a>
+    </li>
+    <li>
+        <a href="http://www.opera.com">
+            <img src="img/browsers/opera.png" alt="">
+            <div>Opera</div>
+        </a>
+    </li>
+    <li>
+        <a href="https://www.apple.com/safari/">
+            <img src="img/browsers/safari.png" alt="">
+            <div>Safari</div>
+        </a>
+    </li>
+    <li>
+        <a href="http://windows.microsoft.com/en-us/internet-explorer/download-ie">
+            <img src="img/browsers/ie.png" alt="">
+            <div>IE (New)</div>
+        </a>
+    </li>
+    </ul>
+    </div>
+    <p>Sorry for the inconvenience!</p>
+    </div>
+    <![endif]-->
+    <div class="modal inmodal" id="event_modal" tabindex="-1" role="dialog" aria-hidden="true"></div>
+
+    <!-- Javascript Libraries -->
+    <script src="{% static 'vendors/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'vendors/sparklines/jquery.sparkline.min.js' %}"></script>
+    <script src="{% static 'vendors/bower_components/jquery.easy-pie-chart/dist/jquery.easypiechart.min.js' %}"></script>
+    <script src="{% static 'vendors/bower_components/moment/min/moment.min.js' %}"></script>
+    <script src="{% static 'vendors/bower_components/fullcalendar/dist/fullcalendar.min.js' %}"></script>
+    <script src="{% static 'vendors/bower_components/simpleWeather/jquery.simpleWeather.min.js' %}"></script>
+    <script src="{% static 'vendors/bootstrap-growl/bootstrap-growl.min.js' %}"></script>
+    <script src="{% static 'vendors/bower_components/Waves/dist/waves.min.js' %}"></script>
+    <script src="{% static 'vendors/bower_components/sweetalert/dist/sweetalert.min.js' %}"></script>
+    <script src="{% static 'vendors/bower_components/chosen/chosen.jquery.js' %}"></script>
+    <!-- Placeholder for IE9 -->
+    <!--[if IE 9 ]>
+    <script src="{% static 'vendors/bower_components/jquery-placeholder/jquery.placeholder.min.js' %}"></script>
+    <![endif]-->
+    <script src="{% static 'js/headroom.min.js' %}"></script>
+    <script src="{% static 'js/jquery.headroom.min.js' %}"></script>
+    <script src="{% static 'vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js' %}"></script>
+    <script src="{% static 'js/app.min.js' %}"></script>
+    <script src="{% static 'js/jquery.printElement.min.js' %}"></script>
+    <script type="text/javascript">
+    /**
+    * @param {string} filename The name of the file WITHOUT ending
+    */
+    function playSound(){
+    $("#sound").html('<audio autoplay="autoplay"><source src="{% static 'sounds/gets-in-the-way.mp3' %}" type="audio/mpeg" /><source src="{% static 'sounds/gets-in-the-way.ogg' %}" type="audio/ogg" /><embed hidden="true" autostart="true" loop="false" src="{% static 'sounds/gets-in-the-way.mp3' %}" /></audio>');
+    }
+    </script>
+    <script type="text/javascript">
+
+        var save_user_settings = function(key,value){
+            $.ajax({
+               url: "{% url 'users:update_user_settings' %}", // the endpoint
+               type: "POST", // http method
+               data: {
+                   key: key,
+                   val: value,
+               },
+               // handle a successful response
+               success: function(json) {
+                    console.log(json.status)
+
+               },
+               // handle a non-successful response
+               error: function(xhr, errmsg, err) {
+                   console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+               }
+           });
+
+        }
+
+        $(window).ready(function() {
+        /*
+            $(".header").headroom({
+              "offset": 205,
+              "tolerance": 10,
+              "classes": {
+                "initial": "animated",
+                "pinned": "bounceInDown",
+                "unpinned": "bounceOutUp"
+              }
+            });
+            */
+
+            $('#notification_count').hide()
+            //  Check if the browser supports local storage
+            if (window.localStorage) {
+                localStorageSupport = true
+            }
+
+            var alerts_sockets = io('/organisation_events_{{ request.user.organisation.id|clean }}');
+            alerts_sockets.on('dmc', function(msg) {
+                var data = msg.data;
+                if(data.event.server_down==true){
+                   var down_icon = '<span data-toggle="tooltip" data-placement="top" title="" data-original-title="Server Status : DOWN"><a href="#" class="btn btn-danger btn-xs waves-effect"><span class="glyphicon glyphicon-download"></span></a></span>'
+                    $("#"+data.event.server_id+"_server_up").html(down_icon)
+                }
+                //playSound()
+                if ( $( "#event_table" ).length ) {
+
+                    $.ajax({
+                         url: "{% url 'n:get_event_row' %}", // the endpoint
+                         type: "POST", // http method
+                         data: {
+                             "event_id": data.event.id
+                         },
+                         // handle a successful response
+                        success: function(json) {
+                            // Simple bottom row removal
+                             $('#event_table tr:last').remove();
+                            data_row_html = json.row
+                             $("#event_table tbody").prepend(data_row_html);
+
+                         },
+                         // handle a non-successful response
+                        error: function(xhr, errmsg, err) {
+                            if ($('#results').length){
+                                 $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                                 " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                            }
+
+                             console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                        }
+                     });
+
+                    }else{
+
+                        if (localStorageSupport){
+                            notifications_count = localStorage.getItem("notifications_count")
+                            new_notification_count = 0
+                            if (notifications_count){
+                                new_notification_count = parseInt(notifications_count)
+                            }
+                                new_notification_count+= 1
+                                $('#notification_count').show()
+                                localStorage.setItem("notifications_count", new_notification_count);
+                                $('#notification_count').html(new_notification_count)
+                                $('#notification_count').addClass("label label-danger")
+                        }
+
+
+                    }
+            });
+
+            if (localStorageSupport){
+                notifications_count = localStorage.getItem("notifications_count")
+                if (notifications_count){
+                    $('#notification_count').show()
+                    new_notification_count = parseInt(notifications_count)
+                    $('#notification_count').html(new_notification_count)
+                    $('#notification_count').addClass("label label-danger")
+                }
+
+            }
+
+
+            function getCookie(name) {
+                 var cookieValue = null;
+                 if (document.cookie && document.cookie != '') {
+                     var cookies = document.cookie.split(';');
+                     for (var i = 0; i < cookies.length; i++) {
+                         var cookie = jQuery.trim(cookies[i]);
+                         // Does this cookie string begin with the name we want?
+                         if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                             break;
+                         }
+                     }
+                 }
+                 return cookieValue;
+             }
+
+             var csrftoken = getCookie('csrftoken');
+
+             function csrfSafeMethod(method) {
+                 // these HTTP methods do not require CSRF protection
+                 return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+             }
+
+             $.ajaxSetup({
+                 beforeSend: function(xhr, settings) {
+                     if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                         xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                     }
+                 }
+             });
+
+            var view_event = function(event_id,view_comment){
+                $.ajax({
+                     url: "{% url 'n:get_event_details' %}", // the endpoint
+                     type: "POST", // http method
+                     data: {
+                         "event_id": event_id,
+                         "comments_window": view_comment,
+                     },
+                     // handle a successful response
+                     success: function(json) {
+                         html = json
+                         $('#event_modal').html(html)
+                         $('#event_modal').modal('show')
+                     },
+                     // handle a non-successful response
+                     error: function(xhr, errmsg, err) {
+                         $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+                             " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                         console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                     },
+                    beforeSend: function(xhr, settings) {
+                        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        }
+                    }
+                 });
+            }
+
+
+            $('.view-event-details').click(function(){
+                  var event_id= $(this).attr( "event-id" );
+                  view_event(event_id,"false");
+            })
+
+            $('.view-event-comments').click(function(){
+                  var event_id= $(this).attr( "event-id" );
+                  view_event(event_id,"true");
+            })
+
+        });
+    </script>
+
+
+        {% if messages %}
+            {% for message in messages %}
+                <script type="text/javascript">
+                    $(function () {
+                            notify('{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}danger{% else %}{{message.tags}}{% endif %}', "" , '{{message}}'," ")
+                    });
+                </script>
+            {% endfor %}
+        {% endif %}
+
+        <script src="{% static 'js/project.js' %}"></script>
+
+
+        {% block javascript %}
+        {% endblock javascript %}
+
+        <div id="sound"></div>
+
+    </body>
+</html>

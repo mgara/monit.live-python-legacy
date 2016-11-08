@@ -109,5 +109,10 @@ urlpatterns = [
         regex=r'set_stats_period/$',
         view=views.set_stats_period,
         name='set_stats_period'
+    ),
+    url(
+        regex=r'last_week_events/$',
+        view=views.get_weeks_events,
+        name='last_week_events'
     )
 ]

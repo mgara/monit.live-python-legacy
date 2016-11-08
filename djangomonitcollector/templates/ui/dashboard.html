@@ -1,24 +1,34 @@
-{% extends "base.html" %}
+{% extends "base_double_content.html" %}
 {% load staticfiles %}
-{% load  i18n %}
+{% load i18n %}
 {% load extra_tags %}
 {% block title %}Dashboard{% endblock %}
-{% block page_title %} {% if not request.user.is_superuser %} Dashboard {% else %} Superuser Mode{% endif %} {% endblock %}
+{% block page_title1 %} {% if not request.user.is_superuser %} Event Dashboard {% else %} Superuser Mode{% endif %} {% endblock %}
+{% block page_title2 %} {% if not request.user.is_superuser %} Server Dashboard {% else %} {% endif %} {% endblock %}
 {% block css %}
-  <link href="{% static 'vendors/bower_components/chosen/chosen.css' %}" rel="stylesheet">
-  <link href="{% static 'css/plugins/ladda/ladda-themeless.min.css' %}" rel="stylesheet">
-
-
+<link href="{% static 'vendors/bower_components/chosen/chosen.css' %}" rel="stylesheet">
+<link href="{% static 'css/plugins/ladda/ladda-themeless.min.css' %}" rel="stylesheet">
 {% endblock %}
-{% block content %}
+{% block content1 %}
+{% if request.user.is_authenticated %}
+  {% if not request.user.is_superuser %}
+    {% include "ui/includes/_widget_hide_show.html" with caption="New This Week" id="new_this_week" width="col-sm-8"  %}
+    <div class="m-5" id="_events">
 
+    </div>
+    {% include "ui/includes/_end_widget.html" %}
+          {% include "ui/includes/_widget.html" with caption="Events Per Hour" id="events_per_hour" theme="bgm-indigo"  width="col-sm-4" %}
+          {% include "ui/includes/_end_widget.html" %}
+  {% endif %}
+{% endif %}
+{% endblock %}
 
-
+{% block content2 %}
 
 {% if request.user.is_authenticated %}
   {% if not request.user.is_superuser %}
 
-  {% include "ui/includes/_widget_hide_show.html" with caption="Filter" id="filter"  %}
+  {% include "ui/includes/_widget_hide_show.html" with caption="Filter" id="filter" width="col-sm-12"   %}
   <div class="col-md-6">
     <select  data-placeholder="Display Filter..."  class="chosen" multiple="">
       {% for hg in all_hgs %}
@@ -32,8 +42,8 @@
 
     {% include "ui/includes/_end_widget.html" %}
 
+    {% include "ui/includes/_widget.html" with caption="Registered Instances" width="col-sm-12"  %}
 
-    {% include "ui/includes/_widget.html" with caption="Active Instances"  %}
 
           <div id="dashboard_table" class="table-responsive ">
             {% if user_has_hgs %}
@@ -189,6 +199,29 @@ $(document).ready(function () {
    });
   });
 
+    $.ajax({
+       url: "{% url 'ui:last_week_events' %}", // the endpoint
+       type: "GET", // http method
+       // handle a successful response
+       success: function(html) {
+         $( "#_events" ).replaceWith(html);
+
+       },
+       beforeSend: function (xhr, settings) {
+          $('#_events').html('<div class="preloader pl-xxl">\
+              <svg class="pl-circular" viewBox="25 25 50 50">\
+                  <circle class="plc-path" cx="50" cy="50" r="20"></circle>\
+              </svg></div>')
+
+          },
+       // handle a non-successful response
+       error: function(xhr, errmsg, err) {
+           l.ladda('stop');
+           $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+               " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+           console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+       }
+   });
 
 });
 </script>
