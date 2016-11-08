@@ -120,6 +120,11 @@
                 <li {% if request.path == dashboard_url %} class="active"{% endif %}>
                     <a  class="nav-link" href="{% url 'ui:dashboard' %}"><i class="fa fa-tachometer"></i><span>{% trans 'Dashboard' %}</span></a>
                 </li>
+
+                {% url 'ui:intellievent_2' as intellievent_2 %}
+                <li {% if request.path == intellievent_2 %} class="active"{% endif %}>
+                    <a  class="nav-link" href="{% url 'ui:intellievent_2' %}"><i class="fa fa-bell-o"></i><span>{% trans 'Intellievents' %}</span></a>
+                </li>
                 <li>
                     <a  class="nav-link" href="#"><i class="fa fa-external-link-square"></i><span>{% trans 'External Checks' %}</span></a>
                 </li>

@@ -13,11 +13,14 @@
 {% if request.user.is_authenticated %}
   {% if not request.user.is_superuser %}
     {% include "ui/includes/_widget_hide_show.html" with caption="New This Week" id="new_this_week" width="col-sm-8"  %}
-    <div class="m-5" id="_events">
+    <div class="p-5" id="_events">
 
     </div>
     {% include "ui/includes/_end_widget.html" %}
           {% include "ui/includes/_widget.html" with caption="Events Per Hour" id="events_per_hour" theme="bgm-indigo"  width="col-sm-4" %}
+          <div class="dynamicsparkline">
+
+          </div>
           {% include "ui/includes/_end_widget.html" %}
   {% endif %}
 {% endif %}
@@ -199,12 +202,16 @@ $(document).ready(function () {
    });
   });
 
+
+
+
     $.ajax({
        url: "{% url 'ui:last_week_events' %}", // the endpoint
        type: "GET", // http method
        // handle a successful response
        success: function(html) {
-         $( "#_events" ).replaceWith(html);
+         $("#_events").replaceWith(html);
+
 
        },
        beforeSend: function (xhr, settings) {
@@ -224,5 +231,18 @@ $(document).ready(function () {
    });
 
 });
+
+       $(window).resize(function() {
+              elm = $('.dynamicsparkline')
+
+              var barWidth = Math.round((elm.width() - ( 24 - 1 ) * 1 ) / 24);
+              var myvalues = [10,8,5,7,4,4,1,10,8,5,7,4,4,1,10,8,5,7,4,4,1,0,0,0];
+                $('.dynamicsparkline').sparkline(myvalues, {
+                  type: 'bar',
+                  barColor: '#ffffff',
+                  barWidth: barWidth
+                });
+
+      });
 </script>
 {% endblock %}

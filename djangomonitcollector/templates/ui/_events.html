@@ -1,5 +1,5 @@
 {% load extra_tags %}
-<div class="" style="max-height: 200px; overflow-y: scroll;">
+<div class="scrollable" style="max-height: 200px; overflow-y: hidden;">
     {% for monit_event in events %}
     <div class="row" style="border-top: 1px solid rgba(255,255,255,.02);">
         <div class="row col-md-12">
@@ -23,3 +23,9 @@
     </div>
     {% endfor %}
 </div>
+<script language="javascript">
+$(document).ready(function () {
+
+ $(".scrollable").mCustomScrollbar();
+})
+ </script>

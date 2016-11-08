@@ -19,7 +19,7 @@
               </li>
             </ul>
           </div>
-          <div class="lg-body">
+          <div class="lg-body scrollable" style="overflow: hidden;">
             {% for monit_event in organisation_events %}
               {% include "ui/includes/_event_notification_row.html" %}
             {% endfor %}

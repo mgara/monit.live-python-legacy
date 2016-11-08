@@ -1,13 +1,7 @@
 <div class="{{width}}">
-
-  <div class="card">
-                        <div class="card-header ch-alt ">
-                            <h2> {{ caption }} <small>{{description}}</small></h2>
-
-                            <button id="{{id}}" class="btn btn-default btn-float waves-effect waves-circle waves-float minimize {{theme}}" onclick="minimize(this,'{{request.path|urlencode}}','{{id}}')" ><i class="zmdi zmdi-minus"></i></button>
-
-
-
-                    </div>
-
-                    <div class="card-body card-padding">
+    <div class="card">
+        <div class="card-header ch-alt ">
+            <h2> {{ caption }} <small>{{description}}</small></h2>
+            <button id="{{id}}" class="btn btn-default btn-float waves-effect waves-circle waves-float minimize {{theme}}" onclick="minimize(this,'{{request.path|urlencode}}','{{id}}')" ><i class="zmdi zmdi-minus"></i></button>
+        </div>
+        <div class="card-body card-padding">

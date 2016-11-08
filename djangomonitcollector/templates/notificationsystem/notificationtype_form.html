@@ -185,6 +185,7 @@
         $('#id_notification_action').multiSelect({cssClass:"multiselect"});
         $('#id_notification_state').multiSelect({cssClass:"multiselect"});
 
+        $(".ms-list").mCustomScrollbar();
 
         {% if object.id %}
             var prefix = "{% trans 'Update Notification Rule' %}"

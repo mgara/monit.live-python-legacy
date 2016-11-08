@@ -2,29 +2,33 @@
 from ieventnotification import EventSettingsInterface
 from parameter import Parameter
 from slacker import Slacker
+from django.contrib.sites.models import Site
 
 
 class SlackEventNotification(EventSettingsInterface):
     extra_params = {
         'slack_api_token': Parameter('slack_api_token', 'Slack API Token'),
         'slack_channel': Parameter('slack_channel', 'Slack Channel'),
-        'monit_collector_server': Parameter('monit_collector_server', 'Collector Server'),
-
+        'slack_username': Parameter('slack_username', 'Slack Username')
     }
 
     PLUGIN_NAME = "Slack Notification"
     PLUGIN_ICON = "slack"
 
+    HELP_MESSAGE = "Sends a Slack notification providing the Slack API token and the channel name. "
+    TOOLTIP = "Slack Notification"
+
     def __init__(self):
         pass
 
     def process(self):
+        site = Site.objects.get_current().domain
         slack_api_token = self.extra_params['slack_api_token']
         slack_channel = self.extra_params['slack_channel']
-        monit_collector_server = self.extra_params['monit_collector_server']
+        slack_username = self.extra_params['slack_username']
 
         link_to_events = "http://{}/ui/server/{}/".format(
-            monit_collector_server, self.event.server.id)
+            site, self.event.server.id)
         title = "[{0} event] on [{2}] service [{1}] ".format(
                 self.event_id,
                 self.event_service,
@@ -32,12 +36,13 @@ class SlackEventNotification(EventSettingsInterface):
         )
 
         attachments = [self.get_attachement(title, link_to_events)]
-
+        if not slack_username:
+            slack_username = "Monit Collector"
         slack = Slacker(slack_api_token)
 
         # Send a message to #general channel
         slack.chat.post_message(
-            slack_channel, "", username="Monit Collector", attachments=attachments)
+            slack_channel, "", username=slack_username, attachments=attachments)
 
     def finalize(self, event_object):
         # put whatever you want to be done after the process command

@@ -41,28 +41,9 @@
 <div class="card">
     <div class="card-header ch-alt ">
         <h2> Filter details <small class="c-yellow m-t-5" id="filter-details">{{description}}</small></h2>
-        <button class="btn btn-default btn-float waves-effect waves-circle waves-float minimize {{theme}}" ><i class="zmdi zmdi-minus"></i></button>
+        <button class="btn btn-default btn-float waves-effect waves-circle waves-float {{theme}}" onclick="minimize(this,'{{request.path|urlencode}}','{{id}}')" ><i class="zmdi zmdi-minus"></i></button>
     </div>
     <div class="card-body card-padding">
-<script language="javascript">
-    $(".minimize").click(function(){
-        header = $(this).parent()
-
-        title = header.children('h2')
-        card = header.parent()
-        card_body = card.children('div.card-body')
-        card_body.toggle(300)
-        if (card_body.hasClass("toggled")){
-                $(this).html('<i class="zmdi zmdi-minus"></i>')
-                card_body.removeClass("toggled")
-                title.fadeTo( "slow" , 1)
-        }else{
-                $(this).html('<i class="zmdi zmdi-plus"></i>')
-                card_body.addClass("toggled")
-                title.fadeTo( "slow" , 0.4)
-        }
-    })
-    </script>
 
 <form  action="" method="get" id="filter_form">
     <div class="row">
@@ -138,7 +119,7 @@
                 {% include "ui/includes/_event_row.html" %}
             {% empty %}
             <tr >
-                <td colspan="10"><div class="alert alert-info"> {% trans "Congratulations ! Everything is allright !" %}</div></td>
+                <td colspan="10"><div class="alert alert-info"> {% trans " :)" %}</div></td>
             </tr>
         {% endfor %}
 
