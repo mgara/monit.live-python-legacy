@@ -459,46 +459,39 @@ def get_weeks_events(request):
     org = request.user.organisation
 
     upper = datetime.datetime.now()
-    lower = upper - datetime.timedelta(1)
-    upper = datetime.datetime(upper.year, upper.month, upper.day)
+
+    lower = upper - datetime.timedelta(7)
     lower = datetime.datetime(lower.year, lower.month, lower.day)
-    data = dict()
-    _events = list()
-    for x in range(1, 8):
 
-        events = MonitEvent.objects.filter(
-            server__organisation=org,
-            created_at__range=(lower, upper),
-            event_state=1,
-            alarm_raised=True)
+    events = MonitEvent.objects.filter(
+        server__organisation=org,
+        created_at__range=(lower, upper),
+        event_state=1,
+        alarm_raised=True).order_by('-id')
 
-        for e in events:
-            _events.append(e)
+    return render(request, 'ui/_events.html', {'events': events})
 
-        upper = lower
-        lower = upper - datetime.timedelta(1)
-        data[x]= (upper, len(list(events)))
 
-    for e in _events:
-        print e
-    return render(request, 'ui/_events.html' , {'events': _events})
-
-def _get_weeks_events(request):
+def _get_todays_events(request):
     org = request.user.organisation
 
     upper = datetime.datetime.now()
-    lower = upper - datetime.timedelta(1)
-    upper = datetime.datetime(upper.year, upper.month, upper.day)
-    lower = datetime.datetime(lower.year, lower.month, lower.day)
-    data = dict()
-    for x in range(1, 8):
+    lower = datetime.datetime(upper.year, upper.month, upper.day, upper.hour)
+    print upper
+    data = []
+    dates = []
+    for x in range(0, 24):
         events = MonitEvent.objects.filter(
             server__organisation=org,
-            created_at__range=(lower, upper),
-            event_state=1,
-            alarm_raised=True)
-        upper = lower
-        lower = upper - datetime.timedelta(1)
-        data[x]= (upper, len(list(events)))
+            created_at__range=(lower, upper))
 
-    return JsonResponse(data)
+        data.insert(x, len(list(events)))
+        dates.insert(x, lower)
+
+        upper = lower
+        lower = upper - datetime.timedelta(hours=1)
+
+    dates = dates[::-1]
+    data = data[::-1]
+    print dates
+    return JsonResponse(data, safe=False)

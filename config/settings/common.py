@@ -279,8 +279,8 @@ ENABLE_MULTI_TENANT = True
 ENABLE_MANUAL_APPROVAL = False
 
 
-#APPNAME = "καιρός"
-APPNAME = "monit.live"
+APPNAME = "VMC"
+#APPNAME = "monit.live"
 APPVERSION = "1.9.1b"
 APIVERSION = "1"
 

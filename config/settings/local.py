@@ -41,17 +41,17 @@ CACHES = {
 
 # django-debug-toolbar
 # ------------------------------------------------------------------------------
-#MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
-#INSTALLED_APPS += ('debug_toolbar', )
+MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+INSTALLED_APPS += ('debug_toolbar', )
 
 INTERNAL_IPS = ('127.0.0.1', '10.0.2.2',)
 
-# DEBUG_TOOLBAR_CONFIG = {
-#    'DISABLE_PANELS': [
-#        'debug_toolbar.panels.redirects.RedirectsPanel',
-#    ],
-#    'SHOW_TEMPLATE_CONTEXT': True,
-#}
+DEBUG_TOOLBAR_CONFIG = {
+    'DISABLE_PANELS': [
+        'debug_toolbar.panels.redirects.RedirectsPanel',
+    ],
+    'SHOW_TEMPLATE_CONTEXT': True,
+}
 
 # django-extensions
 # ------------------------------------------------------------------------------
@@ -66,6 +66,21 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 # task returns
 CELERY_ALWAYS_EAGER = True
 # END CELERY
+
+# OPBEAT
+INSTALLED_APPS += (
+    'opbeat.contrib.django',
+)
+
+OPBEAT = {
+    'ORGANIZATION_ID': 'e2cf9ccf35b84522abd79e2ed4f4bddf',
+    'APP_ID': 'f3a5eecfcb',
+    'SECRET_TOKEN': '5b54a925063c5cc3bcde9ef9a2db0e6bb76c1615',
+}
+
+MIDDLEWARE_CLASSES += ('opbeat.contrib.django.middleware.OpbeatAPMMiddleware',)
+
+# END OPBEAT
 
 # Your local stuff: Below this line define 3rd party library settings
 

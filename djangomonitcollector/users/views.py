@@ -281,6 +281,9 @@ def update_user_settings(request):
     return JsonResponse(res)
 
 
+
+
+
 def build_api_key_view(apikey):
     res = ' <li class="p-10  ck-item" id="{0}">\
     <h2 style="font-family: \'Abel\', cursive;"><span class="btn btn-circle \

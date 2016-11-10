@@ -1,6 +1,6 @@
 {% load extra_tags %}
-<tr id="event-{{ monit_event.id }}" class="{% if monit_event.alarm_raised and not monit_event.cleared_by %} c-red {% else %} fade_me {% endif %}">
-<td class="text-center"><small><span class="label bgm-indigo" >{{ monit_event.id }}<span></small></td>
+<tr id="event-{{ monit_event.id }}" class="{% if monit_event.alarm_raised and not monit_event.cleared_by %} c-red {% else %} fade_me {% endif %} {{monit_event.event_state|event_state_to_border_style}}">
+<td class="text-center "><small><span class="label bgm-indigo" >{{ monit_event.id }}<span></small></td>
 <td><a class="c-blue" target="_blank" href="{% url 'ui:server' monit_event.server.id %}" >{{ monit_event.server.localhostname }}</a></td>
 <td>
     <div class="p-1">

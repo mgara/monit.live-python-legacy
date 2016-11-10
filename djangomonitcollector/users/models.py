@@ -170,6 +170,9 @@ class UserSettings(models.Model):
         return entity
 
 
+admin.site.register(UserSettings)
+
+
 def validate_user(user):
     if not user.id:
         return False

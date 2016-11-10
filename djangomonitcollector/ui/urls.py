@@ -114,5 +114,11 @@ urlpatterns = [
         regex=r'last_week_events/$',
         view=views.get_weeks_events,
         name='last_week_events'
-    )
+    ),
+    url(
+        regex=r'today_events/$',
+        view=views._get_todays_events,
+        name='today_events'
+    ),
+
 ]

@@ -16,7 +16,7 @@
         <a data-toggle="tooltip" data-placement="top" title="{% trans 'Settings' %}" class="btn btn-xs  bgm-indigo" href="{% url 'ui:server_show' server.id %}"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a>
         <a data-toggle="tooltip" data-placement="top" title="{% trans 'KPIs' %}" class="btn btn-xs  bgm-indigo" href="{% url 'ui:server_kpis' server.id %}"><span class="fa fa-bar-chart" aria-hidden="true"></span></a>
         <a data-toggle="tooltip" data-placement="top" title="{% trans 'View' %}" class="btn btn-xs  bgm-indigo" href="{% url 'ui:server' server.id %}"><span class="fa fa-eye" aria-hidden="true"></span></a>
-        <a data-toggle="tooltip" data-placement="top" title="{% trans 'More Details' %}" data-href="{{server.id|clean}}_more_details" class="btn btn-xs btn btn-default hec-button waves-effectpull-right btn-toggle-info"><span class="fa fa-arrow-circle-down" aria-hidden="true"></span></a>
+        <a data-toggle="tooltip" data-placement="top" title="{% trans 'More Details' %}" data-href="{{server.id|clean}}_more_details" class="btn btn-xs btn btn-default hec-button waves-effect btn-toggle-info"><span class="fa fa-arrow-circle-down" aria-hidden="true"></span></a>
     </td>
 </tr>
 <tr id="{{server.id|clean}}_more_details">

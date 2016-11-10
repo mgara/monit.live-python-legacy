@@ -257,7 +257,6 @@
                },
                // handle a successful response
                success: function(json) {
-                    console.log(json.status)
 
                },
                // handle a non-successful response
@@ -289,6 +288,7 @@
 
             var alerts_sockets = io('/organisation_events_{{ request.user.organisation.id|clean }}');
             alerts_sockets.on('dmc', function(msg) {
+                console.log(msg)
                 var data = msg.data;
                 if(data.event.server_down==true){
                    var down_icon = '<span data-toggle="tooltip" data-placement="top" title="" data-original-title="Server Status : DOWN"><a href="#" class="btn btn-danger btn-xs waves-effect"><span class="glyphicon glyphicon-download"></span></a></span>'

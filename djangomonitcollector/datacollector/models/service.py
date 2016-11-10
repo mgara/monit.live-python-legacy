@@ -16,7 +16,7 @@ class Service(models.Model):
     process_running_status = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name
+        return self.name.replace("___", "__").replace("__", "_").replace("_", "/").title()
 
     def __unicode__(self):
-        return self.name
+        return self.name.replace("___", "__").replace("__", "_").replace("_", "/").title()

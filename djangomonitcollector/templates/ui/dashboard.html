@@ -202,6 +202,37 @@ $(document).ready(function () {
    });
   });
 
+    var  sparkline_values = []
+
+    $.ajax({
+       url: "{% url 'ui:today_events' %}", // the endpoint
+       type: "GET", // http method
+       // handle a successful response
+       success: function(values) {
+          elm = $('.dynamicsparkline')
+          var barWidth = Math.round((elm.width() - ( 24 - 1 ) * 1 ) / 24);
+            $('.dynamicsparkline').sparkline(values, {
+              type: 'bar',
+              barColor: '#9E9E9E',
+              barWidth: barWidth
+            });
+           sparkline_values = values
+       },
+       beforeSend: function (xhr, settings) {
+          $('.dynamicsparkline').html('<div class="preloader pl-lg">\
+              <svg class="pl-circular" viewBox="25 25 50 50">\
+                  <circle class="plc-path" cx="50" cy="50" r="20"></circle>\
+              </svg></div>')
+
+          },
+       // handle a non-successful response
+       error: function(xhr, errmsg, err) {
+           l.ladda('stop');
+           $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
+               " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+           console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+       }
+   });
 
 
 
@@ -230,19 +261,24 @@ $(document).ready(function () {
        }
    });
 
+  var update_sparkline = function(){
+      elm = $('.dynamicsparkline')
+      var barWidth = Math.round((elm.width() - ( 24 - 1 ) * 1 ) / 24);
+      $('.dynamicsparkline').sparkline(sparkline_values, {
+          type: 'bar',
+          barColor: '#9E9E9E',
+          barWidth: barWidth
+      });
+    }
+
+  update_sparkline()
+   $(window).resize(function() {
+      console.log(sparkline_values)
+      update_sparkline()
+  });
+
 });
 
-       $(window).resize(function() {
-              elm = $('.dynamicsparkline')
 
-              var barWidth = Math.round((elm.width() - ( 24 - 1 ) * 1 ) / 24);
-              var myvalues = [10,8,5,7,4,4,1,10,8,5,7,4,4,1,10,8,5,7,4,4,1,0,0,0];
-                $('.dynamicsparkline').sparkline(myvalues, {
-                  type: 'bar',
-                  barColor: '#ffffff',
-                  barWidth: barWidth
-                });
-
-      });
 </script>
 {% endblock %}

@@ -13,6 +13,8 @@ from django.utils.safestring import mark_safe
 from math import floor
 import importlib
 
+from djangomonitcollector.users.models import UserSettings
+
 register = template.Library()
 
 try:
@@ -44,11 +46,6 @@ def clean(value):
 @register.filter
 def normalize(value):
     return str(value).replace('.', '_')
-
-
-@register.filter
-def clean_service_name(value):
-    return value.replace("___", "__").replace("__", "_").replace("_", "/")
 
 
 @register.filter
@@ -505,6 +502,14 @@ def event_state_to_text_style(state):
         return "c-red"
     return "c-indigo"
 
+@register.filter
+def event_state_to_border_style(state):
+    if int(state) == 0:
+        return "border-green"
+    if int(state) == 1:
+        return "border-red"
+    return "border-indigo"
+
 
 @register.filter
 def flapping_status(flapping):
@@ -587,3 +592,60 @@ def get_skin_name(value):
     skin_dic["skin-3"] = "Sahara"
 
     return skin_dic[value]
+
+
+@register.filter
+def get_card_status(key, user):
+    res = ""
+    try:
+        user_setting_instance = UserSettings.objects.get(user=user, key=key)
+    except UserSettings.DoesNotExist:
+        return res
+
+    val = user_setting_instance.val
+    res = "toggled" if val == "minimized" else ""
+
+    return res
+
+@register.filter
+def get_card_style(key, user):
+    res = ""
+    try:
+        user_setting_instance = UserSettings.objects.get(user=user, key=key)
+    except UserSettings.DoesNotExist:
+        return res
+
+    val = user_setting_instance.val
+    res = "display:none" if val == "minimized" else ""
+
+    return res
+
+@register.filter
+def get_card_button_style(key, user):
+    res = "zmdi-minus"
+    try:
+        user_setting_instance = UserSettings.objects.get(user=user, key=key)
+    except UserSettings.DoesNotExist:
+        return res
+
+    val = user_setting_instance.val
+    res = "zmdi-plus" if val == "minimized" else "zmdi-minus"
+
+    return res
+
+
+@register.filter
+def get_card_header_opacity(key, user):
+
+    res = ""
+    try:
+        user_setting_instance = UserSettings.objects.get(user=user, key=key)
+    except UserSettings.DoesNotExist:
+        return res
+
+    val = user_setting_instance.val
+    res = "opacity: 0.4;" if val == "minimized" else ""
+
+    return res
+
+

@@ -6,6 +6,7 @@ from rest_framework import exceptions
 class KairosTokenAuthentication(authentication.BaseAuthentication):
 
     def authenticate(self, request):
+        # X-API-TOKEN
         token = request.META.get('HTTP_X_API_TOKEN')
 
         if not token:
