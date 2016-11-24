@@ -85,7 +85,7 @@
         </div>
     </header>
     <section id="main">
-        <aside id="sidebar" class="sidebar c-overflow">
+        <aside id="sidebar" class="sidebar c-overflow" >
             <ul class="main-menu">
                 <li class="mm-profile sub-menu">
                     <a href="" data-ma-action="submenu-toggle" class="media">
@@ -137,11 +137,6 @@
                     <a class="nav-link" href="{% url 'users:index' %}"><i class="fa fa-users"></i><span>{% trans 'User Management' %}</span> </a>
                 </li>
                 {% endif %}
-
-
-                {% block submenu %}
-                {% endblock %}
-
                 {% if request.user.organisation_manager %}
                 {% url 'ui:settings_update' request.user.organisation.settings.id as settings_update %}
                     <li {% if request.path == settings_update %} class="active"{% endif %}>
@@ -150,6 +145,9 @@
                     </li>
                 {% endif %}
 
+               {% block submenu %}
+
+                {% endblock %}
                 <li>
                     <a target="_blank" class="nav-link c-lime" href="{% url 'kairos_api' %}" target="blank" ><i class="fa fa-cubes fa-lg"></i><span>{% trans "API Documentation" %}</span></a>
                 </li>
@@ -157,6 +155,7 @@
 
             {% endif %}
             </ul>
+
     </aside>
     <section id="content">
     <div class="container">

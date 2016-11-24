@@ -27,7 +27,7 @@ except:
 # TEMPLATE USE:  {{ email|gravatar_url:150 }}
 @register.filter
 def gravatar_url(email, size=80):
-    default = ""
+    default = "mm"
     return "https://www.gravatar.com/avatar/%s?%s" % (hashlib.md5(email.lower()).hexdigest(), urllib.urlencode({'d': default, 's': str(size)}))
 
 # return an image tag with the gravatar

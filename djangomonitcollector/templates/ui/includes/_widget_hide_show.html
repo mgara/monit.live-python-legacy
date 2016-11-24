@@ -2,11 +2,11 @@
 <div class="{{width}}">
     <div class="card">
 
-    {% with request.path|urlencode|add:"_filter-details" as key %}
+    {% with request.path|urlencode|add:"_"|add:id as key %}
 
     <div class="card-header ch-alt ">
-        <h2 style="{{key|get_card_header_opacity:user}}"> Filter details <small class="c-yellow m-t-5" id="filter-details">{{description}}</small></h2>
-        <button class="btn btn-default btn-float waves-effect waves-circle waves-float {{theme}}" onclick="minimize(this,'{{request.path|urlencode}}','filter-details')" ><i class="zmdi {{key|get_card_button_style:user}}"></i></button>
+        <h2 style="{{key|get_card_header_opacity:user}}">{{caption}} <small class="c-yellow m-t-5" id="{{id}}">{{description}}</small></h2>
+        <button class="btn btn-default btn-float waves-effect waves-circle waves-float {{theme}}" onclick="minimize(this,'{{request.path|urlencode}}','{{id}}')" ><i class="zmdi {{key|get_card_button_style:user}}"></i></button>
     </div>
         <div class="card-body card-padding {{key|get_card_status:user}}" style="{{key|get_card_style:user}}">
     {% endwith %}

@@ -21,6 +21,7 @@ from djangomonitcollector.users.models import HostGroup
 
 from djangomonitcollector.ui.forms import SettingsForm
 from filters import IntelliEventsFilter
+from django.utils import timezone as django_tz
 
 # import the logging library
 import logging
@@ -459,17 +460,30 @@ def get_weeks_events(request):
     org = request.user.organisation
 
     upper = datetime.datetime.now()
-
     lower = upper - datetime.timedelta(7)
     lower = datetime.datetime(lower.year, lower.month, lower.day)
 
     events = MonitEvent.objects.filter(
         server__organisation=org,
         created_at__range=(lower, upper),
-        event_state=1,
-        alarm_raised=True).order_by('-id')
+        event_state=1).order_by('-id')
+
+    _events = []
+    _dups = dict()
+    for e in events:
+        if e.alarm_raised == True:
+            _events.append(e)
+            _dups[e.id] = 0
+        else:
+
+            event_id = ast.literal_eval(e.is_duplicate_of)[0]
+            try:
+                _dups[event_id] += 1
+            except KeyError as e:
+                _dups[event_id] = 1
 
     return render(request, 'ui/_events.html', {'events': events})
+
 
 
 def _get_todays_events(request):
@@ -493,5 +507,5 @@ def _get_todays_events(request):
 
     dates = dates[::-1]
     data = data[::-1]
-    print dates
+    #print dates
     return JsonResponse(data, safe=False)

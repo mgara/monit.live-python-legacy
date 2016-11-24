@@ -2,12 +2,21 @@
 {% load staticfiles %}
 {% load extra_tags %}
 {% load i18n %}
-{% block page_title %}
- {% trans "Key Performance Indicators" %}  <br/> {% trans "Server" %}  : <strong class="c-red"> {{ server.localhostname }} </strong> <br/>
-  {% trans "IP Address" %}  :  <strong class="c-red">{{ server.external_ip }}</strong>
-  {% endblock %}
+{% block title %}  {% trans "Key Performance Indicators" %} &middot; {{ server.localhostname }}  <br/>
+{% endblock %}
+
+{% block page_title %}  {% trans "Key Performance Indicators" %} <br/>
+
+Server : <strong class="c-lime">{{ server.localhostname }}</strong> <br/> IP : <strong class="c-lime">{{ server.external_ip }}</strong> <br/> Server Uptime : <strong class="c-lime">{{ server.uptime|time_str }}</strong>
+
+{% endblock %}
 
 {% block submenu %}
+{% url 'ui:server' server.id  as server_view %}
+
+  <li class="nav-item {% if request.path == server_view %} active{% endif %}">
+    <a class="nav-link" href="{% url 'ui:server' server.id %}"><i class="fa fa-server"></i>{% trans "View Server" %} </a>
+  </li>
                 {% url 'ui:server_alerts' server.id as server_alerts %}
 
   <li class="nav-item {% if request.path == server_alerts %} active{% endif %}">
@@ -19,7 +28,12 @@
    <li class="nav-item {% if request.path == server_kpis %} active{% endif %}">
     <a class="nav-link" href="{% url 'ui:server_kpis' server.id %}"><i class="fa fa-bar-chart"></i>{% trans "Key Performance Indicators" %} </a>
   </li>
+      <li class="nav-item">
+    <a class="nav-link" href="{% url 'ui:server_show' server.id %}"><i class="fa fa-wrench"></i>  {% trans 'Server Settings' %} </a>
+  </li>
 {% endblock %}
+
+
 {% block content %}
   <div class="row clearfix text-center">
 
@@ -60,15 +74,15 @@
 </div>
   <div class="row clearfix m-t-10">
 
-      {% include "ui/includes/_widget_hide_show.html" with caption="System Load" %}
+      {% include "ui/includes/_widget_hide_show.html" with caption="System Load" id="system_load" %}
         <div id="graph_load" class="graph" style="width:100%;"></div>
       {% include "ui/includes/_end_widget.html" %}
 
-      {% include "ui/includes/_widget_hide_show.html" with caption="CPU Usage" %}
+      {% include "ui/includes/_widget_hide_show.html" with caption="CPU Usage" id="cpu_usage" %}
         <div id="graph_cpu" class="graph" style="width:100%;"></div>
       {% include "ui/includes/_end_widget.html" %}
 
-      {% include "ui/includes/_widget_hide_show.html" with caption="Memory Usage" %}
+      {% include "ui/includes/_widget_hide_show.html" with caption="Memory Usage" id="memory_usage" %}
         <div id="graph_mem" class="graph" style="width:100%;"></div>
       {% include "ui/includes/_end_widget.html" %}
 

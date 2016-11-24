@@ -3,11 +3,19 @@
 {% load i18n %}
 
 {% load extra_tags %}
-{% block title %}Server {{ server.localhostname }} {% endblock %}
-{% block page_title %} Last Events For : <strong class="c-lime">{{ server.localhostname }} </strong>{% endblock %}
+{% block title %}{% trans "Active Events" %} &middot; {{ server.localhostname }} {% endblock %}
+{% block page_title %}  {% trans "ACTIVE EVENTS" %}  <br/>
+Server : <strong class="c-lime">{{ server.localhostname }}</strong> <br/> IP : <strong class="c-lime">{{ server.external_ip }}</strong> <br/> Server Uptime : <strong class="c-lime">{{ server.uptime|time_str }}</strong>
 
+  {% endblock %}
 
 {% block submenu %}
+{% url 'ui:server' server.id  as server_view %}
+
+  <li class="nav-item {% if request.path == server_view %} active{% endif %}">
+    <a class="nav-link" href="{% url 'ui:server' server.id %}"><i class="fa fa-server"></i>{% trans "View Server" %} </a>
+  </li>
+
                 {% url 'ui:server_alerts' server.id as server_alerts %}
 
   <li class="nav-item {% if request.path == server_alerts %} active{% endif %}">
@@ -18,6 +26,9 @@
 
    <li class="nav-item {% if request.path == server_kpis %} active{% endif %}">
     <a class="nav-link" href="{% url 'ui:server_kpis' server.id %}"><i class="fa fa-bar-chart"></i>{% trans "Key Performance Indicators" %} </a>
+  </li>
+      <li class="nav-item">
+    <a class="nav-link" href="{% url 'ui:server_show' server.id %}"><i class="fa fa-wrench"></i>  {% trans 'Server Settings' %} </a>
   </li>
 {% endblock %}
 
