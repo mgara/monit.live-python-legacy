@@ -149,8 +149,9 @@ def list_servers(request):
 
     all_available_servers = Server.objects.filter(server_up=True)
     try:
+        servers = dict()
         if len(all_available_servers) > 0:
-            servers = dict()
+
             for s in all_available_servers:
                 server = dict()
                 server['localhostname'] = s.localhostname
@@ -163,6 +164,7 @@ def list_servers(request):
                 servers[s.monit_id] = server
         response = JsonResponse(servers, status=200)
     except StandardError as e:
+        logger.debug(e)
         response = JsonResponse(
             {
                 'error': e.message,

@@ -57,7 +57,7 @@
     {%  block head %}
 {% endblock head %}
 </head>
-<body cz-shortcut-listen="true">
+<body cz-shortcut-listen="true" id="body">
     <header id="header" class="clearfix header header--fixed hide-from-print transparent_5">
         <ul class="h-inner">
             <li class="hi-trigger ma-trigger" data-ma-action="sidebar-open" data-ma-target="#sidebar">
@@ -157,12 +157,12 @@
             </ul>
 
     </aside>
-    <section id="content">
-    <div class="container">
-    <div class="block-header" id="block-header">
+    <section id="content" class="scrollable_">
+    <div class="container" class="scrollable_">
+    <div class="block-header" id="block-header" class="scrollable_">
         <h2>{% block page_title %} {% endblock %}</h2>
     </div>
-    <div id="main-content-container">
+    <div id="main-content-container" class="scrollable_">
     {% block content %}
         <p>Use this document as a way to quick start any new project.</p>
     {% endblock content %}
@@ -424,7 +424,52 @@
 
             $(".scrollable").mCustomScrollbar();
 
+
+
         });
+
+            function isElementInViewport (el = 0) {
+
+                //special bonus for those using jQuery
+                if (typeof jQuery === "function" && el instanceof jQuery) {
+                    el = el[0];
+                }
+
+                var rect = el.getBoundingClientRect();
+                var offset = $("#header").height()
+
+                //top = rect.top - offset
+                //bottom = rect.bottom - offset
+
+                return (
+                    rect.top >= 0 &&
+                    rect.left >= 0 &&
+                    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /*or $(window).height() */
+                    rect.right <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
+                );
+            }
+
+            function onVisibilityChange(el, callback) {
+                var old_visible;
+                return function () {
+                    var visible = isElementInViewport(el);
+                    if (visible != old_visible) {
+                        old_visible = visible;
+                        if (typeof callback == 'function') {
+                            callback();
+                        }
+                    }
+                }
+            }
+            var el = $("#block-header")
+
+            var handler = onVisibilityChange(el, function() {
+                    var visible = isElementInViewport(el);
+                    console.log(visible)
+            });
+
+            $(window).on('DOMContentLoaded load resize scroll', handler);
+
     </script>
 
 

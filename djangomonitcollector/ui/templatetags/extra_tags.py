@@ -452,7 +452,7 @@ def event_status_to_string(status):
     try:
         return state_dic[status_int]
     except:
-        return status_int
+        return status
 
 
 @register.filter  # Event State

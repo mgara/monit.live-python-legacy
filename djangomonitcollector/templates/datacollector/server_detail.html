@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "ui/server_template.html" %}
 {% load static %}
 {% load i18n %}
 
@@ -8,39 +8,12 @@
 {% block title %}  {% trans "Server Settings" %} &middot; {{ server.localhostname }}  <br/>
 {% endblock %}
 
-{% block page_title %}  {% trans "Server Details" %} <br/>
-
-Server : <strong class="c-lime">{{ server.localhostname }}</strong> <br/> IP : <strong class="c-lime">{{ server.external_ip }}</strong> <br/> Server Uptime : <strong class="c-lime">{{ server.uptime|time_str }}</strong>
-
-{% endblock %}
-
-{% block submenu %}
-{% url 'ui:server' server.id  as server_view %}
-
-  <li class="nav-item {% if request.path == server_view %} active{% endif %}">
-    <a class="nav-link" href="{% url 'ui:server' server.id %}"><i class="fa fa-server"></i>{% trans "View Server" %} </a>
-  </li>
-                {% url 'ui:server_alerts' server.id as server_alerts %}
-
-  <li class="nav-item {% if request.path == server_alerts %} active{% endif %}">
-    <a class="nav-link" href="{% url 'ui:server_alerts' server.id %}"><i class="fa fa-bell"></i>{% trans "Active Alerts" %} <span
-    class="label {{ alerts_count|status_alert }} pull-right">{{ alerts_count }}</span></a>
-  </li>
-                  {% url 'ui:server_kpis' server.id as server_kpis %}
-
-   <li class="nav-item {% if request.path == server_kpis %} active{% endif %}">
-    <a class="nav-link" href="{% url 'ui:server_kpis' server.id %}"><i class="fa fa-bar-chart"></i>{% trans "Key Performance Indicators" %} </a>
-  </li>
-    {% url 'ui:server_show' server.id as server_show %}
-   <li class="nav-item {% if request.path == server_show %} active{% endif %}">
-    <a class="nav-link" href="{% url 'ui:server_show' server.id %}"><i class="fa fa-wrench"></i>  {% trans 'Server Settings' %} </a>
-  </li>
-{% endblock %}
+{% block page_title %}  {% trans "Server Details" %}{% endblock %}
 
 
 
-{% block content %}
-  {% include "ui/includes/_widget.html" with caption="Server settings / Details"  %}
+{% block server_content %}
+  {% include "ui/includes/_widget.html" with caption="Server Details"  %}
 
   <div class="row">
     <div class="box">
@@ -61,10 +34,11 @@ Server : <strong class="c-lime">{{ server.localhostname }}</strong> <br/> IP : <
     </div>
   </div>
 </div>
+        {% include "ui/includes/_end_widget.html" %}
+  {% include "ui/includes/_widget.html" with caption="Server Settings"  %}
+
 <div class="row">
-  <div class="box">
-    <h4 class="box-title text-uppercase"> Monit Parameters</h4>
-    <div class="box-content">
+
       {% if object.http_address %}
         <p><span class="text-uppercase"> HTTP Address : </span> <span
         class="lead"> <a target="_blank" href="{{ object.http_address }}">{{ object.http_address }}</a></span></p>
@@ -86,8 +60,6 @@ Server : <strong class="c-lime">{{ server.localhostname }}</strong> <br/> IP : <
         <p><span class="text-uppercase"> Monitoring Disabled :  </span> <span class="lead c-lime">{{ object.disable_monitoring }}* </span>
         {%  endif %}
       </p>
-    </div>
-  </div>
 </div>
         {% include "ui/includes/_end_widget.html" %}
         {% include "ui/includes/_widget_buttonbar.html" %}
@@ -101,5 +73,5 @@ Server : <strong class="c-lime">{{ server.localhostname }}</strong> <br/> IP : <
         </div>
         {% include "ui/includes/_end_widget.html" %}
     </form>
-{% endblock content %}
+{% endblock server_content %}
 

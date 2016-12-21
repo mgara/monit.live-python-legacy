@@ -349,8 +349,7 @@ def update_user_hgs(request):
     current_user = request.user
     hgs = request.POST['user_hgs']
     all_gs = HostGroup.objects.filter(owned_by=org)
-    print all_gs
-    print hgs
+
     try:
         select_hgs = ast.literal_eval(hgs)
         selected_hgs_count = len(select_hgs)
@@ -433,6 +432,7 @@ def set_stats_period(request):
 def serverkpis(request, pk):
     server = Server.objects.get(id=pk)
     tz = timezone(server.data_timezone)
+
     now = datetime.datetime.now().replace(tzinfo=tz)
 
     period = request.session.get('period', '1d')
@@ -485,7 +485,6 @@ def get_weeks_events(request):
     return render(request, 'ui/_events.html', {'events': events})
 
 
-
 def _get_todays_events(request):
     org = request.user.organisation
 
@@ -497,6 +496,7 @@ def _get_todays_events(request):
     for x in range(0, 24):
         events = MonitEvent.objects.filter(
             server__organisation=org,
+            alarm_raised=True,
             created_at__range=(lower, upper))
 
         data.insert(x, len(list(events)))

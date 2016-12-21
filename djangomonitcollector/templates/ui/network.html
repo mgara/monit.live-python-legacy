@@ -1,16 +1,11 @@
-{% extends "base.html" %}
+{% extends "ui/server_template.html" %}
 {% load staticfiles %}
 {% load extra_tags %}
 {% load i18n %}
 
-{% block submenu %}
-
-    <li><a href="{% url 'ui:server' server.id %}"> Back to Server </a></li>
-{% endblock %}
-
 {% block page_title %} Net : <strong class="c-red">{{net.name}}</strong> IP : <strong class="c-red">{{ server.external_ip }}</strong> Server Uptime : <strong class="c-red">{{ server.uptime|time_str }}</strong>{% endblock %}
 
-{% block content %}
+{% block server_content %}
     {% if process_found %}
             <div class="row clearfix text-center p-25">
                     <div class="column col-md-2 ">
